@@ -4,6 +4,7 @@ const { z } = require('zod');
 const { novoId } = require('../lib/id');
 const { aoCancelar } = require('../lib/assinatura');
 const { precoVigente, contarEmPrecoAntigo } = require('../lib/preco');
+const { aplicarPixPago } = require('../lib/conciliacao');
 const efi = require('../lib/efi');
 
 // Painel de gestão. Tudo aqui é AGREGADO: contagens, nunca conteúdo de ninguém.
@@ -308,6 +309,40 @@ module.exports = async function rotasAdmin(app) {
     );
 
     return { usuario: usuario.toJSON(), assinatura: assinatura || null, cobrancas };
+  });
+
+  /**
+   * Conferência manual de um PIX pendente, direto na Efí. Rede de segurança para
+   * quando o webhook não chegou (ex.: durante a configuração, ou uma entrega
+   * perdida). Reusa a MESMA conciliação idempotente do webhook: reconsulta a Efí
+   * (a única fonte da verdade sobre o pagamento) e só credita com CONCLUIDA no
+   * valor certo. NUNCA marca "pago" na mão — o admin dispara a conferência, quem
+   * decide é a Efí. Cartão confirma pelo webhook; aqui é só PIX.
+   */
+  app.post('/admin/cobrancas/:id/conferir', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+
+    const cobranca = await app.db.Cobranca.findByPk(id);
+    if (!cobranca) return reply.code(404).send({ erro: 'cobranca_nao_encontrada' });
+    if (cobranca.status === 'pago') return { acao: 'repetido', status: 'pago' };
+    if (cobranca.metodo !== 'pix' || !cobranca.efiTxid) {
+      return reply.code(422).send({ erro: 'so_pix', mensagem: 'A conferência manual vale só para PIX. Cartão confirma pelo webhook.' });
+    }
+    if (!efi.configurada()) {
+      return reply.code(502).send({ erro: 'efi_nao_configurada', mensagem: 'A Efí não está configurada neste ambiente.' });
+    }
+
+    let verificado;
+    try {
+      verificado = await efi.consultarPix(cobranca.efiTxid);
+    } catch (e) {
+      req.log.error({ efi: efi.motivoErro(e) }, 'falha ao conferir PIX na Efí');
+      return reply.code(502).send({ erro: 'falha_na_efi', mensagem: efi.motivoErro(e) });
+    }
+
+    const r = await aplicarPixPago(app.db, cobranca.efiTxid, verificado);
+    return { ...r, statusEfi: verificado?.status || null };
   });
 
   // --- Preço do plano: versionado, com grandfathering ------------------------

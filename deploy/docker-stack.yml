@@ -6,12 +6,12 @@ version: "3.9"
 #
 #   - Três serviços web, cada um no seu domínio (é assim que o projeto já é
 #     pensado em deploy/.env: DOMINIO, API_DOMINIO, PAINEL_DOMINIO):
-#       api.omeujardim.app.br     -> API Fastify (porta 3000)
-#       omeujardim.app.br         -> app Expo (saída estática, servido por "serve")
-#       painel.omeujardim.app.br  -> painel de gestão (HTML único)
-#   - Dois serviços internos, SEM porta pública e SEM rota no Traefik:
-#       banco  -> Postgres 16 com pgvector
-#       cache  -> Redis (o rate limit passa a valer para todas as réplicas)
+#       api.omeujardim.app     -> API Fastify (porta 3000)
+#       omeujardim.app         -> app Expo (saída estática, servido por "serve")
+#       painel.omeujardim.app  -> painel de gestão (HTML único)
+#   Postgres e Redis são EXTERNOS a este stack (Postgres gerenciado via
+#   DATABASE_URL; Redis é o serviço "redis" já existente no enxame). Ambos
+#   precisam ser alcançáveis pela API — o Redis, pela rede network_public.
 #
 # Pressupõe um Traefik já rodando no enxame, com o entrypoint "websecure",
 # o resolver "letsencryptresolver" e a rede externa "network_public" — igual
@@ -35,7 +35,7 @@ version: "3.9"
 #     argon2 nativo compilar no npm ci. Não use a variante -slim aqui.
 # ============================================================================
 
-x-repo: &repo "https://github.com/<USUARIO>/omeujardim.git"   # <-- URL do repositório
+x-repo: &repo "https://github.com/queziajesuinod/omeujardim.git"   # <-- URL do repositório
 x-ramo: &ramo "main"
 
 services:
@@ -44,7 +44,6 @@ services:
     image: node:22
     networks:
       - network_public
-      - interna
     environment:
       REPO: *repo
       RAMO: *ramo
@@ -53,26 +52,28 @@ services:
 
       # Banco interno deste stack (serviço "banco"). Para um Postgres gerenciado
       # externo, troque a URL e ponha DB_SSL=true.
-      DATABASE_URL: "postgres://jardim:<SENHA_DO_BANCO>@banco:5432/meujardim"
+      DATABASE_URL: ""
       DB_SSL: "false"
-      REDIS_URL: "redis://cache:6379"
+      # Redis já existente no enxame (serviço "redis"), no database 7.
+      # Precisa compartilhar a rede network_public com a API para o nome resolver.
+      REDIS_URL: "redis://redis:6379/7"
 
       # App e painel, em https, sem espaços.
-      CORS_ORIGENS: "https://omeujardim.app.br,https://painel.omeujardim.app.br"
+      CORS_ORIGENS: "https://omeujardim.app,https://painel.omeujardim.app"
 
       # Segredos — gere NOVOS, não reaproveite os de desenvolvimento.
-      JWT_SEGREDO: "<openssl rand -base64 32>"
-      JWT_EXPIRA: "15m"
+      JWT_SEGREDO: "/="
+      JWT_EXPIRA: "30m"
       REFRESH_EXPIRA_DIAS: "30"
       # Cifra o diário (AES-256-GCM). Perder esta chave = perder o diário de
       # todos. Faça backup dela separado do backup do banco.
-      CRIPTO_CHAVE: "<openssl rand -base64 32>"
+      CRIPTO_CHAVE: "="
       CRIPTO_CHAVE_ANTERIOR: ""
 
       # Web Push (VAPID). Gere com: cd api && npm run vapid
       VAPID_PUBLIC: ""
       VAPID_PRIVATE: ""
-      VAPID_CONTATO: "mailto:jardim@omeujardim.app.br"
+      VAPID_CONTATO: "mailto:suporte@omeujardim.app"
       LEMBRETES_INLINE: "true"
 
       # Força bruta: login baixo, refresh ~60/h.
@@ -80,42 +81,52 @@ services:
       REFRESH_RATE_MAX: "60"
 
       # ---- Efí (pagamentos). Comece em sandbox. ----
-      EFI_SANDBOX: "true"
+      EFI_SANDBOX: "false"
       EFI_CLIENT_ID: ""
       EFI_CLIENT_SECRET: ""
-      # Caminho do .p12 relativo a api/ (o volume abaixo monta em /app/api/certs).
-      EFI_CERTIFICADO: "./certs/seu-certificado.p12"
-      EFI_WEBHOOK_SEGREDO: "<TROQUE>"
+      # O .p12 vem por docker secret em base64 (texto — dá para criar pela caixa
+      # de texto do Portainer). O boot decodifica para este arquivo, e o efi.js
+      # (que aceita caminho absoluto) lê daqui. Enquanto o secret não existir
+      # (fase sandbox), o boot pula a decodificação.
+      EFI_CERTIFICADO: "/app/api/certs/efi.p12"
+      EFI_WEBHOOK_SEGREDO: ""
       EFI_PLANO_NOME: "O meu jardim"
       EFI_PLANO_VALOR_CENTAVOS: "1990"
       EFI_PLANO_CICLO: "mensal"
       EFI_TRIAL_DIAS: "7"
       EFI_PLANO_ID: ""
       EFI_PIX_CHAVE: ""
-      EFI_WEBHOOK_URL: "https://api.omeujardim.app.br/v1/webhooks/efi?segredo=<TROQUE>"
+      EFI_WEBHOOK_URL: "https://api.omeujardim.app/v1/webhooks/efi?segredo="
     volumes:
       - jardim_api:/app
       # Cache dos modelos de embedding, para não baixar a cada reinício.
       - jardim_modelos:/app/api/.cache
-      # Certificado .p12 da Efí, colocado à mão no nó manager (fora do repo).
-      # Descomente quando for para a Efí ao vivo.
-      # - /opt/jardim/certs:/app/api/certs:ro
+    secrets:
+      # Só a API enxerga o certificado; web e painel não recebem.
+      - cert_prod_meujardim
     working_dir: /app
     entrypoint: ["/bin/sh", "-lc"]
     command:
       - >
         set -e;
-        apt-get update >/dev/null && apt-get install -y --no-install-recommends postgresql-client >/dev/null;
-        if [ ! -d /app/.git ]; then
-          echo "Clonando o repositório...";
-          rm -rf /app/* /app/.[!.]* 2>/dev/null || true;
-          git clone --branch "$$RAMO" "$$REPO" /app;
-        else
-          echo "Atualizando o repositório...";
-          cd /app; git fetch origin "$$RAMO"; git reset --hard "origin/$$RAMO";
+        export DEBIAN_FRONTEND=noninteractive;
+        apt-get update -qq && apt-get install -y -qq --no-install-recommends postgresql-client >/dev/null;
+        cd /app;
+        if [ ! -d .git ]; then
+          echo "Inicializando o repositório em /app...";
+          git init -q;
+          git remote add origin "$$REPO";
         fi;
+        echo "Buscando origin/$$RAMO...";
+        git fetch --depth 1 origin "$$RAMO";
+        git reset --hard FETCH_HEAD;
         cd /app/api;
-        npm ci;
+        npm ci --include=dev;
+        if [ -f /run/secrets/cert_prod_meujardim ]; then
+          echo "Decodificando o certificado da Efí...";
+          mkdir -p /app/api/certs;
+          base64 -d /run/secrets/cert_prod_meujardim > /app/api/certs/efi.p12;
+        fi;
         echo "Aguardando o banco aceitar conexão...";
         until pg_isready -d "$$DATABASE_URL" >/dev/null 2>&1; do sleep 2; done;
         echo "Extensões e configuração de busca (idempotente)...";
@@ -138,14 +149,14 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=network_public"
-        - "traefik.http.routers.jardim-api.rule=Host(`api.omeujardim.app.br`)"
+        - "traefik.http.routers.jardim-api.rule=Host(`api.omeujardim.app`)"
         - "traefik.http.routers.jardim-api.entrypoints=websecure"
         - "traefik.http.routers.jardim-api.tls=true"
         - "traefik.http.routers.jardim-api.tls.certresolver=letsencryptresolver"
         - "traefik.http.routers.jardim-api.service=jardim-api"
         - "traefik.http.services.jardim-api.loadbalancer.server.port=3000"
         # http -> https
-        - "traefik.http.routers.jardim-api-http.rule=Host(`api.omeujardim.app.br`)"
+        - "traefik.http.routers.jardim-api-http.rule=Host(`api.omeujardim.app`)"
         - "traefik.http.routers.jardim-api-http.entrypoints=web"
         - "traefik.http.routers.jardim-api-http.middlewares=redirect-to-https"
 
@@ -159,7 +170,7 @@ services:
     environment:
       REPO: *repo
       RAMO: *ramo
-      EXPO_PUBLIC_API_URL: "https://api.omeujardim.app.br"
+      EXPO_PUBLIC_API_URL: "https://api.omeujardim.app"
       EXPO_PUBLIC_EFI_PAYEE_CODE: ""
       EXPO_PUBLIC_EFI_SANDBOX: "false"
     volumes:
@@ -169,20 +180,22 @@ services:
     command:
       - >
         set -e;
-        if [ ! -d /app/.git ]; then
-          echo "Clonando o repositório...";
-          rm -rf /app/* /app/.[!.]* 2>/dev/null || true;
-          git clone --branch "$$RAMO" "$$REPO" /app;
-        else
-          echo "Atualizando o repositório...";
-          cd /app; git fetch origin "$$RAMO"; git reset --hard "origin/$$RAMO";
+        cd /app;
+        if [ ! -d .git ]; then
+          echo "Inicializando o repositório em /app...";
+          git init -q;
+          git remote add origin "$$REPO";
         fi;
+        echo "Buscando origin/$$RAMO...";
+        git fetch --depth 1 origin "$$RAMO";
+        git reset --hard FETCH_HEAD;
         cd /app/app;
         npm ci;
         echo "Gerando o estático (web.output: static) em ./dist...";
         npx expo export --platform web;
         echo "Servindo o estático na porta 3000...";
-        exec npx --yes serve dist -l 3000;
+        npm i -g serve@14 >/dev/null 2>&1;
+        exec serve dist -l tcp://0.0.0.0:3000;
     deploy:
       mode: replicated
       replicas: 1
@@ -197,14 +210,14 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=network_public"
-        - "traefik.http.routers.jardim-web.rule=Host(`omeujardim.app.br`) || Host(`www.omeujardim.app.br`)"
+        - "traefik.http.routers.jardim-web.rule=Host(`omeujardim.app`) || Host(`www.omeujardim.app`)"
         - "traefik.http.routers.jardim-web.entrypoints=websecure"
         - "traefik.http.routers.jardim-web.tls=true"
         - "traefik.http.routers.jardim-web.tls.certresolver=letsencryptresolver"
         - "traefik.http.routers.jardim-web.service=jardim-web"
         - "traefik.http.services.jardim-web.loadbalancer.server.port=3000"
         # http -> https
-        - "traefik.http.routers.jardim-web-http.rule=Host(`omeujardim.app.br`) || Host(`www.omeujardim.app.br`)"
+        - "traefik.http.routers.jardim-web-http.rule=Host(`omeujardim.app`) || Host(`www.omeujardim.app`)"
         - "traefik.http.routers.jardim-web-http.entrypoints=web"
         - "traefik.http.routers.jardim-web-http.middlewares=redirect-to-https"
         # o próprio middleware de redirecionamento (definido uma vez, usado por todos)
@@ -227,18 +240,20 @@ services:
     command:
       - >
         set -e;
-        if [ ! -d /app/.git ]; then
-          echo "Clonando o repositório...";
-          rm -rf /app/* /app/.[!.]* 2>/dev/null || true;
-          git clone --branch "$$RAMO" "$$REPO" /app;
-        else
-          echo "Atualizando o repositório...";
-          cd /app; git fetch origin "$$RAMO"; git reset --hard "origin/$$RAMO";
+        cd /app;
+        if [ ! -d .git ]; then
+          echo "Inicializando o repositório em /app...";
+          git init -q;
+          git remote add origin "$$REPO";
         fi;
+        echo "Buscando origin/$$RAMO...";
+        git fetch --depth 1 origin "$$RAMO";
+        git reset --hard FETCH_HEAD;
         cd /app/painel;
-        sed -i "s#http://localhost:3337#https://api.omeujardim.app.br#g" index.html;
+        sed -i "s#http://localhost:3337#https://api.omeujardim.app#g" index.html;
         echo "Servindo o painel na porta 3000...";
-        exec npx --yes serve . -l 3000;
+        npm i -g serve@14 >/dev/null 2>&1;
+        exec serve . -l tcp://0.0.0.0:3000;
     deploy:
       mode: replicated
       replicas: 1
@@ -253,75 +268,32 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=network_public"
-        - "traefik.http.routers.jardim-painel.rule=Host(`painel.omeujardim.app.br`)"
+        - "traefik.http.routers.jardim-painel.rule=Host(`painel.omeujardim.app`)"
         - "traefik.http.routers.jardim-painel.entrypoints=websecure"
         - "traefik.http.routers.jardim-painel.tls=true"
         - "traefik.http.routers.jardim-painel.tls.certresolver=letsencryptresolver"
         - "traefik.http.routers.jardim-painel.service=jardim-painel"
         - "traefik.http.services.jardim-painel.loadbalancer.server.port=3000"
         # http -> https
-        - "traefik.http.routers.jardim-painel-http.rule=Host(`painel.omeujardim.app.br`)"
+        - "traefik.http.routers.jardim-painel-http.rule=Host(`painel.omeujardim.app`)"
         - "traefik.http.routers.jardim-painel-http.entrypoints=web"
         - "traefik.http.routers.jardim-painel-http.middlewares=redirect-to-https"
 
-  # ---- Postgres 16 com pgvector (interno) --------------------------------
-  banco:
-    image: pgvector/pgvector:pg16
-    networks:
-      - interna
-    environment:
-      POSTGRES_DB: meujardim
-      POSTGRES_USER: jardim
-      POSTGRES_PASSWORD: "<SENHA_DO_BANCO>"
-      LANG: pt_BR.utf8
-    volumes:
-      - jardim_dados:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U jardim -d meujardim"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      placement:
-        # Fixa no manager para o volume de dados morar sempre no mesmo nó.
-        constraints:
-          - node.role == manager
 
-  # ---- Redis (interno) ---------------------------------------------------
-  cache:
-    image: redis:7-alpine
-    networks:
-      - interna
-    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru", "--save", ""]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.role == manager
+# O .p12 vira base64 (texto) e entra como secret pela caixa de texto do Portainer.
+# O boot decodifica de volta para /app/api/certs/efi.p12. Secret não se edita:
+# para trocar o certificado, crie com outro nome, aponte aqui e no serviço "api",
+# e re-deploye.
+secrets:
+  cert_prod_meujardim:
+    external: true
 
 networks:
   network_public:
     external: true
-  interna:
-    driver: overlay
-    # Sem saída para o Traefik: banco e cache só falam com a API.
-    internal: true
 
 volumes:
   jardim_api:
   jardim_web:
   jardim_painel:
-  jardim_dados:
   jardim_modelos:

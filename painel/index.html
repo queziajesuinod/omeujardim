@@ -811,18 +811,57 @@
         ? `<p class="dtexto">${chipAssinatura(a.status)} · ${emReais(a.valorCentavos || 0)}${a.proximaCobranca ? ' · próxima ' + a.proximaCobranca : ''}</p>`
         : '<p class="dtexto">Sem assinatura registrada.</p>';
       const linhas = (d.cobrancas || []).length
-        ? '<table><thead><tr><th>Data</th><th>Método</th><th>Valor</th><th>Situação</th></tr></thead><tbody>'
+        ? '<table><thead><tr><th>Data</th><th>Método</th><th>Valor</th><th>Situação</th><th></th></tr></thead><tbody>'
           + d.cobrancas.map((c) => {
               const data = String(c.pagoEm || c.criadoEm || '').slice(0, 10);
+              // PIX pendente pode ser conferido na Efí — rede de segurança para
+              // quando o webhook não chegou. Cartão confirma pelo webhook, sem botão.
+              const conferir = (c.status === 'pendente' && c.metodo === 'pix')
+                ? `<span class="acao-link" data-conferir="${c.id}">Conferir na Efí</span>`
+                : '';
               return `<tr><td>${data}</td><td>${METODO_LBL[c.metodo] || c.metodo}</td>`
                 + `<td>${emReais(c.valorCentavos)}</td>`
-                + `<td style="color:${corCobr(c.status)}">${COBR_LBL[c.status] || c.status}</td></tr>`;
+                + `<td style="color:${corCobr(c.status)}">${COBR_LBL[c.status] || c.status}</td>`
+                + `<td>${conferir}</td></tr>`;
             }).join('')
           + '</tbody></table>'
         : '<p class="dtexto">Nenhuma cobrança ainda.</p>';
       comFechar(cab + linhas);
+      $('#dialogo').querySelectorAll('[data-conferir]').forEach((b) => {
+        b.addEventListener('click', () => conferirCobranca(b.dataset.conferir, id, nome, b));
+      });
     } catch (e) {
       comFechar('<p class="dtexto">Não consegui carregar os pagamentos.</p>');
+    }
+  }
+
+  // Conferência manual de um PIX pendente. O servidor reconsulta a Efí (fonte da
+  // verdade) e só credita se estiver pago no valor certo — aqui só mostramos o
+  // resultado e reabrimos o diálogo já atualizado. Idempotente: apertar de novo
+  // num já pago não cobra nem estende duas vezes.
+  const MOTIVO_CONFERIR = {
+    nao_confirmado_na_efi: 'A Efí ainda não registrou esse PIX como pago.',
+    valor_insuficiente: 'O valor pago é menor que o da cobrança.',
+    txid_desconhecido: 'A Efí não reconheceu esse PIX.',
+  };
+  async function conferirCobranca(cobrancaId, usuarioId, nome, botao) {
+    const antes = botao.textContent;
+    botao.textContent = 'Conferindo…';
+    botao.style.pointerEvents = 'none';
+    try {
+      const r = await api('/v1/admin/cobrancas/' + cobrancaId + '/conferir', { method: 'POST', body: '{}' });
+      if (r.acao === 'pago' || r.acao === 'repetido') {
+        toast('Pagamento confirmado.');
+        verCobrancas(usuarioId, nome);   // reabre o diálogo já com "Pago"
+      } else {
+        toast(MOTIVO_CONFERIR[r.motivo] || ('Ainda pendente' + (r.statusEfi ? ' (' + r.statusEfi + ')' : '')), 'erro');
+        botao.textContent = antes;
+        botao.style.pointerEvents = '';
+      }
+    } catch (e) {
+      toast((e.dados && e.dados.mensagem) || 'Não consegui conferir agora.', 'erro');
+      botao.textContent = antes;
+      botao.style.pointerEvents = '';
     }
   }
 
