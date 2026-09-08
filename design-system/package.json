@@ -1,0 +1,23 @@
+{
+  "name": "@omeujardim/design-system",
+  "version": "1.2.1",
+  "description": "Design system do app o meu jardim: tokens, componentes e testes.",
+  "private": true,
+  "files": [
+    "tokens.css",
+    "componentes.css"
+  ],
+  "scripts": {
+    "teste": "playwright test",
+    "teste:contraste": "playwright test testes/contraste.spec.js testes/tokens.spec.js",
+    "teste:visual": "playwright test testes/visual.spec.js",
+    "teste:a11y": "playwright test testes/acessibilidade.spec.js",
+    "referencias": "playwright test testes/visual.spec.js --update-snapshots",
+    "relatorio": "playwright show-report",
+    "tokens": "node gerar-tokens-json.js"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.48.0"
+  }
+}

@@ -1,0 +1,125 @@
+# Stack de produção do o meu jardim, atrás do Traefik (proxy reverso + HTTPS
+# automático via Let's Encrypt). Suba com:  docker compose up -d --build
+#
+# Serviços publicados (cada um no seu domínio, ver deploy/.env):
+#   ${DOMINIO}          -> app web (Expo estático)
+#   ${API_DOMINIO}      -> API Fastify
+#   ${PAINEL_DOMINIO}   -> painel de gestão
+# Internos (sem porta pública): banco (Postgres pgvector) e cache (Redis).
+
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: jardim-traefik
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Tudo em HTTP é redirecionado para HTTPS.
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      # Let's Encrypt por desafio HTTP (precisa das portas 80/443 abertas e do
+      # DNS já apontando para este servidor).
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.httpchallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ../api
+    container_name: jardim-api
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+    volumes:
+      # Certificado da Efí (.p12), fora da imagem. EFI_CERTIFICADO=./certs/arquivo.p12
+      - ../api/certs:/app/certs:ro
+      # Cache dos modelos de embedding, para não rebaixar a cada reinício.
+      - modelos:/app/.cache
+    depends_on:
+      banco:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`${API_DOMINIO}`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls.certresolver=le
+      - traefik.http.services.api.loadbalancer.server.port=3000
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../app
+      args:
+        EXPO_PUBLIC_API_URL: "https://${API_DOMINIO}"
+        EXPO_PUBLIC_EFI_PAYEE_CODE: "${EFI_PAYEE_CODE}"
+        EXPO_PUBLIC_EFI_SANDBOX: "${EFI_SANDBOX_WEB}"
+    container_name: jardim-web
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.web.rule=Host(`${DOMINIO}`) || Host(`www.${DOMINIO}`)
+      - traefik.http.routers.web.entrypoints=websecure
+      - traefik.http.routers.web.tls.certresolver=le
+      - traefik.http.services.web.loadbalancer.server.port=80
+    restart: unless-stopped
+
+  painel:
+    build:
+      context: ../painel
+      args:
+        API_URL: "https://${API_DOMINIO}"
+    container_name: jardim-painel
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.painel.rule=Host(`${PAINEL_DOMINIO}`)
+      - traefik.http.routers.painel.entrypoints=websecure
+      - traefik.http.routers.painel.tls.certresolver=le
+      - traefik.http.services.painel.loadbalancer.server.port=80
+    restart: unless-stopped
+
+  banco:
+    image: pgvector/pgvector:pg16
+    container_name: jardim-banco
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      LANG: pt_BR.utf8
+    volumes:
+      - dados:/var/lib/postgresql/data
+      # Cria a extensão pgvector na primeira subida do banco.
+      - ../api/src/db/extensoes.sql:/docker-entrypoint-initdb.d/01-extensoes.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  cache:
+    image: redis:7-alpine
+    container_name: jardim-cache
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru", "--save", ""]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  letsencrypt:
+  dados:
+  modelos:

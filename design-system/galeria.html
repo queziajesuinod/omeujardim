@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galeria de componentes · o meu jardim</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="./tokens.css">
+<link rel="stylesheet" href="./componentes.css">
+<style>
+  /* layout só da galeria, não faz parte do sistema */
+  body { padding: 24px; }
+  .g-sec { margin: 0 0 28px; }
+  .g-t { font: var(--p-forte) var(--t-u4)/1.4 var(--ui); letter-spacing: var(--t-u4-ls); text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
+  .g-caixa { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+  .g-col { display: grid; gap: 14px; max-width: 340px; flex: 1 1 300px; }
+</style>
+</head>
+<body class="jd-corpo">
+
+<section class="g-sec" data-comp="botao-variantes">
+  <p class="g-t">Botão, variantes</p>
+  <div class="g-caixa">
+    <button class="jd-btn">Regar</button>
+    <button class="jd-btn jd-btn--vazado">Escrever o que ouvi</button>
+    <button class="jd-btn jd-btn--quieto">Hoje não</button>
+    <button class="jd-btn" disabled>Desabilitado</button>
+    <button class="jd-btn" aria-busy="true"><span class="jd-btn__roda"></span>Salvando</button>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="botao-tamanhos">
+  <p class="g-t">Botão, tamanhos</p>
+  <div class="g-caixa" style="align-items:center">
+    <button class="jd-btn jd-btn--lg">Regar</button>
+    <button class="jd-btn">Regar</button>
+    <button class="jd-btn jd-btn--sm">Regar</button>
+    <button class="jd-btn jd-btn--icone jd-btn--vazado" aria-label="Adicionar prática">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4c0 9-5 13-11 12.6C8.4 10.4 12.6 5.6 20 4z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M4.5 20c2.5-3.6 5.2-6.3 8.5-8.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+    </button>
+    <div style="flex:1 1 240px"><button class="jd-btn jd-btn--bloco">Regar tudo de hoje</button></div>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="chip">
+  <p class="g-t">Chip de estação</p>
+  <div class="g-caixa">
+    <span class="jd-chip">Estação de plantio</span>
+    <span class="jd-chip jd-chip--ativo">40 dias de oração</span>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="pratica">
+  <p class="g-t">Cartão de prática</p>
+  <div class="g-caixa">
+    <div class="jd-pratica">
+      <span class="jd-pratica__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 5.2c2.6-.9 5.3-.9 8 0v14c-2.7-.9-5.4-.9-8 0V5.2z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 5.2c2.7-.9 5.4-.9 8 0v14c-2.6-.9-5.3-.9-8 0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span>
+      <span><span class="jd-pratica__t">Leitura da Palavra</span><span class="jd-pratica__s">João 15 · hoje ainda não</span></span>
+    </div>
+    <div class="jd-pratica jd-pratica--regada">
+      <span class="jd-pratica__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 12.6 10 17.5 19.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span><span class="jd-pratica__t">Oração da manhã</span><span class="jd-pratica__s">regada hoje</span></span>
+    </div>
+    <div class="jd-pratica jd-pratica--fora">
+      <span class="jd-pratica__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M20 4c0 9-5 13-11 12.6C8.4 10.4 12.6 5.6 20 4z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span>
+      <span><span class="jd-pratica__t">Jejum</span><span class="jd-pratica__s">fora dos dias escolhidos</span></span>
+    </div>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="campo">
+  <p class="g-t">Campo de anotação</p>
+  <div class="g-caixa">
+    <div class="g-col">
+      <div class="jd-campo">
+        <label class="jd-campo__rot" for="a1">O que você ouviu hoje</label>
+        <textarea class="jd-campo__in" id="a1" placeholder="Duas linhas bastam."></textarea>
+        <p class="jd-campo__ajuda"><span>Só você lê isto.</span><span>0 / 280</span></p>
+      </div>
+    </div>
+    <div class="g-col">
+      <div class="jd-campo jd-campo--erro">
+        <label class="jd-campo__rot" for="a2">O que você ouviu hoje</label>
+        <textarea class="jd-campo__in" id="a2" aria-describedby="a2e">a</textarea>
+        <p class="jd-campo__ajuda" id="a2e"><span>Escreva ao menos uma frase inteira.</span><span>1 / 280</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="oracao">
+  <p class="g-t">Lista de oração</p>
+  <div class="g-col" style="max-width:420px">
+    <ul class="jd-oracoes">
+      <li class="jd-ora">
+        <span class="jd-ora__pt" aria-hidden="true"></span>
+        <span class="jd-ora__c"><span class="jd-ora__t">Emprego para o Tiago</span><span class="jd-ora__q">Tiago, meu irmão</span></span>
+        <span class="jd-ora__d">há 34 dias</span>
+      </li>
+      <li class="jd-ora jd-ora--resp">
+        <span class="jd-ora__pt" aria-hidden="true"></span>
+        <span class="jd-ora__c">
+          <span class="jd-ora__t">Cirurgia da dona Neusa</span><span class="jd-ora__q">Neusa, da célula</span>
+          <span class="jd-ora__test"><span class="jd-ora__dt">Respondida em 28 de agosto</span>Deu tudo certo. Ela voltou para casa em dois dias e no domingo estava na igreja.</span>
+        </span>
+        <span class="jd-ora__d">61 dias</span>
+      </li>
+      <li class="jd-ora jd-ora--arq">
+        <span class="jd-ora__pt" aria-hidden="true"></span>
+        <span class="jd-ora__c"><span class="jd-ora__t">Decisão sobre a mudança</span><span class="jd-ora__q">arquivada, não é mais o caso</span></span>
+        <span class="jd-ora__d">há 4 meses</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="progresso">
+  <p class="g-t">Progresso e conquista</p>
+  <div class="g-caixa">
+    <div class="jd-cresc" style="min-width:260px">
+      <p class="jd-cresc__top"><span>Broto, indo para Ramo</span><span>69%</span></p>
+      <div class="jd-barra"><i style="width:69%"></i></div>
+      <p class="jd-cresc__top" style="margin:9px 0 0"><span>18 dias regados nos últimos 30</span></p>
+    </div>
+    <div class="jd-selo"><span class="jd-selo__m" aria-hidden="true">↺</span><span><span class="jd-selo__t">Volta por cima</span><span class="jd-selo__s">Você voltou depois de uma estação seca.</span></span></div>
+    <div class="jd-selo jd-selo--bloq"><span class="jd-selo__m" aria-hidden="true">☾</span><span><span class="jd-selo__t">Antes do sol</span><span class="jd-selo__s">Ainda não desbloqueada.</span></span></div>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="navegacao">
+  <p class="g-t">Navegação</p>
+  <nav class="jd-nav" aria-label="Principal" style="max-width:340px">
+    <a href="#hoje" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.6 12 4l8 6.6V20H4v-9.4z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg>Hoje</a>
+    <a href="#trilhas"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.2c2.6-.9 5.3-.9 8 0v14c-2.7-.9-5.4-.9-8 0V5.2z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg>Trilhas</a>
+    <a href="#oracao"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c3.6 4.2 5.5 7 5.5 9.4A5.5 5.5 0 0 1 6.5 12.9C6.5 10.5 8.4 7.7 12 3.5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg>Oração</a>
+    <a href="#jardim"><svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 57 V38" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M30.6 41 C 20 40.5, 14.6 33, 15.6 23 C 26 24, 31.6 31, 30.6 41 Z" fill="currentColor"/><path d="M33.4 41 C 44 40.5, 49.4 33, 48.4 23 C 38 24, 32.4 31, 33.4 41 Z" fill="currentColor"/></svg>Jardim</a>
+  </nav>
+</section>
+
+<section class="g-sec" data-comp="aviso">
+  <p class="g-t">Aviso</p>
+  <div class="g-caixa">
+    <p class="jd-aviso" role="status"><span class="jd-aviso__c" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M5 12.6 10 17.5 19.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Regado. Até amanhã.</p>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="calendario">
+  <p class="g-t">Calendário de constância</p>
+  <div class="jd-calend" style="max-width:300px">
+    <p class="jd-calend__leg"><span>Últimos 30 dias</span><span>78%</span></p>
+    <div class="jd-calend__g" aria-hidden="true">
+      <span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n2"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d"></span><span class="jd-calend__d jd-calend__d--n1"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n2"></span><span class="jd-calend__d"></span><span class="jd-calend__d jd-calend__d--n3"></span>
+      <span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n1"></span><span class="jd-calend__d jd-calend__d--n2"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n2"></span><span class="jd-calend__d jd-calend__d--n3"></span>
+      <span class="jd-calend__d jd-calend__d--n1"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n2"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d"></span><span class="jd-calend__d jd-calend__d--n2"></span><span class="jd-calend__d jd-calend__d--n3"></span><span class="jd-calend__d jd-calend__d--n3"></span>
+    </div>
+    <p class="jd-calend__leg"><span>Dia sem rega fica cinza, nunca vermelho</span></p>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="vazio">
+  <p class="g-t">Estado vazio</p>
+  <div class="jd-vazio" style="max-width:320px">
+    <div class="jd-vazio__il" aria-hidden="true"><svg width="52" height="52" viewBox="0 0 64 64"><path d="M32 57 V38" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M30.6 41 C 20 40.5, 14.6 33, 15.6 23 C 26 24, 31.6 31, 30.6 41 Z" fill="currentColor"/><path d="M33.4 41 C 44 40.5, 49.4 33, 48.4 23 C 38 24, 32.4 31, 33.4 41 Z" fill="currentColor"/></svg></div>
+    <h2 class="jd-vazio__t">Terra limpa</h2>
+    <p class="jd-vazio__p">Nada plantado ainda. O que você quer que cresça aqui?</p>
+    <button class="jd-btn jd-btn--vazado">Escolher uma prática</button>
+  </div>
+</section>
+
+<section class="g-sec" data-comp="folha">
+  <p class="g-t">Folha de registro</p>
+  <div class="jd-folha" style="max-width:300px">
+    <div class="jd-folha__pux" aria-hidden="true"></div>
+    <div class="jd-folha__in">
+      <h2 class="jd-folha__t">Oração da manhã</h2>
+      <p class="jd-folha__meta">quinta, 3 de setembro · 6h12</p>
+      <ul class="jd-tags">
+        <li><button class="jd-tag" aria-pressed="true">gratidão</button></li>
+        <li><button class="jd-tag" aria-pressed="false">dúvida</button></li>
+        <li><button class="jd-tag" aria-pressed="false">entrega</button></li>
+        <li><button class="jd-tag" aria-pressed="false">direção</button></li>
+      </ul>
+      <button class="jd-btn jd-btn--bloco jd-btn--lg">Regar</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  // a galeria lê ?tema=escuro|claro para os testes visuais
+  const t = new URLSearchParams(location.search).get('tema');
+  if (t) document.documentElement.setAttribute('data-tema', t);
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+/* ------------------------------------------------------------------
+   o meu jardim · tokens
+   Versão: 1.2.0
+   Este arquivo é a ÚNICA fonte de verdade de cor, tipo, espaço e tempo.
+   Nenhum valor literal (hex, px de espaçamento, ms) deve existir fora daqui.
+   O teste testes/tokens.spec.js falha o build se isso for violado.
+   ------------------------------------------------------------------ */
+
+:root {
+  /* ---- marca ---- */
+  --musgo: #2F5A43;
+  --broto: #6FA97F;
+  --latao: #A8761F;
+  --latao-texto: #8E641A;
+  --terra: #9C4F3B;
+  --orvalho: #EDF0E7;
+  --papel: #F8F9F4;
+  --noite: #101610;
+  --nevoa: #C9D2C2;
+
+  /* ---- semânticos, tema claro ---- */
+  --bg: #EDF0E7;
+  --surface: #F8F9F4;
+  --surface-2: #E3E9DE;
+  --line: #CFD8C8;
+  --ink: #141A14;
+  --ink-2: #3C4A3E;
+  --ink-3: #626F63;
+  --brand: #2F5A43;
+  --brand-forte: #25462F;
+  --brand-soft: #DCE7DC;
+  --on-brand: #F8F9F4;
+  --accent: #8E641A;
+  --accent-fill: #A8761F;
+  --accent-soft: #F1E5CB;
+  --on-accent-soft: #7F5915;
+  --on-accent-fill: #101610;
+  --alert: #9C4F3B;
+  --alert-soft: #F2DED7;
+  --foco: #A8761F;
+  --overlay: rgba(16, 22, 16, .55);
+  --off-bg: #E3E9DE;
+  --off-ink: #8C978C;
+
+  /* ---- tipo ---- */
+  --display: "Young Serif", Georgia, serif;
+  --leitura: "Source Serif 4", Georgia, serif;
+  --ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --t-d1: 48px; --t-d1-lh: 1.05;
+  --t-d2: 36px; --t-d2-lh: 1.1;
+  --t-d3: 28px; --t-d3-lh: 1.15;
+  --t-d4: 22px; --t-d4-lh: 1.25;
+  --t-l1: 19px; --t-l1-lh: 1.62;
+  --t-l2: 17px; --t-l2-lh: 1.6;
+  --t-l3: 15px; --t-l3-lh: 1.55;
+  --t-u1: 16px; --t-u1-lh: 1.55;
+  --t-u2: 15px; --t-u2-lh: 1.4;
+  --t-u3: 13px; --t-u3-lh: 1.45;
+  --t-u4: 11px; --t-u4-lh: 1.4; --t-u4-ls: .12em;
+
+  --p-leve: 300;
+  --p-normal: 400;
+  --p-medio: 500;
+  --p-forte: 600;
+
+  /* ---- espaço, base 4 ---- */
+  --e1: 4px; --e2: 8px; --e3: 12px; --e4: 16px;
+  --e5: 24px; --e6: 32px; --e7: 48px; --e8: 72px;
+
+  /* ---- forma ---- */
+  --r-campo: 8px;
+  --r-card: 14px;
+  --r-folha: 26px 5px 26px 5px;
+  --r-pilula: 999px;
+
+  /* ---- alvo de toque ---- */
+  --btn-sm: 36px;
+  --btn-md: 44px;
+  --btn-lg: 52px;
+  --toque-min: 44px;
+
+  /* ---- elevação ---- */
+  --sombra-1: 0 1px 0 rgba(20, 26, 20, .04);
+  --sombra-2: 0 1px 0 rgba(20, 26, 20, .04), 0 10px 28px -22px rgba(20, 26, 20, .7);
+  --sombra-3: 0 2px 4px rgba(20, 26, 20, .06), 0 26px 56px -34px rgba(20, 26, 20, .85);
+
+  /* ---- movimento ---- */
+  --t-rapido: 160ms cubic-bezier(.2, .7, .3, 1);
+  --t-padrao: 240ms cubic-bezier(.2, .7, .3, 1);
+  --t-crescer: 640ms cubic-bezier(.16, .9, .24, 1);
+
+  /* ---- breakpoints (referência; media query não lê var) ---- */
+  --bp-gr: 480px;
+  --bp-tb: 768px;
+  --bp-dk: 1024px;
+  --largura-leitura: 66ch;
+  --largura-app: 440px;
+  --largura-max: 1120px;
+}
+
+/* tema escuro por preferência do sistema, sem escolha explícita de claro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --bg: #101610;
+    --surface: #19201A;
+    --surface-2: #222A22;
+    --line: #313A30;
+    --ink: #E7ECE3;
+    --ink-2: #BCC7B9;
+    --ink-3: #8B978B;
+    --brand: #7FB894;
+    --brand-forte: #9BCCAD;
+    --brand-soft: #1E2C22;
+    --on-brand: #101610;
+    --accent: #DDAE55;
+    --accent-fill: #DDAE55;
+    --accent-soft: #2C2413;
+    --on-accent-soft: #DDAE55;
+    --on-accent-fill: #101610;
+    --alert: #DD8974;
+    --alert-soft: #331C16;
+    --foco: #DDAE55;
+    --overlay: rgba(0, 0, 0, .65);
+    --off-bg: #222A22;
+    --off-ink: #6E7A6E;
+    --sombra-1: 0 1px 0 rgba(0, 0, 0, .3);
+    --sombra-2: 0 1px 0 rgba(0, 0, 0, .3), 0 12px 32px -24px #000000;
+    --sombra-3: 0 2px 6px rgba(0, 0, 0, .4), 0 28px 60px -34px #000000;
+  }
+}
+
+/* escolha explícita do usuário, vence a preferência do sistema nos dois sentidos */
+:root[data-tema="escuro"] {
+  --bg: #101610;
+  --surface: #19201A;
+  --surface-2: #222A22;
+  --line: #313A30;
+  --ink: #E7ECE3;
+  --ink-2: #BCC7B9;
+  --ink-3: #8B978B;
+  --brand: #7FB894;
+  --brand-forte: #9BCCAD;
+  --brand-soft: #1E2C22;
+  --on-brand: #101610;
+  --accent: #DDAE55;
+  --accent-fill: #DDAE55;
+  --accent-soft: #2C2413;
+  --on-accent-soft: #DDAE55;
+  --on-accent-fill: #101610;
+  --alert: #DD8974;
+  --alert-soft: #331C16;
+  --foco: #DDAE55;
+  --overlay: rgba(0, 0, 0, .65);
+  --off-bg: #222A22;
+  --off-ink: #6E7A6E;
+  --sombra-1: 0 1px 0 rgba(0, 0, 0, .3);
+  --sombra-2: 0 1px 0 rgba(0, 0, 0, .3), 0 12px 32px -24px #000000;
+  --sombra-3: 0 2px 6px rgba(0, 0, 0, .4), 0 28px 60px -34px #000000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}

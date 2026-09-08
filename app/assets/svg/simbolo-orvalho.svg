@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="o meu jardim">
+  <title>o meu jardim</title>
+  <path d="M12 57 V28 a20 20 0 0 1 40 0 V57" fill="none" stroke="#EDF0E7" stroke-width="5" stroke-linecap="round"/>
+  <path d="M32 53 V41" fill="none" stroke="#EDF0E7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M31 43 C 22 42.5, 17.6 36, 18.4 28 C 27 29, 31.8 35, 31 43 Z" fill="#EDF0E7"/>
+  <path d="M33 43 C 42 42.5, 46.4 36, 45.6 28 C 37 29, 32.2 35, 33 43 Z" fill="#EDF0E7"/>
+</svg>

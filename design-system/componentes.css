@@ -1,0 +1,189 @@
+/* ------------------------------------------------------------------
+   o meu jardim · componentes
+   Versão: 1.2.0
+   Só tokens. Nenhum hex, nenhuma sombra literal, nenhum ms cru aqui.
+   ------------------------------------------------------------------ */
+
+/* ---------- base ---------- */
+/* O sistema não pode depender de um reset global do projeto que o consome.
+   Escopado em .jd-corpo para não vazar para fora. */
+.jd-corpo, .jd-corpo *, .jd-corpo *::before, .jd-corpo *::after { box-sizing: border-box; }
+
+.jd-corpo {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: var(--t-u1);
+  line-height: var(--t-u1-lh);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- botão ---------- */
+.jd-btn {
+  font-family: var(--ui);
+  font-weight: var(--p-forte);
+  font-size: var(--t-u2);
+  line-height: var(--t-u2-lh);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-pilula);
+  padding: var(--e3) var(--e5);
+  min-height: var(--btn-md);
+  background: var(--brand);
+  color: var(--on-brand);
+  cursor: pointer;
+  transition: background var(--t-rapido), transform var(--t-rapido);
+}
+.jd-btn:hover { background: var(--brand-forte); }
+.jd-btn:active { transform: translateY(1px); }
+.jd-btn:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+.jd-btn:disabled { background: var(--off-bg); color: var(--off-ink); cursor: not-allowed; transform: none; }
+
+.jd-btn--sm { font-size: var(--t-u3); padding: var(--e2) var(--e4); min-height: var(--btn-sm); }
+.jd-btn--lg { font-size: 17px; padding: var(--e4) var(--e6); min-height: var(--btn-lg); }
+.jd-btn--bloco { display: block; width: 100%; }
+.jd-btn--icone { padding: 0; width: var(--toque-min); min-height: var(--toque-min); display: inline-grid; place-items: center; }
+
+.jd-btn--vazado { background: transparent; color: var(--brand); border-color: var(--brand); }
+.jd-btn--vazado:hover { background: var(--brand-soft); }
+.jd-btn--vazado:disabled { background: transparent; border-color: var(--off-bg); color: var(--off-ink); }
+.jd-btn--quieto { background: var(--surface-2); color: var(--ink-2); }
+.jd-btn--quieto:hover { background: var(--line); }
+
+.jd-btn__roda {
+  display: inline-block; width: var(--e3); height: var(--e3);
+  border-radius: var(--r-pilula);
+  border: 2px solid currentColor; border-top-color: transparent;
+  margin-right: var(--e2); vertical-align: -2px;
+  animation: jd-gira 900ms linear infinite;
+}
+@keyframes jd-gira { to { transform: rotate(360deg); } }
+
+/* ---------- chip de estação ---------- */
+.jd-chip {
+  display: inline-block;
+  font-size: var(--t-u3); font-weight: var(--p-medio);
+  border-radius: var(--r-pilula);
+  padding: var(--e2) var(--e4);
+  background: var(--accent-soft); color: var(--on-accent-soft);
+}
+.jd-chip--ativo { background: var(--accent-fill); color: var(--on-accent-fill); }
+
+/* ---------- cartão de prática ---------- */
+.jd-pratica {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-folha);
+  padding: var(--e4) var(--e5);
+  display: flex; align-items: center; gap: var(--e3);
+  box-shadow: var(--sombra-2);
+  transition: border-color var(--t-rapido), background var(--t-rapido);
+}
+.jd-pratica:hover { border-color: var(--brand); }
+.jd-pratica__ic {
+  width: var(--e8); height: var(--e8); max-width: 36px; max-height: 36px;
+  border-radius: var(--r-pilula);
+  background: var(--brand-soft); color: var(--brand);
+  display: grid; place-items: center; flex: 0 0 auto;
+}
+.jd-pratica__t { display: block; font-weight: var(--p-forte); font-size: var(--t-u2); color: var(--ink); }
+.jd-pratica__s { font-size: var(--t-u3); color: var(--ink-3); }
+.jd-pratica--regada { background: var(--brand-soft); border-color: transparent; }
+.jd-pratica--regada .jd-pratica__ic { background: var(--brand); color: var(--on-brand); }
+.jd-pratica--regada .jd-pratica__s { color: var(--brand); }
+/* Recuo sem opacidade: opacidade derruba o contraste do texto abaixo de AA.
+   O recuo vem de fundo transparente e traço tracejado, a cor do texto continua legível. */
+.jd-pratica--fora { background: transparent; border-style: dashed; box-shadow: none; }
+.jd-pratica--fora .jd-pratica__ic { background: var(--off-bg); color: var(--ink-3); }
+.jd-pratica--fora .jd-pratica__t { color: var(--ink-2); }
+
+/* ---------- campo de anotação ---------- */
+.jd-campo__rot { display: block; font-size: var(--t-u3); font-weight: var(--p-medio); color: var(--ink-2); margin-bottom: var(--e2); }
+.jd-campo__in {
+  width: 100%; min-height: 88px; resize: vertical;
+  font-family: var(--leitura); font-size: var(--t-u1); line-height: var(--t-u1-lh);
+  color: var(--ink); background: var(--surface);
+  border: 1.5px solid var(--line); border-radius: var(--r-campo);
+  padding: var(--e3) var(--e4);
+  transition: border-color var(--t-rapido);
+}
+.jd-campo__in::placeholder { color: var(--ink-3); font-style: italic; }
+.jd-campo__in:hover { border-color: var(--nevoa); }
+.jd-campo__in:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.jd-campo__ajuda { display: flex; justify-content: space-between; font-size: var(--t-u4); color: var(--ink-3); margin-top: var(--e2); font-variant-numeric: tabular-nums; }
+.jd-campo--erro .jd-campo__in { border-color: var(--alert); }
+.jd-campo--erro .jd-campo__ajuda { color: var(--alert); }
+
+/* ---------- lista de oração ---------- */
+.jd-oracoes { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e3); }
+.jd-ora {
+  display: flex; gap: var(--e3); align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: var(--e4);
+  box-shadow: var(--sombra-1);
+}
+.jd-ora:hover { border-color: var(--brand); }
+.jd-ora__pt { width: 10px; height: 10px; border-radius: var(--r-pilula); margin-top: 7px; flex: 0 0 auto; background: var(--nevoa); box-shadow: 0 0 0 3px var(--surface-2); }
+.jd-ora--resp .jd-ora__pt { background: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.jd-ora__c { flex: 1; min-width: 0; }
+.jd-ora__t { display: block; font-size: var(--t-u2); font-weight: var(--p-forte); color: var(--ink); }
+.jd-ora__q { font-size: var(--t-u3); color: var(--ink-3); }
+.jd-ora__d { font-size: var(--t-u4); color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: var(--e1); }
+.jd-ora__test { margin-top: var(--e2); padding: var(--e3); background: var(--brand-soft); border-radius: var(--r-campo); font-family: var(--leitura); font-size: var(--t-l3); color: var(--ink-2); line-height: var(--t-l3-lh); }
+.jd-ora__dt { display: block; font-family: var(--ui); font-size: var(--t-u4); letter-spacing: var(--t-u4-ls); text-transform: uppercase; color: var(--brand); margin-bottom: var(--e1); font-weight: var(--p-forte); }
+.jd-ora--arq { background: transparent; border-style: dashed; box-shadow: none; }
+.jd-ora--arq .jd-ora__t { color: var(--ink-2); font-weight: var(--p-medio); }
+.jd-ora--arq .jd-ora__pt { background: var(--off-bg); box-shadow: none; }
+
+/* ---------- progresso ---------- */
+.jd-cresc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--e4); box-shadow: var(--sombra-2); }
+.jd-cresc__top { display: flex; justify-content: space-between; font-size: var(--t-u4); color: var(--ink-3); margin-bottom: var(--e2); font-variant-numeric: tabular-nums; }
+.jd-barra { height: 10px; border-radius: var(--r-pilula); background: var(--surface-2); overflow: hidden; border: 1px solid var(--line); }
+.jd-barra > i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), var(--broto)); border-radius: var(--r-pilula); transition: width var(--t-crescer); }
+
+/* ---------- conquista ---------- */
+.jd-selo { display: flex; gap: var(--e3); align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--e3) var(--e4); }
+.jd-selo__m { width: 34px; height: 34px; border-radius: var(--r-campo); background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-family: var(--display); flex: 0 0 auto; }
+.jd-selo__t { display: block; font-size: var(--t-u3); font-weight: var(--p-forte); color: var(--ink); }
+.jd-selo__s { font-size: var(--t-u4); color: var(--ink-3); line-height: var(--t-u3-lh); }
+.jd-selo--bloq { background: transparent; border-style: dashed; }
+.jd-selo--bloq .jd-selo__m { background: var(--off-bg); color: var(--ink-3); }
+.jd-selo--bloq .jd-selo__t { color: var(--ink-2); }
+
+/* ---------- navegação ---------- */
+.jd-nav { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; }
+.jd-nav a { flex: 1; text-align: center; padding: var(--e3) var(--e1); font-size: var(--t-u4); color: var(--ink-3); text-decoration: none; display: grid; gap: var(--e1); justify-items: center; border-top: 2px solid transparent; min-height: var(--toque-min); }
+.jd-nav a[aria-current="page"] { color: var(--brand); border-top-color: var(--brand); background: var(--brand-soft); font-weight: var(--p-forte); }
+.jd-nav a:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+
+/* ---------- aviso ---------- */
+.jd-aviso { display: inline-flex; align-items: center; gap: var(--e2); background: var(--noite); color: var(--orvalho); border-radius: var(--r-pilula); padding: var(--e3) var(--e4); font-size: var(--t-u3); font-weight: var(--p-medio); box-shadow: var(--sombra-3); }
+.jd-aviso__c { width: 20px; height: 20px; border-radius: var(--r-pilula); background: var(--broto); color: var(--noite); display: grid; place-items: center; flex: 0 0 auto; }
+
+/* ---------- estado vazio ---------- */
+.jd-vazio { text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--e6) var(--e5); }
+.jd-vazio__il { color: var(--brand); opacity: .35; margin-bottom: var(--e3); }
+.jd-vazio__t { font-family: var(--display); font-weight: var(--p-normal); font-size: var(--t-d4); margin: 0 0 var(--e1); color: var(--ink); }
+.jd-vazio__p { font-size: var(--t-u3); color: var(--ink-3); margin: 0 auto var(--e4); max-width: 30ch; }
+
+/* ---------- calendário de constância ---------- */
+.jd-calend { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--e4); box-shadow: var(--sombra-2); }
+.jd-calend__g { display: grid; grid-template-columns: repeat(10, 1fr); gap: var(--e1); margin: var(--e3) 0; }
+.jd-calend__d { aspect-ratio: 1; border-radius: var(--e1); background: var(--surface-2); }
+.jd-calend__d--n1 { background: color-mix(in srgb, var(--broto) 35%, var(--surface-2)); }
+.jd-calend__d--n2 { background: color-mix(in srgb, var(--broto) 70%, var(--surface-2)); }
+.jd-calend__d--n3 { background: var(--brand); }
+.jd-calend__leg { display: flex; justify-content: space-between; font-size: var(--t-u4); color: var(--ink-3); }
+
+/* ---------- folha de registro ---------- */
+.jd-folha { background: var(--surface); border: 1px solid var(--line); border-radius: var(--e5) var(--e5) 0 0; box-shadow: var(--sombra-3); overflow: hidden; }
+.jd-folha__pux { width: 40px; height: 4px; border-radius: var(--r-pilula); background: var(--line); margin: var(--e3) auto 0; }
+.jd-folha__in { padding: var(--e4); }
+.jd-folha__t { font-family: var(--display); font-weight: var(--p-normal); font-size: var(--t-d4); margin: var(--e2) 0 var(--e1); color: var(--ink); }
+.jd-folha__meta { font-size: var(--t-u4); color: var(--ink-3); margin: 0 0 var(--e3); }
+.jd-tags { display: flex; gap: var(--e2); flex-wrap: wrap; margin-bottom: var(--e3); padding: 0; list-style: none; }
+.jd-tag { font-size: var(--t-u4); border: 1px solid var(--line); border-radius: var(--r-pilula); padding: var(--e1) var(--e3); color: var(--ink-2); cursor: pointer; background: transparent; }
+.jd-tag[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); font-weight: var(--p-medio); }
+
+@media (min-width: 768px) {
+  .jd-folha { border-radius: var(--r-card); }
+}

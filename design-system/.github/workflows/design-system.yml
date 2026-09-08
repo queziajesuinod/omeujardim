@@ -1,0 +1,73 @@
+name: design-system
+
+on:
+  push:
+    paths: ['design-system/**']
+  pull_request:
+    paths: ['design-system/**']
+  workflow_dispatch:
+    inputs:
+      atualizar_referencias:
+        description: 'Regerar as fotos de referência e commitar na branch'
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: design-system
+
+jobs:
+  # Roda em segundos e sem navegador. Falha rápido antes de gastar o resto.
+  tokens:
+    name: contraste e deriva de token
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: design-system/package-lock.json
+      - run: npm ci
+      - run: npx playwright test testes/contraste.spec.js testes/tokens.spec.js
+
+  navegador:
+    name: visual e acessibilidade
+    runs-on: ubuntu-latest
+    needs: tokens
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: design-system/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Rodar a suíte
+        if: ${{ !inputs.atualizar_referencias }}
+        run: npx playwright test
+
+      - name: Regerar as fotos de referência
+        if: ${{ inputs.atualizar_referencias }}
+        run: npx playwright test testes/visual.spec.js --update-snapshots
+
+      - name: Commitar as referências novas
+        if: ${{ inputs.atualizar_referencias }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add testes/referencias
+          git diff --staged --quiet || git commit -m "design-system: atualiza fotos de referência"
+          git push
+
+      # O relatório com o diff lado a lado é o que torna a reprovação visual útil.
+      # Sem ele, "mudou 3% dos pixels" não diz nada a ninguém.
+      - name: Guardar o relatório
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-playwright
+          path: design-system/playwright-report
+          retention-days: 14

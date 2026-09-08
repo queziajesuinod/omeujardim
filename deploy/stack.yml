@@ -1,0 +1,203 @@
+version: "3.9"
+
+# Deploy no estilo Swarm + Traefik existente (clona o repo em runtime, sem
+# buildar imagem), igual ao projeto espontâneo. Um domínio só: o Traefik manda
+# /v1/* para a API e o resto para o app; o painel fica num subdomínio.
+#
+# TROQUE os valores marcados com <...> antes de subir. Segredos de verdade:
+# gere novos (openssl rand -base64 32) e, de preferência, use Docker secrets.
+#
+# Sobe com:  docker stack deploy -c stack.yml jardim
+#
+# Pré-requisitos (já valem para o espontâneo):
+#   - Traefik rodando com o resolver "letsencryptresolver" e a rede
+#     externa "network_public".
+#   - DNS de <SEU_DOMINIO> e painel.<SEU_DOMINIO> apontando para o servidor.
+#   - O repositório precisa ter api/, app/ e painel/ na raiz.
+
+services:
+  # ---- API (Fastify) — responde em https://<SEU_DOMINIO>/v1/* ----
+  api:
+    image: node:22
+    networks:
+      - network_public
+    environment:
+      NODE_ENV: production
+      PORT: "3335"
+      # Postgres que você já usa (o mesmo do .env de dev). Com SSL, ponha DB_SSL=true.
+      DATABASE_URL: "postgres://root:<SENHA>@62.72.63.137:5432/meujardim_bd"
+      DB_SSL: "false"
+      # Origens que falam com a API. O app é mesma origem (não precisa), o painel é cross-subdomínio.
+      CORS_ORIGENS: "https://<SEU_DOMINIO>,https://painel.<SEU_DOMINIO>"
+      # Segredos — GERE NOVOS para produção.
+      JWT_SEGREDO: "<GERE: openssl rand -base64 32>"
+      JWT_EXPIRA: "15m"
+      REFRESH_EXPIRA_DIAS: "30"
+      CRIPTO_CHAVE: "<GERE: openssl rand -base64 32>"
+      CRIPTO_CHAVE_ANTERIOR: ""
+      # Web Push (gere com: cd api && npm run vapid)
+      VAPID_PUBLIC: "<VAPID_PUBLIC>"
+      VAPID_PRIVATE: "<VAPID_PRIVATE>"
+      VAPID_CONTATO: "mailto:jardim@<SEU_DOMINIO>"
+      LEMBRETES_INLINE: "true"
+      LOGIN_RATE_MAX: "10"
+      REFRESH_RATE_MAX: "60"
+      # Efí (pagamentos). Comece em sandbox.
+      EFI_SANDBOX: "true"
+      EFI_CLIENT_ID: "<EFI_CLIENT_ID>"
+      EFI_CLIENT_SECRET: "<EFI_CLIENT_SECRET>"
+      EFI_CERTIFICADO: "/certs/certificado.p12"
+      EFI_WEBHOOK_SEGREDO: "<TROQUE>"
+      EFI_PLANO_NOME: "O meu jardim"
+      EFI_PLANO_VALOR_CENTAVOS: "1990"
+      EFI_PLANO_CICLO: "mensal"
+      EFI_TRIAL_DIAS: "7"
+      EFI_PLANO_ID: ""
+      EFI_PIX_CHAVE: ""
+      EFI_WEBHOOK_URL: "https://<SEU_DOMINIO>/v1/webhooks/efi?segredo=<TROQUE>"
+    volumes:
+      - jardim_api:/src
+      - jardim_certs:/certs          # coloque aqui o certificado .p12 da Efí
+      - jardim_modelos:/src/api/.cache
+    working_dir: /src
+    entrypoint: ["/bin/sh", "-lc"]
+    command:
+      - >
+        set -e;
+        if [ ! -d /src/.git ]; then
+          echo "Clonando o repositório...";
+          rm -rf /src/* /src/.[!.]* 2>/dev/null || true;
+          git clone --depth 1 -b <BRANCH:main> <URL_DO_SEU_REPOSITORIO> /src;
+        else
+          echo "Atualizando...";
+          cd /src; git fetch origin <BRANCH:main>; git reset --hard origin/<BRANCH:main>;
+        fi;
+        cd /src/api;
+        npm ci;
+        echo "Migrando o banco...";
+        npm run migrar;
+        echo "Subindo a API...";
+        node src/servidor.js;
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_public"
+        # /v1/* vai para a API (prioridade maior que a rota do app)
+        - "traefik.http.routers.jardim-api.rule=Host(`<SEU_DOMINIO>`) && PathPrefix(`/v1`)"
+        - "traefik.http.routers.jardim-api.entrypoints=websecure"
+        - "traefik.http.routers.jardim-api.tls=true"
+        - "traefik.http.routers.jardim-api.tls.certresolver=letsencryptresolver"
+        - "traefik.http.routers.jardim-api.priority=100"
+        - "traefik.http.routers.jardim-api.service=jardim-api"
+        - "traefik.http.services.jardim-api.loadbalancer.server.port=3335"
+
+  # ---- App web (Expo estático) — responde em https://<SEU_DOMINIO> ----
+  web:
+    image: node:22
+    networks:
+      - network_public
+    volumes:
+      - jardim_web:/src
+    working_dir: /src
+    entrypoint: ["/bin/sh", "-lc"]
+    command:
+      - >
+        set -e;
+        if [ ! -d /src/.git ]; then
+          echo "Clonando o repositório...";
+          rm -rf /src/* /src/.[!.]* 2>/dev/null || true;
+          git clone --depth 1 -b <BRANCH:main> <URL_DO_SEU_REPOSITORIO> /src;
+        else
+          echo "Atualizando...";
+          cd /src; git fetch origin <BRANCH:main>; git reset --hard origin/<BRANCH:main>;
+        fi;
+        cd /src/app;
+        npm ci;
+        echo "Gerando o site (a API é a mesma origem, sob /v1)...";
+        EXPO_PUBLIC_API_URL="https://<SEU_DOMINIO>" EXPO_PUBLIC_EFI_PAYEE_CODE="<EFI_PAYEE_CODE>" EXPO_PUBLIC_EFI_SANDBOX="false" npx expo export --platform web;
+        echo "Servindo o estático...";
+        npx -y serve dist -l 5173;
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_public"
+        - "traefik.http.routers.jardim.rule=Host(`<SEU_DOMINIO>`)"
+        - "traefik.http.routers.jardim.entrypoints=websecure"
+        - "traefik.http.routers.jardim.tls=true"
+        - "traefik.http.routers.jardim.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.jardim.loadbalancer.server.port=5173"
+        # redireciona http -> https
+        - "traefik.http.routers.jardim-http.rule=Host(`<SEU_DOMINIO>`)"
+        - "traefik.http.routers.jardim-http.entrypoints=web"
+        - "traefik.http.routers.jardim-http.middlewares=redirect-to-https"
+        - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+        - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+
+  # ---- Painel de gestão — responde em https://painel.<SEU_DOMINIO> ----
+  painel:
+    image: node:22
+    networks:
+      - network_public
+    working_dir: /src
+    entrypoint: ["/bin/sh", "-lc"]
+    command:
+      - >
+        set -e;
+        if [ ! -d /src/.git ]; then
+          rm -rf /src/* /src/.[!.]* 2>/dev/null || true;
+          git clone --depth 1 -b <BRANCH:main> <URL_DO_SEU_REPOSITORIO> /src;
+        else
+          cd /src; git fetch origin <BRANCH:main>; git reset --hard origin/<BRANCH:main>;
+        fi;
+        cd /src/painel;
+        sed -i "s#http://localhost:3337#https://<SEU_DOMINIO>#g" index.html;
+        npx -y serve . -l 5000;
+    volumes:
+      - jardim_painel:/src
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_public"
+        - "traefik.http.routers.jardim-painel.rule=Host(`painel.<SEU_DOMINIO>`)"
+        - "traefik.http.routers.jardim-painel.entrypoints=websecure"
+        - "traefik.http.routers.jardim-painel.tls=true"
+        - "traefik.http.routers.jardim-painel.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.jardim-painel.loadbalancer.server.port=5000"
+        - "traefik.http.routers.jardim-painel-http.rule=Host(`painel.<SEU_DOMINIO>`)"
+        - "traefik.http.routers.jardim-painel-http.entrypoints=web"
+        - "traefik.http.routers.jardim-painel-http.middlewares=redirect-to-https"
+
+networks:
+  network_public:
+    external: true
+
+volumes:
+  jardim_api:
+  jardim_web:
+  jardim_painel:
+  jardim_certs:
+  jardim_modelos:

@@ -1,0 +1,53 @@
+# Postgres com pgvector, a mesma imagem que você já usa.
+# Não use estas senhas em nada que saia da sua máquina.
+services:
+  banco:
+    image: pgvector/pgvector:pg16
+    container_name: jardim-banco
+    environment:
+      POSTGRES_DB: jardim
+      POSTGRES_USER: jardim
+      POSTGRES_PASSWORD: jardim_dev_local
+      LANG: pt_BR.utf8
+    command:
+      # Ajustes para simular o pico da manhã na sua máquina.
+      # Em produção, o provedor gerencia isso, mas os números são os mesmos.
+      - postgres
+      - -c
+      - max_connections=100
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - work_mem=8MB
+      # Registra qualquer consulta acima de 500ms. É assim que você acha o
+      # índice que faltou, antes de o usuário achar.
+      - -c
+      - log_min_duration_statement=500
+    ports:
+      - "5432:5432"
+    volumes:
+      - dados:/var/lib/postgresql/data
+      - ./api/src/db/extensoes.sql:/docker-entrypoint-initdb.d/01-extensoes.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jardim -d jardim"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Necessário assim que existir mais de uma instância da API.
+  # Com uma só, o rate limit em memória funciona; com duas, ele passa a valer
+  # o dobro do que você configurou, e a proteção de força bruta se dissolve.
+  cache:
+    image: redis:7-alpine
+    container_name: jardim-cache
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru", "--save", ""]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  dados:

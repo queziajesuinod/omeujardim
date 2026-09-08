@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "O meu jardim",
+    "slug": "omeujardim",
+    "scheme": "omeujardim",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icone-1024.png",
+    "splash": {
+      "image": "./assets/simbolo-256-claro.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2F5A43"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon-32.png",
+      "name": "O meu jardim",
+      "shortName": "Jardim",
+      "lang": "pt-BR",
+      "themeColor": "#2F5A43",
+      "backgroundColor": "#EDF0E7",
+      "display": "standalone",
+      "startUrl": "/hoje",
+      "description": "Constância em oração, leitura da Palavra e as outras disciplinas. Seu jardim é fechado: só você lê o que escreve nele."
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.app.omeujardim",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Usamos o Face ID só para destravar o seu diário, se você ligar essa opção."
+      }
+    },
+    "android": {
+      "package": "br.app.omeujardim",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icone-maskable-1024.png",
+        "backgroundColor": "#2F5A43"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Usamos o Face ID só para destravar o seu diário."
+        }
+      ],
+      "expo-sqlite",
+      "expo-font",
+      "expo-splash-screen"
+    ],
+    "_comentarios": {
+      "output": "static gera HTML por rota, o que dá URL de verdade e indexação. 'single' geraria uma SPA só, pior para SEO da landing.",
+      "startUrl": "/hoje e não /: quem instalou o PWA quer cair direto na tela do dia, não na página de venda.",
+      "themeColor": "musgo, o mesmo do ícone, para a barra do navegador combinar com a marca.",
+      "iosPWA": "Notificação em PWA no iOS só funciona depois de a pessoa adicionar à tela de início. Ver a seção de web do manual."
+    }
+  }
+}

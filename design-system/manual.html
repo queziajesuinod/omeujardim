@@ -1,0 +1,873 @@
+<title>O meu jardim, manual da marca</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    /* ---- cores de marca ---- */
+    --musgo:#2F5A43;
+    --broto:#6FA97F;
+    --latao:#A8761F;
+    --latao-texto:#8E641A;
+    --terra:#9C4F3B;
+    --orvalho:#EDF0E7;
+    --papel:#F8F9F4;
+    --noite:#101610;
+    --nevoa:#C9D2C2;
+
+    /* ---- semânticos, tema claro ---- */
+    --bg:#EDF0E7;
+    --surface:#F8F9F4;
+    --surface-2:#E3E9DE;
+    --ink:#141A14;
+    --ink-2:#3C4A3E;
+    --ink-3:#626F63;
+    --line:#CFD8C8;
+    --brand:#2F5A43;
+    --brand-forte:#25462F;
+    --brand-soft:#DCE7DC;
+    --on-brand:#F8F9F4;
+    --accent:#8E641A;
+    --accent-fill:#A8761F;
+    --accent-soft:#F1E5CB;--on-accent-soft:#7F5915;--on-accent-fill:#101610;
+    --alert:#9C4F3B;
+    --alert-soft:#F2DED7;
+    --foco:#A8761F;
+    --overlay:rgba(16,22,16,.55);
+    --off-bg:#E3E9DE;
+    --off-ink:#8C978C;
+
+    /* ---- forma ---- */
+    --r-campo:8px;
+    --r-card:14px;
+    --r-folha:26px 5px 26px 5px;
+    --r-pilula:999px;
+
+    /* ---- elevação ---- */
+    --sombra-1:0 1px 0 rgba(20,26,20,.04);
+    --sombra-2:0 1px 0 rgba(20,26,20,.04), 0 10px 28px -22px rgba(20,26,20,.7);
+    --sombra-3:0 2px 4px rgba(20,26,20,.06), 0 26px 56px -34px rgba(20,26,20,.85);
+
+    /* ---- tipo ---- */
+    --display:"Young Serif", Georgia, serif;
+    --leitura:"Source Serif 4", Georgia, serif;
+    --ui:"Figtree", system-ui, -apple-system, Segoe UI, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --p-leve:300; --p-normal:400; --p-medio:500; --p-forte:600;
+
+    /* ---- movimento ---- */
+    --t-rapido:160ms cubic-bezier(.2,.7,.3,1);
+    --t-padrao:240ms cubic-bezier(.2,.7,.3,1);
+    --t-crescer:640ms cubic-bezier(.16,.9,.24,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101610;--surface:#19201A;--surface-2:#222A22;
+      --ink:#E7ECE3;--ink-2:#BCC7B9;--ink-3:#8B978B;--line:#313A30;
+      --brand:#7FB894;--brand-forte:#9BCCAD;--brand-soft:#1E2C22;--on-brand:#101610;
+      --accent:#DDAE55;--accent-fill:#DDAE55;--accent-soft:#2C2413;--on-accent-soft:#DDAE55;--on-accent-fill:#101610;
+      --alert:#DD8974;--alert-soft:#331C16;
+      --foco:#DDAE55;--overlay:rgba(0,0,0,.65);
+      --off-bg:#222A22;--off-ink:#6E7A6E;
+      --sombra-1:0 1px 0 rgba(0,0,0,.3);
+      --sombra-2:0 1px 0 rgba(0,0,0,.3), 0 12px 32px -24px #000;
+      --sombra-3:0 2px 6px rgba(0,0,0,.4), 0 28px 60px -34px #000;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101610;--surface:#19201A;--surface-2:#222A22;
+    --ink:#E7ECE3;--ink-2:#BCC7B9;--ink-3:#8B978B;--line:#313A30;
+    --brand:#7FB894;--brand-forte:#9BCCAD;--brand-soft:#1E2C22;--on-brand:#101610;
+    --accent:#DDAE55;--accent-fill:#DDAE55;--accent-soft:#2C2413;--on-accent-soft:#DDAE55;--on-accent-fill:#101610;
+    --alert:#DD8974;--alert-soft:#331C16;
+    --foco:#DDAE55;--overlay:rgba(0,0,0,.65);
+    --off-bg:#222A22;--off-ink:#6E7A6E;
+    --sombra-1:0 1px 0 rgba(0,0,0,.3);
+    --sombra-2:0 1px 0 rgba(0,0,0,.3), 0 12px 32px -24px #000;
+    --sombra-3:0 2px 6px rgba(0,0,0,.4), 0 28px 60px -34px #000;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  .paper{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");background-repeat:repeat}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px 110px}
+  p{margin:0 0 14px;max-width:64ch;color:var(--ink-2)}
+  strong,b{color:var(--ink)}
+  h1,h2,h3{font-family:var(--display);font-weight:var(--p-normal);color:var(--ink);text-wrap:balance;margin:0;letter-spacing:-.005em}
+  ul{margin:0 0 14px;padding-left:18px;max-width:64ch;color:var(--ink-2)}
+  li{margin:0 0 6px}
+  li::marker{color:var(--brand)}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);padding:1px 5px;border-radius:5px;color:var(--ink-2)}
+
+  header.hero{padding:56px 0 40px;border-bottom:1px solid var(--line)}
+  .lockup{display:flex;align-items:center;gap:16px}
+  .lockup .mk{width:60px;height:60px;color:var(--brand);flex:0 0 auto}
+  .lockup .wm{font-family:var(--display);font-size:38px;line-height:1;color:var(--ink)}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 22px}
+  header.hero .frase{font-family:var(--leitura);font-size:clamp(20px,2.6vw,27px);line-height:1.42;font-weight:var(--p-leve);max-width:30ch;margin:30px 0 0;color:var(--ink)}
+  header.hero .ref{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.06em;margin-top:10px}
+
+  section{padding-top:56px}
+  .sh{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+  .sh .n{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.1em;padding-top:7px}
+  h2{font-size:clamp(24px,3vw,32px)}
+  h3{font-size:19px;margin:0 0 6px}
+  .lede{font-family:var(--leitura);font-size:18px;line-height:1.6;color:var(--ink-2);max-width:60ch}
+  .sub{font-family:var(--ui);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:var(--p-forte);margin:32px 0 12px}
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:20px;box-shadow:var(--sombra-2)}
+  .card p:last-child,.card ul:last-child{margin-bottom:0}
+  .tag{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);display:block;margin-bottom:9px}
+
+  .prancha{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:30px;display:flex;flex-wrap:wrap;gap:34px;align-items:center;justify-content:center;box-shadow:var(--sombra-2)}
+  .prancha.brand{background:var(--musgo);border-color:transparent}
+  .item{display:flex;flex-direction:column;align-items:center;gap:11px}
+  .item .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+  .prancha.brand .cap{color:rgba(237,240,231,.6)}
+  .mk{display:block}
+  .wm-h{display:flex;align-items:center;gap:13px}
+  .wm-h .t{font-family:var(--display);font-size:27px;line-height:1}
+  .wm-v{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .wm-v .t{font-family:var(--display);font-size:21px;line-height:1}
+  .appicon{width:96px;height:96px;border-radius:22px;display:grid;place-items:center;background:var(--musgo);box-shadow:var(--sombra-2)}
+  .appicon.alt{background:var(--orvalho)}
+
+  .swatches{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(168px,1fr))}
+  .sw{border-radius:var(--r-card);overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+  .sw .chip{height:78px}
+  .sw .meta{padding:11px 13px}
+  .sw b{display:block;font-family:var(--display);font-size:16px;font-weight:var(--p-normal)}
+  .sw span{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+  .sw em{display:block;font-style:normal;font-size:12.5px;color:var(--ink-2);margin-top:5px;line-height:1.45}
+
+  .spec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:22px 24px;box-shadow:var(--sombra-2)}
+  .spec + .spec{margin-top:12px}
+  .spec .role{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .spec .name{font-size:15px;color:var(--ink-3);margin-bottom:14px}
+  .amostra-d{font-family:var(--display);font-size:clamp(32px,5vw,52px);line-height:1.08}
+  .amostra-l{font-family:var(--leitura);font-size:19px;line-height:1.62;font-weight:var(--p-leve);max-width:56ch}
+  .escala{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .escala span{font-family:var(--mono);font-size:11px;color:var(--ink-3);background:var(--surface-2);border-radius:6px;padding:4px 8px}
+
+  .tex{height:132px;border-radius:var(--r-card);border:1px solid var(--line);position:relative;overflow:hidden}
+  .tex .lb{position:absolute;left:12px;bottom:11px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:3px 7px;color:var(--ink-2)}
+  .tex-papel{background:var(--surface)}
+  .tex-folhas{background:var(--brand-soft);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cpath d='M27 34c-7 0-11-5-10.5-11.5C23 23 27.5 27.5 27 34z' fill='%232F5A43' opacity='.16'/%3E%3Cpath d='M8 14c-4 0-6-3-6-7 4 0 6.5 3 6 7z' fill='%232F5A43' opacity='.1'/%3E%3Cpath d='M46 46c-4 0-6-3-6-7 4 0 6.5 3 6 7z' fill='%232F5A43' opacity='.1'/%3E%3C/svg%3E")}
+  .tex-aquarela{background:radial-gradient(120px 90px at 22% 35%, rgba(111,169,127,.5), transparent 70%),radial-gradient(150px 110px at 72% 62%, rgba(168,118,31,.34), transparent 72%),radial-gradient(110px 90px at 55% 18%, rgba(47,90,67,.3), transparent 70%),var(--surface)}
+  .tex-vinco{background:var(--surface);background-image:repeating-linear-gradient(90deg, transparent 0 26px, rgba(47,90,67,.07) 26px 27px)}
+
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);box-shadow:var(--sombra-2)}
+  table{border-collapse:collapse;width:100%;min-width:600px;font-size:14.5px}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  .nao{color:var(--alert)}
+  .sim{color:var(--brand);font-weight:var(--p-medio)}
+  .rt{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13px}
+  .ok{color:var(--brand);font-weight:var(--p-medio)}
+  .ko{color:var(--alert);font-weight:var(--p-medio)}
+
+  .demo{background:var(--bg);border:1px dashed var(--line);border-radius:var(--r-card);padding:22px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
+
+  /* ------- componentes ------- */
+  .btn{font-family:var(--ui);font-weight:var(--p-forte);font-size:15px;line-height:1.2;border:1.5px solid transparent;border-radius:var(--r-pilula);padding:11px 22px;min-height:44px;background:var(--brand);color:var(--on-brand);cursor:pointer;transition:background var(--t-rapido),transform var(--t-rapido)}
+  .btn.sm{font-size:13px;padding:7px 15px;min-height:36px}
+  .btn.lg{font-size:17px;padding:15px 30px;min-height:52px}
+  .btn.bloco{display:block;width:100%}
+  .btn.icone{padding:0;width:44px;min-height:44px;display:inline-grid;place-items:center}
+  .btn:hover{background:var(--brand-forte)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+  .btn:disabled{background:var(--off-bg);color:var(--off-ink);cursor:not-allowed;transform:none}
+  .btn.ghost{background:transparent;color:var(--brand);border-color:var(--brand)}
+  .btn.ghost:hover{background:var(--brand-soft)}
+  .btn.ghost:disabled{background:transparent;border-color:var(--off-bg);color:var(--off-ink)}
+  .btn.quiet{background:var(--surface-2);color:var(--ink-2)}
+  .btn.quiet:hover{background:var(--line)}
+  .btn .spin{display:inline-block;width:13px;height:13px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;margin-right:8px;vertical-align:-2px;animation:gira 900ms linear infinite}
+  @keyframes gira{to{transform:rotate(360deg)}}
+
+  .chip-est{display:inline-block;font-size:13px;font-weight:var(--p-medio);border-radius:var(--r-pilula);padding:6px 14px;background:var(--accent-soft);color:var(--on-accent-soft)}
+  .chip-est.on{background:var(--accent-fill);color:var(--on-accent-fill)}
+
+  .pratica{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-folha);padding:16px 20px;display:flex;align-items:center;gap:14px;min-width:255px;box-shadow:var(--sombra-2);transition:border-color var(--t-rapido),background var(--t-rapido)}
+  .pratica:hover{border-color:var(--brand)}
+  .pratica .ic{width:36px;height:36px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;flex:0 0 auto}
+  .pratica b{display:block;font-weight:var(--p-forte);font-size:15px;color:var(--ink)}
+  .pratica span{font-size:13px;color:var(--ink-3)}
+  .pratica.regada{background:var(--brand-soft);border-color:transparent}
+  .pratica.regada .ic{background:var(--brand);color:var(--on-brand)}
+  .pratica.regada span{color:var(--brand)}
+  .pratica.off{background:transparent;border-style:dashed;box-shadow:none}
+  .pratica.off .ic{background:var(--off-bg);color:var(--ink-3)}
+  .pratica.off b{color:var(--ink-2)}
+
+  .crescimento{min-width:265px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:16px 18px;box-shadow:var(--sombra-2)}
+  .crescimento .top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-3);margin-bottom:8px;font-variant-numeric:tabular-nums}
+  .barra{height:10px;border-radius:var(--r-pilula);background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+  .barra i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--broto));border-radius:var(--r-pilula);transition:width var(--t-crescer)}
+
+  .selo{display:flex;gap:11px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:12px 15px;min-width:235px}
+  .selo .m{width:34px;height:34px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:var(--display);font-size:15px;flex:0 0 auto}
+  .selo b{display:block;font-size:14px;font-weight:var(--p-forte);color:var(--ink)}
+  .selo span{font-size:12.5px;color:var(--ink-3);line-height:1.4}
+  .selo.bloq{background:transparent;border-style:dashed}
+  .selo.bloq .m{background:var(--off-bg);color:var(--ink-3)}
+  .selo.bloq b{color:var(--ink-2)}
+
+  /* novos */
+  .campo{min-width:290px;flex:1 1 320px}
+  .campo label{display:block;font-size:13px;font-weight:var(--p-medio);color:var(--ink-2);margin-bottom:6px}
+  .campo textarea{width:100%;min-height:88px;resize:vertical;font-family:var(--leitura);font-size:16px;line-height:1.55;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-campo);padding:12px 14px;transition:border-color var(--t-rapido)}
+  .campo textarea::placeholder{color:var(--ink-3);font-style:italic}
+  .campo textarea:hover{border-color:var(--nevoa)}
+  .campo textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  .campo .ajuda{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3);margin-top:6px;font-variant-numeric:tabular-nums}
+  .campo.erro textarea{border-color:var(--alert)}
+  .campo.erro .ajuda{color:var(--alert)}
+
+  .folha{width:290px;background:var(--surface);border:1px solid var(--line);border-radius:22px 22px 0 0;box-shadow:var(--sombra-3);overflow:hidden}
+  .folha .puxador{width:40px;height:4px;border-radius:99px;background:var(--line);margin:10px auto 0}
+  .folha .in{padding:14px 18px 18px}
+  .folha h4{font-family:var(--display);font-weight:var(--p-normal);font-size:19px;margin:6px 0 3px}
+  .folha .meta{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
+  .folha .linha{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .tagzinha{font-size:12px;border:1px solid var(--line);border-radius:var(--r-pilula);padding:4px 11px;color:var(--ink-2);cursor:pointer}
+  .tagzinha.sel{background:var(--brand-soft);border-color:var(--brand);color:var(--brand);font-weight:var(--p-medio)}
+
+  .nav{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;min-width:290px}
+  .nav a{flex:1;text-align:center;padding:10px 4px 9px;font-size:11px;color:var(--ink-3);text-decoration:none;display:grid;gap:3px;justify-items:center;border-top:2px solid transparent}
+  .nav a.at{color:var(--brand);border-top-color:var(--brand);background:var(--brand-soft);font-weight:var(--p-forte)}
+  .nav a:focus-visible{outline:2px solid var(--foco);outline-offset:-2px}
+
+  .vazio{min-width:280px;flex:1 1 300px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:26px 22px}
+  .vazio .il{color:var(--brand);opacity:.35;margin-bottom:10px}
+  .vazio h4{font-family:var(--display);font-weight:var(--p-normal);font-size:19px;margin:0 0 5px}
+  .vazio p{font-size:13.5px;color:var(--ink-3);margin:0 auto 14px;max-width:30ch}
+
+  .aviso{display:flex;align-items:center;gap:10px;background:var(--noite);color:var(--orvalho);border-radius:var(--r-pilula);padding:11px 18px;font-size:14px;font-weight:var(--p-medio);box-shadow:var(--sombra-3)}
+  .aviso .c{width:20px;height:20px;border-radius:50%;background:var(--broto);color:var(--noite);display:grid;place-items:center;flex:0 0 auto}
+
+  .calend{min-width:265px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:16px 18px;box-shadow:var(--sombra-2)}
+  .calend .g{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:10px 0 9px}
+  .calend .d{aspect-ratio:1;border-radius:4px;background:var(--surface-2)}
+  .calend .d.n1{background:color-mix(in srgb, var(--broto) 35%, var(--surface-2))}
+  .calend .d.n2{background:color-mix(in srgb, var(--broto) 70%, var(--surface-2))}
+  .calend .d.n3{background:var(--brand)}
+  .calend .leg{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3)}
+
+  /* lista de oração */
+  .oracao{display:grid;gap:10px;min-width:300px;flex:1 1 340px}
+  .ora{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;box-shadow:var(--sombra-1)}
+  .ora .st{width:10px;height:10px;border-radius:50%;margin-top:7px;flex:0 0 auto;background:var(--nevoa);box-shadow:0 0 0 3px var(--surface-2)}
+  .ora.resp .st{background:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  .ora .cont{flex:1;min-width:0}
+  .ora b{display:block;font-size:15px;font-weight:var(--p-forte);color:var(--ink)}
+  .ora .quem{font-size:12.5px;color:var(--ink-3)}
+  .ora .dias{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:2px}
+  .ora .test{margin-top:9px;padding:11px 13px;background:var(--brand-soft);border-radius:10px;font-family:var(--leitura);font-size:14.5px;color:var(--ink-2);line-height:1.5}
+  .ora .test .dt{display:block;font-family:var(--ui);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:4px;font-weight:var(--p-forte)}
+  .ora.arq{background:transparent;border-style:dashed;box-shadow:none}
+  .ora.arq b{color:var(--ink-2);font-weight:var(--p-medio)}
+  .ora.arq .st{background:var(--off-bg);box-shadow:none}
+
+  /* breakpoints */
+  .reguas{display:grid;gap:9px;margin-top:16px}
+  .reg{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--ink-2)}
+  .reg .bar{height:26px;border-radius:6px;background:var(--brand-soft);border:1px solid var(--line);display:flex;align-items:center;padding:0 9px;font-family:var(--mono);font-size:11px;color:var(--brand);flex:0 0 auto}
+  .reg .txt{color:var(--ink-3);font-size:12.5px}
+
+  .tokens{background:var(--noite);color:#D8E0D5;border-radius:var(--r-card);padding:20px 22px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75}
+  .tokens .k{color:#9FD3AF}
+  .tokens .v{color:#E6C77E}
+  .tokens .c{color:#8A9A89}
+
+  .proibido{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+  .proibido .p{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:16px;text-align:center}
+  .proibido .box{height:74px;display:grid;place-items:center;margin-bottom:10px;border-radius:8px;background:var(--surface-2);overflow:hidden}
+  .proibido em{font-style:normal;font-size:12.5px;color:var(--alert);display:block;line-height:1.4}
+
+  .mudou{border-left:3px solid var(--accent-fill);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:15px 18px}
+  .mudou .tag{color:var(--accent)}
+  .mudou p:last-child{margin-bottom:0}
+
+  footer{margin-top:70px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+  @media (max-width:640px){.wrap{padding:0 18px 80px}header.hero{padding:36px 0 28px}.prancha{padding:22px;gap:24px}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mk" viewBox="0 0 64 64">
+      <path d="M12 57 V28 a20 20 0 0 1 40 0 V57" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      <path d="M32 57 V41" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      <path d="M31 43 C 22 42.5, 17.6 36, 18.4 28 C 27 29, 31.8 35, 31 43 Z" fill="currentColor"/>
+      <path d="M33 43 C 42 42.5, 46.4 36, 45.6 28 C 37 29, 32.2 35, 33 43 Z" fill="currentColor"/>
+    </symbol>
+    <symbol id="mk-selo" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="29.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <g transform="translate(32 33) scale(.62) translate(-32 -32)">
+        <path d="M12 57 V28 a20 20 0 0 1 40 0 V57" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <path d="M32 57 V41" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path d="M31 43 C 22 42.5, 17.6 36, 18.4 28 C 27 29, 31.8 35, 31 43 Z" fill="currentColor"/>
+        <path d="M33 43 C 42 42.5, 46.4 36, 45.6 28 C 37 29, 32.2 35, 33 43 Z" fill="currentColor"/>
+      </g>
+    </symbol>
+    <symbol id="mk-broto" viewBox="0 0 64 64">
+      <path d="M32 57 V38" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      <path d="M30.6 41 C 20 40.5, 14.6 33, 15.6 23 C 26 24, 31.6 31, 30.6 41 Z" fill="currentColor"/>
+      <path d="M33.4 41 C 44 40.5, 49.4 33, 48.4 23 C 38 24, 32.4 31, 33.4 41 Z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-gota" viewBox="0 0 24 24"><path d="M12 3.5c3.6 4.2 5.5 7 5.5 9.4A5.5 5.5 0 0 1 6.5 12.9C6.5 10.5 8.4 7.7 12 3.5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+    <symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5.2c2.6-.9 5.3-.9 8 0v14c-2.7-.9-5.4-.9-8 0V5.2z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 5.2c2.7-.9 5.4-.9 8 0v14c-2.6-.9-5.3-.9-8 0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+    <symbol id="i-folha" viewBox="0 0 24 24"><path d="M20 4c0 9-5 13-11 12.6C8.4 10.4 12.6 5.6 20 4z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M4.5 20c2.5-3.6 5.2-6.3 8.5-8.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+    <symbol id="i-casa" viewBox="0 0 24 24"><path d="M4 10.6 12 4l8 6.6V20H4v-9.4z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.6 10 17.5 19.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap paper">
+
+  <header class="hero">
+    <p class="kicker">Manual da marca · versão 1.2.1 · setembro 2026</p>
+    <div class="lockup">
+      <svg class="mk" viewBox="0 0 64 64" aria-label="Símbolo O meu jardim"><use href="#mk"/></svg>
+      <span class="wm">o meu jardim</span>
+    </div>
+    <p class="frase">Jardim fechado és tu, fonte selada. Venha o meu amado para o seu jardim.</p>
+    <p class="ref">Cantares 4.12 e 4.16, ARA</p>
+  </header>
+
+  <section>
+    <div class="sh"><span class="n">00</span><h2>O que mudou</h2></div>
+    <div class="mudou" style="margin-bottom:12px">
+      <span class="tag">Versão 1.2.1, o que os testes automatizados encontraram</span>
+      <p><b>Estados recuados não usam mais opacidade.</b> O <code>opacity</code> em prática fora do dia, pedido arquivado e conquista bloqueada derrubava o texto para até 2,02:1. O nome de um pedido arquivado é informação, não decoração. O recuo agora vem de fundo transparente e traço tracejado.</p>
+      <p><b>Chip de estação ativo</b> tinha 3,76:1 no tema claro e 1,93:1 no escuro. Entrou o token <code>--on-accent-fill</code>, tinta escura sobre o latão preenchido.</p>
+      <p style="margin-bottom:0"><b>Token novo <code>--on-accent-soft</code></b>, porque o acento sobre o acento claro dava 4,22:1, logo abaixo de AA.</p>
+    </div>
+    <div class="mudou" style="margin-bottom:12px">
+      <span class="tag">Versão 1.2, fechando a auditoria</span>
+      <p><b>Três tamanhos de botão</b> com alvo de toque documentado, mais as variantes bloco e ícone.</p>
+      <p><b>Lista de oração</b>, o componente que faltava para a tela Oração existir, com os três estados e o bloco de testemunho.</p>
+      <p style="margin-bottom:0"><b>Breakpoints</b> documentados, do celular pequeno ao desktop, incluindo onde a navegação muda de lugar.</p>
+    </div>
+    <div class="mudou">
+      <span class="tag">Versão 1.1, correções da auditoria</span>
+      <p><b>Contraste.</b> O latão ganhou uma variante de texto (<code>#8E641A</code>, 4,57:1) e o cinza secundário escureceu para <code>#626F63</code> (4,59:1). Os dois falhavam em AA no tema claro.</p>
+      <p><b>Tokens novos.</b> <code>--on-brand</code>, <code>--foco</code>, <code>--overlay</code>, estados desligados e uma escala de elevação com três níveis. A cor do texto sobre botão saiu da gambiarra de media query e virou token.</p>
+      <p><b>Estados.</b> Os cinco componentes existentes ganharam matriz completa: repouso, hover, foco, ativo, desabilitado, carregando, e o estado "já regada".</p>
+      <p><b>Seis componentes novos.</b> Campo de anotação, folha de registro, navegação, estado vazio, aviso e calendário de constância. Com eles a tela Hoje fecha.</p>
+      <p style="margin-bottom:0"><b>Movimento.</b> Escala tipográfica virou token, e <code>prefers-reduced-motion</code> agora desliga toda animação.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">01</span><h2>O que a marca é</h2></div>
+    <p class="lede">Um lugar cercado, que pertence a você, e que você abre todos os dias para Alguém. Tudo na identidade nasce dessas três palavras: cercado, seu, aberto.</p>
+    <div class="grid g3" style="margin-top:22px">
+      <div class="card"><span class="tag">Cercado</span><p>Cantares 4.12 e Mateus 6.6. É privado por definição. Nada na marca sugere vitrine, comparação ou plateia.</p></div>
+      <div class="card"><span class="tag">Seu</span><p>O possessivo é o coração do nome. Em Cantares, ela chama de meu jardim, e ele responde chamando do mesmo jeito. O espaço é dela, e ela entrega.</p></div>
+      <div class="card"><span class="tag">Aberto</span><p>Gênesis 3.8, Deus caminhando no jardim pela viração do dia. O portal do símbolo nunca é uma porta fechada, é uma abertura.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">02</span><h2>Personalidade</h2></div>
+    <div class="grid g2">
+      <div class="card">
+        <span class="tag">Como a marca se comporta</span>
+        <ul style="margin-bottom:0">
+          <li><b>Serena, não animada.</b> Nunca comemora com estardalhaço. Uma conquista é reconhecida em voz baixa.</li>
+          <li><b>Acolhedora, não permissiva.</b> Convida de volta sem fingir que a ausência não existiu.</li>
+          <li><b>Concreta, não etérea.</b> Fala em regar, podar, colher. Evita abstração espiritual vaga.</li>
+          <li><b>Feita à mão, não industrial.</b> Traço orgânico, textura de papel, nada que pareça painel de métricas.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag">Os quatro princípios de design</span>
+        <ul style="margin-bottom:0">
+          <li><b>O silêncio é elemento.</b> Espaço vazio é intencional. Uma tela com uma coisa só é uma tela pronta.</li>
+          <li><b>Ninguém compara ninguém.</b> Nenhum componente da biblioteca coloca duas pessoas lado a lado.</li>
+          <li><b>Nada murcha.</b> Nenhum elemento visual regride, apaga progresso ou fica vermelho por ausência.</li>
+          <li><b>Quem faz crescer não é o app.</b> 1 Coríntios 3.6. A interface celebra a rega, nunca o resultado.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">03</span><h2>O símbolo</h2></div>
+    <p class="lede">Um portal de jardim com um broto no centro. O arco é a entrada, sempre aberta na base. O broto é o que acontece lá dentro. Nas duas formas, o traço tem a mesma espessura, o que mantém a marca legível de 16 a 512 pixels.</p>
+    <div class="prancha" style="margin-top:20px">
+      <div class="item"><svg class="mk" width="128" height="128" viewBox="0 0 64 64" style="color:var(--brand)"><use href="#mk"/></svg><span class="cap">principal</span></div>
+      <div class="item"><svg class="mk" width="128" height="128" viewBox="0 0 64 64" style="color:var(--brand)"><use href="#mk-selo"/></svg><span class="cap">selo</span></div>
+      <div class="item"><svg class="mk" width="128" height="128" viewBox="0 0 64 64" style="color:var(--accent-fill)"><use href="#mk-broto"/></svg><span class="cap">broto, uso solto</span></div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card"><span class="tag">Tamanho mínimo</span><p style="margin:0">24 px de altura em tela, 8 mm impresso. Abaixo disso, usar o broto sozinho.</p></div>
+      <div class="card"><span class="tag">Área de respiro</span><p style="margin:0">Metade da altura do símbolo em todos os lados. Nada entra nessa margem, nem texto, nem borda.</p></div>
+      <div class="card"><span class="tag">Cor</span><p style="margin:0">Musgo sobre claro, orvalho sobre escuro, latão apenas no broto solto. Nunca duas cores dentro do mesmo símbolo.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">04</span><h2>Assinaturas</h2></div>
+    <p class="lede">O nome sempre em caixa baixa. Maiúscula endurece, e a marca é íntima. A horizontal é a principal, a vertical serve para espaços quadrados, e o selo é a versão de perfil e carimbo.</p>
+    <div class="prancha" style="margin-top:20px">
+      <div class="item">
+        <div class="wm-h"><svg class="mk" width="46" height="46" viewBox="0 0 64 64" style="color:var(--brand)"><use href="#mk"/></svg><span class="t">o meu jardim</span></div>
+        <span class="cap">horizontal, principal</span>
+      </div>
+      <div class="item">
+        <div class="wm-v"><svg class="mk" width="52" height="52" viewBox="0 0 64 64" style="color:var(--brand)"><use href="#mk"/></svg><span class="t">o meu jardim</span></div>
+        <span class="cap">vertical</span>
+      </div>
+    </div>
+    <div class="prancha brand" style="margin-top:12px">
+      <div class="item">
+        <div class="wm-h" style="color:var(--orvalho)"><svg class="mk" width="46" height="46" viewBox="0 0 64 64"><use href="#mk"/></svg><span class="t">o meu jardim</span></div>
+        <span class="cap">sobre musgo</span>
+      </div>
+      <div class="item"><div class="appicon"><svg width="62" height="62" viewBox="0 0 64 64" style="color:var(--orvalho)"><use href="#mk"/></svg></div><span class="cap">ícone do app</span></div>
+      <div class="item"><div class="appicon alt"><svg width="62" height="62" viewBox="0 0 64 64" style="color:var(--musgo)"><use href="#mk"/></svg></div><span class="cap">ícone, variante clara</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">05</span><h2>Usos proibidos</h2></div>
+    <div class="proibido">
+      <div class="p"><div class="box"><svg width="52" height="40" viewBox="0 0 64 64" preserveAspectRatio="none" style="color:var(--ink-3)"><use href="#mk"/></svg></div><em>Não distorcer nem esticar</em></div>
+      <div class="p"><div class="box"><svg width="46" height="46" viewBox="0 0 64 64" style="color:var(--ink-3);transform:rotate(18deg)"><use href="#mk"/></svg></div><em>Não girar</em></div>
+      <div class="p"><div class="box" style="background:#C7458B"><svg width="46" height="46" viewBox="0 0 64 64" style="color:#FFE24D"><use href="#mk"/></svg></div><em>Não usar cores fora da paleta</em></div>
+      <div class="p"><div class="box"><svg width="46" height="46" viewBox="0 0 64 64" style="color:var(--ink-3);filter:drop-shadow(3px 4px 2px rgba(0,0,0,.5))"><use href="#mk"/></svg></div><em>Não aplicar sombra, brilho ou contorno</em></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">06</span><h2>Paleta</h2></div>
+    <p class="lede">Sete cores de marca, cada uma com um trabalho definido. O latão ganhou duas versões: a de preenchimento, que é a cor da marca, e a de texto, escurecida o suficiente para passar em AA.</p>
+    <div class="swatches" style="margin-top:20px">
+      <div class="sw"><div class="chip" style="background:#2F5A43"></div><div class="meta"><b>Musgo</b><span>#2F5A43</span><em>Cor principal. Botões, símbolo, títulos de destaque.</em></div></div>
+      <div class="sw"><div class="chip" style="background:#6FA97F"></div><div class="meta"><b>Broto</b><span>#6FA97F</span><em>Vida e crescimento. Só preenchimento: barras, gráficos, calendário.</em></div></div>
+      <div class="sw"><div class="chip" style="background:#A8761F"></div><div class="meta"><b>Latão</b><span>#A8761F</span><em>Preenchimento e ícone. Conquista, estação, luz da manhã.</em></div></div>
+      <div class="sw"><div class="chip" style="background:#8E641A"></div><div class="meta"><b>Latão texto</b><span>#8E641A</span><em>Quando o latão vira palavra: rótulo, referência bíblica, link.</em></div></div>
+      <div class="sw"><div class="chip" style="background:#EDF0E7"></div><div class="meta"><b>Orvalho</b><span>#EDF0E7</span><em>Fundo do tema claro e tinta sobre fundo escuro.</em></div></div>
+      <div class="sw"><div class="chip" style="background:#F8F9F4;border-bottom:1px solid #CFD8C8"></div><div class="meta"><b>Papel</b><span>#F8F9F4</span><em>Superfície de cartão e campo de escrita.</em></div></div>
+      <div class="sw"><div class="chip" style="background:#101610"></div><div class="meta"><b>Noite</b><span>#101610</span><em>Texto principal e fundo do tema escuro, para o devocional de madrugada.</em></div></div>
+      <div class="sw"><div class="chip" style="background:#9C4F3B"></div><div class="meta"><b>Terra</b><span>#9C4F3B</span><em>Só alerta e poda. Nunca para indicar falha de constância.</em></div></div>
+    </div>
+
+    <p class="sub">Contraste medido, WCAG 2.1</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Par</th><th>Razão</th><th>Situação</th><th>Onde usar</th></tr></thead>
+        <tbody>
+          <tr><td>Musgo sobre Papel</td><td class="rt">7,45:1</td><td class="ok">AA e AAA</td><td>Texto de qualquer tamanho</td></tr>
+          <tr><td>Musgo sobre Orvalho</td><td class="rt">6,84:1</td><td class="ok">AA</td><td>Texto de qualquer tamanho</td></tr>
+          <tr><td>Papel sobre Musgo</td><td class="rt">7,45:1</td><td class="ok">AA</td><td>Texto do botão primário</td></tr>
+          <tr><td>Latão texto sobre Orvalho</td><td class="rt">4,59:1</td><td class="ok">AA</td><td>Rótulo, referência, link</td></tr>
+          <tr><td>Ink-3 sobre Orvalho</td><td class="rt">4,59:1</td><td class="ok">AA</td><td>Texto secundário e legenda</td></tr>
+          <tr><td>Terra sobre Papel</td><td class="rt">5,52:1</td><td class="ok">AA</td><td>Mensagem de erro</td></tr>
+          <tr><td>Latão preenchimento sobre Orvalho</td><td class="rt">3,45:1</td><td>AA só em elemento grande</td><td>Ícone, borda, anel de foco. Nunca texto pequeno</td></tr>
+          <tr><td>Broto sobre Papel</td><td class="rt">2,59:1</td><td class="ko">Falha</td><td>Proibido como texto. Só preenchimento</td></tr>
+          <tr><td>Tema escuro, todos os pares</td><td class="rt">5,46 a 15,3:1</td><td class="ok">AA</td><td>Aprovado sem ressalva</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <span class="tag">Regras de cor</span>
+      <ul style="margin-bottom:0">
+        <li>Se a cor virou palavra, use a versão de texto. Latão preenchimento e Broto nunca carregam texto.</li>
+        <li>O latão não é decorativo. Se aparece, é porque algo foi conquistado, é uma estação, ou é a Palavra citada.</li>
+        <li>Vermelho não existe na marca. O terra é escuro e quente de propósito, para corrigir sem assustar.</li>
+        <li>O tema escuro não é o claro invertido. Ele é o jardim de madrugada: fundo noite, tinta orvalho, verde mais claro para manter contraste.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">07</span><h2>Tipografia</h2></div>
+    <p class="lede">Três famílias com papéis que não se misturam. Uma para a voz da marca, uma para ler devagar, uma para operar o app.</p>
+
+    <div class="spec" style="margin-top:20px">
+      <div class="role">Display · voz da marca</div>
+      <div class="name">Young Serif, peso 400. Serifa robusta e um pouco rústica, com terminações que lembram traço de ferramenta. Só em títulos, no logotipo e em frases curtas.</div>
+      <div class="amostra-d">Regue hoje. O crescer não é com você.</div>
+      <div class="escala"><span>--t-d1 48/1.05</span><span>--t-d2 36/1.1</span><span>--t-d3 28/1.15</span><span>--t-d4 22/1.25</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="role">Leitura · devocional e Bíblia</div>
+      <div class="name">Source Serif 4, pesos 300 e 400. Tem tamanho óptico, então mantém a cor da página estável em corpo grande e pequeno. É a fonte de tudo que a pessoa lê devagar.</div>
+      <p class="amostra-l" style="margin:0">Serás como um jardim regado e como um manancial cujas águas jamais faltam. Aqui o texto respira: entrelinha 1.62, largura máxima de 62 caracteres, peso 300 no corpo e 400 na citação.</p>
+      <div class="escala"><span>--t-l1 19/1.62</span><span>--t-l2 17/1.6</span><span>--t-l3 15/1.55</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="role">Interface · o app funcionando</div>
+      <div class="name">Figtree, pesos 400 a 700. Geométrica com um pouco de calor, sem a frieza das grotescas de painel. Botões, rótulos, números, navegação.</div>
+      <p style="margin:0"><b style="font-weight:var(--p-forte)">Registrar oração</b><br>18 dias regados este mês · estação de plantio<br><span style="font-variant-numeric:tabular-nums;color:var(--ink-3)">1 240 sementes · 78% de constância</span></p>
+      <div class="escala"><span>--t-u1 16/1.55</span><span>--t-u2 15/1.4 · 600</span><span>--t-u3 13/1.45</span><span>--t-u4 11/1.4 · 0.12em</span><span>tabular-nums em números</span></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <span class="tag">Regra que não se quebra</span>
+      <p style="margin:0">Young Serif nunca em texto corrido, Figtree nunca em versículo. A distinção entre a voz do app e a voz da Palavra é tipográfica antes de ser editorial: se está em serifa de leitura, é para meditar; se está em Figtree, é o app falando.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">08</span><h2>Textura e grafismos</h2></div>
+    <p class="lede">A textura é o que separa esta marca de qualquer app de produtividade. Sempre discreta, sempre por baixo, nunca competindo com o texto.</p>
+    <div class="grid g2" style="margin-top:20px">
+      <div class="tex tex-papel paper"><span class="lb">Papel · ruído 4%, em todo fundo claro</span></div>
+      <div class="tex tex-folhas"><span class="lb">Folhagem · vazios e telas de boas-vindas</span></div>
+      <div class="tex tex-aquarela"><span class="lb">Aquarela · capas de estação e compartilhamento</span></div>
+      <div class="tex tex-vinco"><span class="lb">Cerca · listras finas, cabeçalho e separador</span></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <span class="tag">Raio folha</span>
+      <p>O detalhe assinatura do sistema: cantos opostos arredondados, <code>border-radius: 26px 5px 26px 5px</code>, desenhando a silhueta de uma folha. Reservado para o cartão de prática e o cartão do dia. Se aplicar em tudo, vira maneirismo e perde a graça.</p>
+      <div class="demo" style="margin:0">
+        <div class="pratica"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-gota"/></svg></span><span><b>Oração da manhã</b><span>regada 5 dos 7 dias</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">09</span><h2>Iconografia</h2></div>
+    <p class="lede">Traço de 1.75 px, pontas arredondadas, sem preenchimento, sobre grade de 24. Formas orgânicas com assimetria leve, como coisa desenhada à mão e não gerada.</p>
+    <div class="prancha" style="margin-top:20px;gap:40px">
+      <div class="item"><svg width="34" height="34" viewBox="0 0 24 24" style="color:var(--brand)"><use href="#i-gota"/></svg><span class="cap">oração</span></div>
+      <div class="item"><svg width="34" height="34" viewBox="0 0 24 24" style="color:var(--brand)"><use href="#i-livro"/></svg><span class="cap">Palavra</span></div>
+      <div class="item"><svg width="34" height="34" viewBox="0 0 24 24" style="color:var(--brand)"><use href="#i-folha"/></svg><span class="cap">crescimento</span></div>
+      <div class="item"><svg width="34" height="34" viewBox="0 0 24 24" style="color:var(--brand)"><use href="#i-casa"/></svg><span class="cap">hoje</span></div>
+      <div class="item"><svg width="34" height="34" viewBox="0 0 64 64" style="color:var(--brand)"><use href="#mk-broto"/></svg><span class="cap">jardim</span></div>
+    </div>
+    <p style="margin-top:14px;font-size:14px;color:var(--ink-3)">Cada disciplina tem um ícone da natureza ou do gesto, nunca do objeto religioso. Oração é gota, não mãos postas. Jejum é lua, não prato vazio. Isso mantém a marca longe do clichê gospel e envelhece melhor.</p>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">10</span><h2>Tom de voz</h2></div>
+    <p class="lede">O vocabulário do jardim resolve o maior risco do produto. Quando o app fala em regar, a pessoa entende que ela cuida e que o crescimento não está sob controle dela. Quando o app fala em pontos, ela entende desempenho.</p>
+    <div class="tw" style="margin-top:20px">
+      <table>
+        <thead><tr><th>Situação</th><th>Não escreva</th><th>Escreva</th></tr></thead>
+        <tbody>
+          <tr><td><b>Registro feito</b></td><td class="nao">Parabéns! +25 pontos 🎉</td><td class="sim">Regado. Até amanhã.</td></tr>
+          <tr><td><b>Voltou depois de sumir</b></td><td class="nao">Você perdeu 12 dias de sequência</td><td class="sim">Que bom te ver. O jardim esperou.</td></tr>
+          <tr><td><b>Lembrete diário</b></td><td class="nao">Não esqueça seu devocional hoje!</td><td class="sim">A viração do dia. Seu jardim está aberto.</td></tr>
+          <tr><td><b>Semana difícil</b></td><td class="nao">Sua constância caiu 40%</td><td class="sim">Foi uma estação seca. Toda terra tem uma.</td></tr>
+          <tr><td><b>Tela vazia</b></td><td class="nao">Nenhum registro encontrado</td><td class="sim">Terra limpa. O que você quer plantar aqui?</td></tr>
+          <tr><td><b>Conquista</b></td><td class="nao">Nível 3 desbloqueado</td><td class="sim">Broto. Trinta dias de rega.</td></tr>
+          <tr><td><b>Erro no campo</b></td><td class="nao">Entrada inválida</td><td class="sim">Faltou escrever alguma coisa. Duas linhas bastam.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><span class="tag">Vocabulário oficial</span><p style="margin:0"><b>regar</b> em vez de marcar ou completar · <b>estação</b> em vez de temporada · <b>poda</b> para o período difícil · <b>colheita</b> para a revisão trimestral · <b>terra</b> para a tela inicial vazia · <b>semear</b> para começar uma trilha.</p></div>
+      <div class="card"><span class="tag">O que a marca nunca diz</span><p style="margin:0">Meta batida. Ranking. Você está atrás. Streak perdido. Desafio aceito. Nenhum emoji em texto de sistema. Nenhuma exclamação em notificação.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">11</span><h2>Componentes</h2></div>
+    <p class="lede">Doze componentes, todos com estados definidos. Os exemplos abaixo são reais: passe o mouse, use Tab, veja o foco. O que você vê é o que o código faz.</p>
+
+    <p class="sub">Botão, variantes</p>
+    <div class="demo">
+      <button class="btn">Regar</button>
+      <button class="btn ghost">Escrever o que ouvi</button>
+      <button class="btn quiet">Hoje não</button>
+      <button class="btn" disabled>Desabilitado</button>
+      <button class="btn"><span class="spin"></span>Salvando</button>
+    </div>
+
+    <p class="sub">Botão, tamanhos</p>
+    <div class="demo" style="align-items:center">
+      <button class="btn lg">Regar</button>
+      <button class="btn">Regar</button>
+      <button class="btn sm">Regar</button>
+      <button class="btn icone ghost" aria-label="Adicionar prática"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-folha"/></svg></button>
+      <div style="flex:1 1 260px"><button class="btn bloco">Regar tudo de hoje</button></div>
+    </div>
+    <div class="tw" style="margin-top:12px">
+      <table>
+        <thead><tr><th>Tamanho</th><th>Altura e corpo</th><th>Usar quando</th><th>Alvo de toque</th></tr></thead>
+        <tbody>
+          <tr><td><b>Grande</b> <code>.lg</code></td><td class="rt">52 px · 17/600</td><td>A ação principal da tela, sozinha. O botão Regar da folha de registro.</td><td>Já cumpre 44 px</td></tr>
+          <tr><td><b>Médio</b> <code>.md</code>, padrão</td><td class="rt">44 px · 15/600</td><td>Todo o resto. É o tamanho que você usa sem pensar.</td><td>Já cumpre 44 px</td></tr>
+          <tr><td><b>Pequeno</b> <code>.sm</code></td><td class="rt">36 px · 13/600</td><td>Ação secundária dentro de um cartão ou linha de lista. Nunca a ação principal.</td><td><b>Não cumpre.</b> Precisa de 4 px de área clicável extra em cima e embaixo</td></tr>
+          <tr><td><b>Bloco</b> <code>.bloco</code></td><td class="rt">largura total</td><td>Fim de folha de registro e de formulário, no celular.</td><td>Herda do tamanho base</td></tr>
+          <tr><td><b>Ícone</b> <code>.icone</code></td><td class="rt">44 × 44 px</td><td>Barra superior e ações repetidas em lista. Sempre com <code>aria-label</code>.</td><td>Já cumpre 44 px</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink-3);margin-top:10px">Uma tela nunca tem dois botões grandes. Se duas ações competem pelo tamanho grande, uma delas não é principal, e a decisão de produto está errada antes do design.</p>
+    <div class="tw" style="margin-top:12px">
+      <table>
+        <thead><tr><th>Estado</th><th>Visual</th><th>Comportamento</th></tr></thead>
+        <tbody>
+          <tr><td>Repouso</td><td>Fundo musgo, texto <code>--on-brand</code>, pílula</td><td>Altura de toque mínima de 44 px</td></tr>
+          <tr><td>Hover</td><td>Fundo <code>--brand-forte</code></td><td>Transição de 160 ms</td></tr>
+          <tr><td>Foco</td><td>Anel de 3 px em <code>--foco</code>, deslocado 2 px</td><td>Só com <code>:focus-visible</code>, não aparece no clique de mouse</td></tr>
+          <tr><td>Ativo</td><td>Desce 1 px</td><td>Sem mudança de cor, para não piscar</td></tr>
+          <tr><td>Desabilitado</td><td><code>--off-bg</code> e <code>--off-ink</code></td><td>Não recebe foco, cursor bloqueado</td></tr>
+          <tr><td>Carregando</td><td>Roda de 13 px na cor do texto</td><td>Rótulo muda para gerúndio, largura não pula</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink-3);margin-top:10px"><b>Acessibilidade.</b> Papel <code>button</code>, aciona com Enter e Espaço, e o estado de carregando anuncia <code>aria-busy="true"</code>. Nunca use um <code>div</code> clicável.</p>
+
+    <p class="sub">Cartão de prática, o componente mais tocado do app</p>
+    <div class="demo">
+      <div class="pratica"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-livro"/></svg></span><span><b>Leitura da Palavra</b><span>João 15 · hoje ainda não</span></span></div>
+      <div class="pratica regada"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-check"/></svg></span><span><b>Oração da manhã</b><span>regada hoje</span></span></div>
+      <div class="pratica off"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-folha"/></svg></span><span><b>Jejum</b><span>fora dos dias escolhidos</span></span></div>
+    </div>
+    <div class="tw" style="margin-top:12px">
+      <table>
+        <thead><tr><th>Estado</th><th>Visual</th><th>Regra de marca</th></tr></thead>
+        <tbody>
+          <tr><td>A regar</td><td>Papel, borda névoa, ícone da disciplina em musgo sobre verde claro</td><td>Nunca usa a palavra pendente</td></tr>
+          <tr><td>Hover</td><td>Borda vira musgo</td><td>Sem sombra crescendo, sem escala</td></tr>
+          <tr><td>Já regada</td><td>Fundo verde claro, ícone vira tique sobre musgo, legenda em musgo</td><td>Sem risco no texto e sem tique verde de tarefa. O cartão fica cheio, não riscado</td></tr>
+          <tr><td>Fora do dia</td><td>Fundo transparente, traço tracejado, texto legível</td><td>Não é falha, é dia que ela mesma escolheu não praticar</td></tr>
+          <tr><td>Foco</td><td>Anel de foco padrão em todo o cartão</td><td>O cartão inteiro é o alvo de toque, não só o ícone</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sub">Campo de anotação</p>
+    <div class="demo">
+      <div class="campo">
+        <label for="an">O que você ouviu hoje</label>
+        <textarea id="an" placeholder="Duas linhas bastam."></textarea>
+        <div class="ajuda"><span>Só você lê isto.</span><span>0 / 280</span></div>
+      </div>
+      <div class="campo erro">
+        <label for="an2">O que você ouviu hoje</label>
+        <textarea id="an2">a</textarea>
+        <div class="ajuda"><span>Escreva ao menos uma frase inteira.</span><span>1 / 280</span></div>
+      </div>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink-3);margin-top:10px">Fonte de leitura dentro do campo, não a de interface: escrever aqui é continuação do ato de meditar. O texto de ajuda diz "só você lê isto" em todo campo de diário, porque privacidade é promessa de marca e precisa ser visível, não estar enterrada nos termos.</p>
+
+    <p class="sub">Folha de registro, navegação e aviso</p>
+    <div class="demo" style="align-items:flex-end">
+      <div class="folha">
+        <div class="puxador"></div>
+        <div class="in">
+          <h4>Oração da manhã</h4>
+          <p class="meta">quinta, 3 de setembro · 6h12</p>
+          <div class="linha">
+            <span class="tagzinha sel">gratidão</span><span class="tagzinha">dúvida</span><span class="tagzinha">entrega</span><span class="tagzinha">direção</span>
+          </div>
+          <button class="btn" style="width:100%">Regar</button>
+        </div>
+      </div>
+      <div style="display:grid;gap:14px">
+        <nav class="nav" aria-label="Exemplo de navegação">
+          <a href="#" class="at" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-casa"/></svg>Hoje</a>
+          <a href="#"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-livro"/></svg>Trilhas</a>
+          <a href="#"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#i-gota"/></svg>Oração</a>
+          <a href="#"><svg width="20" height="20" viewBox="0 0 64 64"><use href="#mk-broto"/></svg>Jardim</a>
+        </nav>
+        <div class="aviso"><span class="c"><svg width="13" height="13" viewBox="0 0 24 24"><use href="#i-check"/></svg></span>Regado. Até amanhã.</div>
+        <div class="calend">
+          <div class="leg"><span>Últimos 30 dias</span><span style="font-variant-numeric:tabular-nums">78%</span></div>
+          <div class="g">
+            <span class="d n3"></span><span class="d n2"></span><span class="d n3"></span><span class="d"></span><span class="d n1"></span><span class="d n3"></span><span class="d n3"></span><span class="d n2"></span><span class="d"></span><span class="d n3"></span>
+            <span class="d n3"></span><span class="d n3"></span><span class="d n1"></span><span class="d n2"></span><span class="d n3"></span><span class="d"></span><span class="d n3"></span><span class="d n3"></span><span class="d n2"></span><span class="d n3"></span>
+            <span class="d n1"></span><span class="d n3"></span><span class="d n3"></span><span class="d n2"></span><span class="d n3"></span><span class="d n3"></span><span class="d"></span><span class="d n2"></span><span class="d n3"></span><span class="d n3"></span>
+          </div>
+          <div class="leg"><span>Dia sem rega fica cinza, nunca vermelho</span></div>
+        </div>
+      </div>
+      <div class="vazio">
+        <div class="il"><svg width="52" height="52" viewBox="0 0 64 64"><use href="#mk-broto"/></svg></div>
+        <h4>Terra limpa</h4>
+        <p>Nada plantado ainda. O que você quer que cresça aqui?</p>
+        <button class="btn ghost">Escolher uma prática</button>
+      </div>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink-3);margin-top:10px">O aviso aparece por 3 segundos, sem botão de fechar e sem som. A navegação usa <code>aria-current="page"</code> no item ativo. O calendário é o único lugar onde a ausência é visível, e mesmo ali ela é cinza neutro, com a legenda explicando a regra.</p>
+
+    <p class="sub">Lista de oração</p>
+    <div class="demo">
+      <div class="oracao">
+        <div class="ora">
+          <span class="st"></span>
+          <span class="cont"><b>Emprego para o Tiago</b><span class="quem">Tiago, meu irmão</span></span>
+          <span class="dias">há 34 dias</span>
+        </div>
+        <div class="ora resp">
+          <span class="st"></span>
+          <span class="cont">
+            <b>Cirurgia da dona Neusa</b><span class="quem">Neusa, da célula</span>
+            <span class="test"><span class="dt">Respondida em 28 de agosto</span>Deu tudo certo. Ela voltou para casa em dois dias e no domingo estava na igreja.</span>
+          </span>
+          <span class="dias">61 dias</span>
+        </div>
+        <div class="ora arq">
+          <span class="st"></span>
+          <span class="cont"><b>Decisão sobre a mudança</b><span class="quem">arquivada, não é mais o caso</span></span>
+          <span class="dias">há 4 meses</span>
+        </div>
+      </div>
+    </div>
+    <div class="tw" style="margin-top:12px">
+      <table>
+        <thead><tr><th>Estado</th><th>Visual</th><th>Regra de marca</th></tr></thead>
+        <tbody>
+          <tr><td><b>Pedindo</b></td><td>Ponto névoa com halo cinza, contagem em dias desde o pedido</td><td>A contagem nunca é chamada de tempo de espera, e nunca fica vermelha por antiguidade</td></tr>
+          <tr><td><b>Respondida</b></td><td>Ponto musgo com halo verde, bloco de testemunho em fundo verde claro, na fonte de leitura</td><td>O testemunho é o clímax do app. Fica visível na lista, não escondido atrás de um toque</td></tr>
+          <tr><td><b>Arquivada</b></td><td>Fundo transparente, traço tracejado, título em tinta secundária</td><td>Sem risco no texto. Arquivar não é fracassar, é reconhecer que mudou</td></tr>
+          <tr><td><b>Hover e foco</b></td><td>Borda musgo e anel de foco no item inteiro</td><td>O item todo é o alvo, e a ação de marcar como respondida fica dentro, em botão pequeno</td></tr>
+          <tr><td><b>Lista vazia</b></td><td>Componente de vazio, com o texto "Ninguém na lista ainda. Por quem você quer orar?"</td><td>Pergunta, nunca instrução</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink-3);margin-top:10px"><b>Acessibilidade.</b> A lista é <code>ul</code> e cada pedido um <code>li</code>. O estado não vive só na cor do ponto: ele está no texto ("Respondida em 28 de agosto") para quem não distingue verde de cinza e para o leitor de tela. Nome de terceiros aparece só no aparelho da pessoa, nunca sai em compartilhamento nem em analytics.</p>
+
+    <p class="sub">Progresso e conquista</p>
+    <div class="demo">
+      <div class="crescimento">
+        <div class="top"><span>Broto, indo para Ramo</span><span>69%</span></div>
+        <div class="barra"><i style="width:69%"></i></div>
+        <p style="margin:9px 0 0;font-size:12.5px;color:var(--ink-3)">18 dias regados nos últimos 30</p>
+      </div>
+      <div class="selo"><span class="m">↺</span><span><b>Volta por cima</b><span>Você voltou depois de uma estação seca.</span></span></div>
+      <div class="selo bloq"><span class="m">☾</span><span><b>Antes do sol</b><span>Ainda não desbloqueada.</span></span></div>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink-3);margin-top:10px">A barra só cresce, com transição de 640 ms, e nunca anima para trás. Conquista bloqueada aparece tracejada e legível, nunca esmaecida por opacidade nem coberta por cadeado: opacidade derruba o contraste do texto, e cadeado sugere paywall.</p>
+
+    <div class="card" style="margin-top:16px">
+      <span class="tag">O que não existe nesta biblioteca, de propósito</span>
+      <p style="margin:0">Barra vermelha. Contador regressivo. Comparação entre pessoas. Compartilhamento automático. Badge de notificação com número. Confete. A ausência deles é decisão de marca, não esquecimento.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">12</span><h2>Breakpoints</h2></div>
+    <p class="lede">O app nasce no celular e o desktop é a exceção, então tudo é escrito primeiro para 360 px e cresce a partir dali. Só quatro pontos de quebra, porque cada um a mais é uma tela a mais para testar.</p>
+
+    <div class="reguas">
+      <div class="reg"><span class="bar" style="width:96px">360</span><span class="txt">celular pequeno, o piso do projeto</span></div>
+      <div class="reg"><span class="bar" style="width:150px">480 · gr</span><span class="txt">celular grande e dobrável fechado</span></div>
+      <div class="reg"><span class="bar" style="width:230px">768 · tb</span><span class="txt">tablet retrato, começa o desktop</span></div>
+      <div class="reg"><span class="bar" style="width:330px">1024 · dk</span><span class="txt">tablet paisagem, notebook, site</span></div>
+    </div>
+
+    <div class="tw" style="margin-top:18px">
+      <table>
+        <thead><tr><th>Faixa</th><th>Layout</th><th>Navegação</th><th>Tipografia e toque</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>360 a 479</b><br><span class="rt">base</span></td>
+            <td>Uma coluna. Margem lateral de 16 px. Cartões em largura total. Folha de registro sobe do rodapé, ocupando até 90% da altura.</td>
+            <td>Barra inferior fixa com 4 itens, altura de 56 px mais a área segura do aparelho.</td>
+            <td>Escala cheia. Botão principal em bloco. Nenhum alvo abaixo de 44 px.</td>
+          </tr>
+          <tr>
+            <td><b>480 a 767</b><br><span class="rt">gr</span></td>
+            <td>Ainda uma coluna, mas o conteúdo para de esticar em 440 px e centraliza. Margem de 20 px.</td>
+            <td>Igual à base.</td>
+            <td>Igual à base. Botão principal deixa de ser bloco e volta a ter largura de conteúdo.</td>
+          </tr>
+          <tr>
+            <td><b>768 a 1023</b><br><span class="rt">tb</span></td>
+            <td>Duas colunas onde faz sentido: cartões de prática em grade, diário em lista com prévia. Largura máxima de 720 px para texto de leitura.</td>
+            <td>A barra inferior vira trilho lateral esquerdo de 84 px, com ícone e rótulo.</td>
+            <td>Display sobe um degrau. Alvo mínimo cai para 40 px, já que há ponteiro.</td>
+          </tr>
+          <tr>
+            <td><b>1024 e acima</b><br><span class="rt">dk</span></td>
+            <td>Duas áreas: coluna de conteúdo de 680 px e coluna lateral de 320 px para jardim e constância. Máximo geral de 1120 px, centralizado.</td>
+            <td>Trilho lateral expandido para 220 px, com rótulo ao lado do ícone.</td>
+            <td>Escala de display cheia. Estados de hover passam a valer de verdade.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card">
+        <span class="tag">Regras que valem em toda faixa</span>
+        <ul style="margin-bottom:0">
+          <li>Texto de leitura nunca passa de 66 caracteres por linha, em nenhuma largura. É por isso que o desktop ganha coluna lateral em vez de linha mais longa.</li>
+          <li>Nada é escondido só porque a tela é pequena. Se um elemento não cabe no celular, ele não deveria existir.</li>
+          <li>A folha de registro é modal no celular e vira painel lateral a partir de 768 px, sem mudar de conteúdo.</li>
+          <li>Testar sempre em 360 px e com fonte do sistema em 200%. É onde a maioria das pessoas dessa faixa etária realmente está.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag">Como escrever</span>
+        <p>Mobile first, sempre <code>min-width</code>, nunca <code>max-width</code>. A regra base fica fora da media query.</p>
+        <div class="tokens" style="font-size:12px;padding:14px 16px">
+<span class="k">--bp-gr</span>:<span class="v">480px</span>; <span class="k">--bp-tb</span>:<span class="v">768px</span>; <span class="k">--bp-dk</span>:<span class="v">1024px</span>;<br>
+<span class="k">--largura-leitura</span>:<span class="v">66ch</span>; <span class="k">--largura-app</span>:<span class="v">440px</span>; <span class="k">--largura-max</span>:<span class="v">1120px</span>;<br>
+<span class="c">@media (min-width: 768px) { … }</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">13</span><h2>Tokens</h2></div>
+    <p class="lede">Cole na raiz do projeto. É exatamente o conjunto que desenha esta página, já com as correções da auditoria.</p>
+    <div class="tokens" style="margin-top:18px">
+<span class="c">/* marca */</span><br>
+<span class="k">--musgo</span>:<span class="v">#2F5A43</span>; <span class="k">--broto</span>:<span class="v">#6FA97F</span>; <span class="k">--latao</span>:<span class="v">#A8761F</span>; <span class="k">--latao-texto</span>:<span class="v">#8E641A</span>;<br>
+<span class="k">--terra</span>:<span class="v">#9C4F3B</span>; <span class="k">--orvalho</span>:<span class="v">#EDF0E7</span>; <span class="k">--papel</span>:<span class="v">#F8F9F4</span>; <span class="k">--noite</span>:<span class="v">#101610</span>; <span class="k">--nevoa</span>:<span class="v">#C9D2C2</span>;<br><br>
+<span class="c">/* semânticos, tema claro */</span><br>
+<span class="k">--bg</span>:<span class="v">#EDF0E7</span>; <span class="k">--surface</span>:<span class="v">#F8F9F4</span>; <span class="k">--surface-2</span>:<span class="v">#E3E9DE</span>; <span class="k">--line</span>:<span class="v">#CFD8C8</span>;<br>
+<span class="k">--ink</span>:<span class="v">#141A14</span>; <span class="k">--ink-2</span>:<span class="v">#3C4A3E</span>; <span class="k">--ink-3</span>:<span class="v">#626F63</span>;<br>
+<span class="k">--brand</span>:<span class="v">#2F5A43</span>; <span class="k">--brand-forte</span>:<span class="v">#25462F</span>; <span class="k">--brand-soft</span>:<span class="v">#DCE7DC</span>; <span class="k">--on-brand</span>:<span class="v">#F8F9F4</span>;<br>
+<span class="k">--accent</span>:<span class="v">#8E641A</span>; <span class="k">--accent-fill</span>:<span class="v">#A8761F</span>; <span class="k">--accent-soft</span>:<span class="v">#F1E5CB</span>;<br>
+<span class="k">--alert</span>:<span class="v">#9C4F3B</span>; <span class="k">--alert-soft</span>:<span class="v">#F2DED7</span>;<br>
+<span class="k">--foco</span>:<span class="v">#A8761F</span>; <span class="k">--overlay</span>:<span class="v">rgba(16,22,16,.55)</span>; <span class="k">--off-bg</span>:<span class="v">#E3E9DE</span>; <span class="k">--off-ink</span>:<span class="v">#8C978C</span>;<br><br>
+<span class="c">/* semânticos, tema escuro */</span><br>
+<span class="k">--bg</span>:<span class="v">#101610</span>; <span class="k">--surface</span>:<span class="v">#19201A</span>; <span class="k">--surface-2</span>:<span class="v">#222A22</span>; <span class="k">--line</span>:<span class="v">#313A30</span>;<br>
+<span class="k">--ink</span>:<span class="v">#E7ECE3</span>; <span class="k">--ink-2</span>:<span class="v">#BCC7B9</span>; <span class="k">--ink-3</span>:<span class="v">#8B978B</span>;<br>
+<span class="k">--brand</span>:<span class="v">#7FB894</span>; <span class="k">--brand-forte</span>:<span class="v">#9BCCAD</span>; <span class="k">--brand-soft</span>:<span class="v">#1E2C22</span>; <span class="k">--on-brand</span>:<span class="v">#101610</span>;<br>
+<span class="k">--accent</span>:<span class="v">#DDAE55</span>; <span class="k">--alert</span>:<span class="v">#DD8974</span>; <span class="k">--foco</span>:<span class="v">#DDAE55</span>;<br><br>
+<span class="c">/* tipo */</span><br>
+<span class="k">--display</span>:<span class="v">"Young Serif", Georgia, serif</span>; <span class="k">--leitura</span>:<span class="v">"Source Serif 4", Georgia, serif</span>; <span class="k">--ui</span>:<span class="v">"Figtree", system-ui, sans-serif</span>;<br>
+<span class="k">--t-d1</span>:<span class="v">48px/1.05</span>; <span class="k">--t-d2</span>:<span class="v">36px/1.1</span>; <span class="k">--t-d3</span>:<span class="v">28px/1.15</span>; <span class="k">--t-d4</span>:<span class="v">22px/1.25</span>;<br>
+<span class="k">--t-l1</span>:<span class="v">19px/1.62</span>; <span class="k">--t-l2</span>:<span class="v">17px/1.6</span>; <span class="k">--t-l3</span>:<span class="v">15px/1.55</span>;<br>
+<span class="k">--t-u1</span>:<span class="v">16px/1.55</span>; <span class="k">--t-u2</span>:<span class="v">15px/1.4</span>; <span class="k">--t-u3</span>:<span class="v">13px/1.45</span>; <span class="k">--t-u4</span>:<span class="v">11px/1.4, 0.12em</span>;<br>
+<span class="k">--p-leve</span>:<span class="v">300</span>; <span class="k">--p-normal</span>:<span class="v">400</span>; <span class="k">--p-medio</span>:<span class="v">500</span>; <span class="k">--p-forte</span>:<span class="v">600</span>;<br><br>
+<span class="c">/* espaço, base 4 */</span><br>
+<span class="k">--e1</span>:<span class="v">4px</span>; <span class="k">--e2</span>:<span class="v">8px</span>; <span class="k">--e3</span>:<span class="v">12px</span>; <span class="k">--e4</span>:<span class="v">16px</span>; <span class="k">--e5</span>:<span class="v">24px</span>; <span class="k">--e6</span>:<span class="v">32px</span>; <span class="k">--e7</span>:<span class="v">48px</span>; <span class="k">--e8</span>:<span class="v">72px</span>;<br><br>
+<span class="c">/* forma e elevação */</span><br>
+<span class="k">--r-campo</span>:<span class="v">8px</span>; <span class="k">--r-card</span>:<span class="v">14px</span>; <span class="k">--r-folha</span>:<span class="v">26px 5px 26px 5px</span>; <span class="k">--r-pilula</span>:<span class="v">999px</span>;<br>
+<span class="k">--btn-sm</span>:<span class="v">36px</span>; <span class="k">--btn-md</span>:<span class="v">44px</span>; <span class="k">--btn-lg</span>:<span class="v">52px</span>; <span class="k">--toque-min</span>:<span class="v">44px</span>;<br>
+<span class="k">--sombra-1</span>:<span class="v">repouso</span>; <span class="k">--sombra-2</span>:<span class="v">cartão elevado</span>; <span class="k">--sombra-3</span>:<span class="v">folha e aviso, sobre o conteúdo</span>;<br><br>
+<span class="c">/* movimento, nunca pisca, nunca salta */</span><br>
+<span class="k">--t-rapido</span>:<span class="v">160ms cubic-bezier(.2,.7,.3,1)</span>;<br>
+<span class="k">--t-padrao</span>:<span class="v">240ms cubic-bezier(.2,.7,.3,1)</span>;<br>
+<span class="k">--t-crescer</span>:<span class="v">640ms cubic-bezier(.16,.9,.24,1)</span>;<br>
+<span class="c">@media (prefers-reduced-motion: reduce) → toda transição vira 0.001ms</span><br><br>
+<span class="c">/* breakpoints, sempre min-width */</span><br>
+<span class="k">--bp-gr</span>:<span class="v">480px</span>; <span class="k">--bp-tb</span>:<span class="v">768px</span>; <span class="k">--bp-dk</span>:<span class="v">1024px</span>;<br>
+<span class="k">--largura-leitura</span>:<span class="v">66ch</span>; <span class="k">--largura-app</span>:<span class="v">440px</span>; <span class="k">--largura-max</span>:<span class="v">1120px</span>;
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="n">14</span><h2>O que fazer com isso agora</h2></div>
+    <div class="grid g3">
+      <div class="card"><span class="tag">Primeiro</span><p style="margin:0">Exportar o símbolo em SVG e gerar o ícone do app nos tamanhos das lojas, a partir da versão sobre musgo.</p></div>
+      <div class="card"><span class="tag">Segundo</span><p style="margin:0">Montar as telas Hoje e Oração com estes doze componentes. Eles cobrem as duas por inteiro, sem precisar inventar nada novo.</p></div>
+      <div class="card"><span class="tag">Terceiro</span><p style="margin:0">Passar todo texto existente pela tabela de tom de voz. Marca se perde primeiro na microcopy, não no logo.</p></div>
+    </div>
+  </section>
+
+  <footer>o meu jardim · manual da marca v1.2.1 · documento vivo, revisar a cada release maior</footer>
+</div>

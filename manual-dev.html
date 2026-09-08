@@ -1,0 +1,606 @@
+<title>Jardim, manual de desenvolvimento</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#EDF0E7;--surface:#F8F9F4;--surface-2:#E3E9DE;--line:#CFD8C8;
+    --ink:#141A14;--ink-2:#3C4A3E;--ink-3:#626F63;
+    --brand:#2F5A43;--brand-soft:#DCE7DC;--on-brand:#F8F9F4;
+    --accent:#8E641A;--accent-fill:#A8761F;--accent-soft:#F1E5CB;
+    --alert:#9C4F3B;--alert-soft:#F2DED7;--noite:#101610;
+    --r:14px;--sombra:0 1px 0 rgba(20,26,20,.04),0 10px 28px -22px rgba(20,26,20,.7);
+    --display:"Young Serif",Georgia,serif;--leitura:"Source Serif 4",Georgia,serif;
+    --ui:"Figtree",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#101610;--surface:#19201A;--surface-2:#222A22;--line:#313A30;
+    --ink:#E7ECE3;--ink-2:#BCC7B9;--ink-3:#8B978B;
+    --brand:#7FB894;--brand-soft:#1E2C22;--on-brand:#101610;
+    --accent:#DDAE55;--accent-fill:#DDAE55;--accent-soft:#2C2413;
+    --alert:#DD8974;--alert-soft:#331C16;
+    --sombra:0 1px 0 rgba(0,0,0,.3),0 12px 32px -24px #000;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#101610;--surface:#19201A;--surface-2:#222A22;--line:#313A30;
+    --ink:#E7ECE3;--ink-2:#BCC7B9;--ink-3:#8B978B;--brand:#7FB894;--brand-soft:#1E2C22;
+    --on-brand:#101610;--accent:#DDAE55;--accent-fill:#DDAE55;--accent-soft:#2C2413;
+    --alert:#DD8974;--alert-soft:#331C16;--sombra:0 1px 0 rgba(0,0,0,.3),0 12px 32px -24px #000;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px 110px}
+  p{margin:0 0 14px;max-width:66ch;color:var(--ink-2)}
+  b,strong{color:var(--ink)}
+  h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;color:var(--ink);text-wrap:balance;letter-spacing:-.005em}
+  ul,ol{margin:0 0 14px;padding-left:20px;max-width:66ch;color:var(--ink-2)}
+  li{margin:0 0 6px}li::marker{color:var(--brand)}
+  a{color:var(--brand)}
+  code{font-family:var(--mono);font-size:13px;background:var(--surface-2);padding:1px 5px;border-radius:5px;color:var(--ink-2)}
+
+  header{padding:54px 0 34px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 20px}
+  h1{font-size:clamp(34px,5.4vw,56px);line-height:1.04}
+  .sub{font-family:var(--leitura);font-size:clamp(17px,2vw,20px);line-height:1.5;font-weight:300;max-width:52ch;margin:22px 0 0;color:var(--ink-2)}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .pill{font-family:var(--mono);font-size:11.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+  .pill.on{background:var(--brand-soft);border-color:transparent;color:var(--brand)}
+
+  section{padding-top:54px}
+  .sh{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+  .sh .n{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.1em;padding-top:7px}
+  h2{font-size:clamp(23px,3vw,31px)}
+  h3{font-size:18px;margin:26px 0 8px}
+  .lede{font-family:var(--leitura);font-size:18px;line-height:1.58;color:var(--ink-2);max-width:60ch}
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(225px,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:19px;box-shadow:var(--sombra)}
+  .card p:last-child,.card ul:last-child{margin-bottom:0}
+  .tag{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);display:block;margin-bottom:8px}
+
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--sombra);margin-bottom:14px}
+  table{border-collapse:collapse;width:100%;min-width:620px;font-size:14.5px}
+  th,td{text-align:left;padding:11px 15px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  td b{color:var(--ink)}
+  .num{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+  .sim{color:var(--brand);font-weight:600}.nao{color:var(--alert);font-weight:600}
+
+  pre{background:var(--noite);color:#D8E0D5;border-radius:var(--r);padding:17px 19px;overflow-x:auto;
+      font-family:var(--mono);font-size:12.5px;line-height:1.7;margin:0 0 14px}
+  pre b{color:#9FD3AF;font-weight:400}
+  pre i{color:#8A9A89;font-style:normal}
+  pre u{color:#E6C77E;text-decoration:none}
+  pre .x{color:#E39C86}
+
+  .nota{border-left:3px solid var(--accent-fill);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+  .nota .tag{color:var(--accent)}
+  .nota p:last-child{margin-bottom:0}
+  .perigo{border-left-color:var(--alert);background:var(--alert-soft)}
+  .perigo .tag{color:var(--alert)}
+
+  .arv{font-family:var(--mono);font-size:12.5px;line-height:1.85;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;overflow-x:auto;margin-bottom:14px}
+  .arv b{color:var(--brand);font-weight:500}
+  .arv i{color:var(--ink-3);font-style:normal}
+
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+  @media(max-width:640px){.wrap{padding:0 18px 80px}header{padding:34px 0 26px}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="kicker">Manual de desenvolvimento · v1.2 · setembro 2026</p>
+  <h1>Jardim, do banco à tela</h1>
+  <p class="sub">As decisões técnicas já tomadas, com o motivo de cada uma, para você não ter que redecidir em cada arquivo.</p>
+  <div class="pills">
+    <span class="pill on">React Native · Expo SDK 57</span>
+    <span class="pill on">Fastify 5</span>
+    <span class="pill on">Postgres 16 · pgvector · Sequelize 6</span>
+    <span class="pill on">UUIDv7</span>
+    <span class="pill on">PWA primeiro, loja depois</span>
+    <span class="pill">Offline primeiro</span>
+    <span class="pill">LGPD, dado sensível</span>
+  </div>
+</header>
+
+<section>
+  <div class="sh"><span class="n">01</span><h2>As decisões, em uma tabela</h2></div>
+  <p class="lede">Cada linha aqui é uma discussão que não precisa acontecer de novo. Se você mudar de ideia, mude aqui primeiro e depois no código.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Assunto</th><th>Decisão</th><th>Por quê, em uma frase</th></tr></thead>
+      <tbody>
+        <tr><td><b>App</b></td><td>React Native com Expo, SDK 57 (RN 0.86, React 19.2)</td><td>Uma base para iOS e Android, e o Expo entrega notificação, biometria, armazenamento seguro e build na nuvem sem você manter Xcode e Gradle.</td></tr>
+        <tr><td><b>Navegação</b></td><td>expo-router</td><td>Rota por arquivo, deep link de graça, e transição nativa entre telas sem configurar navegador na mão.</td></tr>
+        <tr><td><b>Movimento</b></td><td>Reanimated 4.5 com worklets</td><td>Animação roda na thread de UI, então não engasga quando a lista está carregando. Exige a Nova Arquitetura ligada.</td></tr>
+        <tr><td><b>API</b></td><td>Fastify 5</td><td>Validação por schema é nativa, o que transforma "validar entrada" de disciplina em estrutura. E o log já vem com redação de campo.</td></tr>
+        <tr><td><b>Banco</b></td><td>Postgres 16, imagem <code>pgvector/pgvector:pg16</code></td><td>Array nativo, JSONB, busca textual em português e restrição de integridade de verdade. O modelo tem regra demais para banco de documento.</td></tr>
+        <tr><td><b>Busca semântica</b></td><td>pgvector, só no conteúdo</td><td>Achar o devocional certo por sentido, não por palavra. No diário não dá: ele está cifrado, e gerar embedding exigiria decifrar.</td></tr>
+        <tr><td><b>ORM</b></td><td>Sequelize 6.37 com sequelize-cli</td><td>Foi o pedido, e a v6 é a estável. A v7 continua em alfa e o sequelize-cli não a suporta.</td></tr>
+        <tr><td><b>Identificador</b></td><td>UUIDv7</td><td>Ordenável no tempo, gerado no celular offline, cabe no tipo <code>uuid</code> nativo. A seção 03 abre a conta.</td></tr>
+        <tr><td><b>Sincronização</b></td><td>Offline primeiro, fila de saída</td><td>A pessoa registra oração às 5h no ônibus. Se gravar depender de rede, o app falha no momento de uso.</td></tr>
+        <tr><td><b>Diário</b></td><td>Cifrado no banco, buscado no aparelho</td><td>Convicção religiosa é dado sensível na LGPD. O servidor guarda, não lê.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="nota">
+    <span class="tag">Sobre o Sequelize 7</span>
+    <p style="margin:0">A v7 foi reescrita para TypeScript e é tentadora, mas segue em alfa, sem suporte do sequelize-cli (as migrações passariam a depender do Umzug) e com bibliotecas de terceiros quebrando. Para um app que vai para loja, v6.37. Reavalie quando sair estável.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">02</span><h2>Estrutura do repositório</h2></div>
+  <p class="lede">Um repositório só, três pastas. Monorepo com ferramenta de workspace é overhead para uma pessoa.</p>
+  <div class="arv">
+jardim/
+├── <b>design-system/</b>     <i>tokens.css é a fonte de verdade visual</i>
+│   ├── tokens.css
+│   ├── tokens.json      <i>gerado, consumido pelo app</i>
+│   └── manual.html
+├── <b>api/</b>
+│   ├── src/
+│   │   ├── servidor.js
+│   │   ├── config/banco.js
+│   │   ├── db/{models,migrations,seeders}
+│   │   ├── lib/{id,cripto,senha}.js
+│   │   ├── plugins/{seguranca,autenticacao}.js
+│   │   └── rotas/
+│   └── .sequelizerc
+├── <b>app/</b>
+│   ├── tema/gerar-tema.js  <i>tokens.json → tema.ts</i>
+│   ├── tema/tema.ts        <i>gerado, não editar</i>
+│   ├── componentes/
+│   ├── lib/{id,seguro,fila-offline,tema-contexto}
+│   └── app/                <i>rotas do expo-router</i>
+└── docker-compose.yml
+  </div>
+  <p>A cadeia dos tokens tem uma direção só: <code>tokens.css</code> gera <code>tokens.json</code>, que gera <code>tema.ts</code>. Nenhum hex é digitado no app, e o teste <code>tokens.spec.js</code> do design system reprova o build se alguém digitar.</p>
+</section>
+
+<section>
+  <div class="sh"><span class="n">03</span><h2>Identificador: UUIDv7, e não TSID</h2></div>
+  <p class="lede">Você perguntou TSID ou UUID. A resposta é UUIDv7, e vale entender por que, porque o motivo decide também como a sincronização funciona.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Opção</th><th>Tamanho</th><th>Ordenável</th><th>O problema</th></tr></thead>
+      <tbody>
+        <tr><td><b>UUIDv4</b></td><td class="num">16 bytes</td><td class="nao">não</td><td>Inserção aleatória no índice B-tree causa divisão de página, índice inchado e cache frio. É o clássico "por que meu insert ficou lento com 10 milhões de linhas".</td></tr>
+        <tr><td><b>TSID</b></td><td class="num">8 bytes</td><td class="sim">sim</td><td>Cabe em <code>bigint</code> e é ótimo, mas precisa de um id de nó coordenado entre quem gera. Com o celular gerando id offline, cada aparelho vira um nó, e você teria que distribuir e controlar esses números.</td></tr>
+        <tr><td><b>UUIDv7</b></td><td class="num">16 bytes</td><td class="sim">sim</td><td>Nenhum relevante aqui. Padrão publicado na RFC 9562, tipo <code>uuid</code> nativo no Postgres, e os 48 bits iniciais são o timestamp em milissegundos.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Os 8 bytes a mais do UUIDv7 sobre o TSID custam cerca de 160 MB a cada 10 milhões de linhas com quatro índices. Para este app, é irrelevante. O que não é irrelevante é o celular poder criar um id sozinho, sem pedir nada ao servidor e sem coordenar com ninguém.</p>
+
+  <h3>O que isso destrava</h3>
+  <p>Como o id nasce no aparelho, subir o mesmo registro duas vezes não cria dois. A sincronização fica idempotente sem uma linha de lógica de conflito, que é justamente onde app offline costuma morrer.</p>
+  <pre><i>// api/src/db/models/registro.js</i>
+Registro.regar = <b>async</b> function ({ id, usuarioId, praticaId, dataRef }, t) {
+  <i>// id veio do celular. Mandar duas vezes não cria dois.</i>
+  <b>const</b> [registro] = <b>await</b> Registro.findOrCreate({
+    where: { id },
+    defaults: { id, usuarioId, praticaId, dataRef },
+    transaction: t,
+  });
+  <b>return</b> registro;
+};</pre>
+  <div class="nota">
+    <span class="tag">Regra</span>
+    <p style="margin:0">O servidor aceita o id do cliente, mas nunca confia nele sem validar: precisa ser UUID versão 7. Um id vindo de fora é entrada de usuário como qualquer outra.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">04</span><h2>Banco e migrações</h2></div>
+  <p class="lede">Schema muda por migração, sempre. Não existe exceção, nem em desenvolvimento.</p>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag">Convenções fixas</span>
+      <ul style="margin-bottom:0">
+        <li>Tabela no <b>singular</b> e em <code>snake_case</code>: <code>registro</code>, <code>pedido_oracao</code>.</li>
+        <li>Coluna em <code>snake_case</code> no banco, <code>camelCase</code> no código. Resolvido uma vez em <code>define.underscored</code>.</li>
+        <li>Datas em português: <code>criado_em</code>, <code>atualizado_em</code>, <code>removido_em</code>.</li>
+        <li>Migração nomeada pelo que faz: <code>20260903120000-cria-usuario.js</code>.</li>
+        <li>Toda migração tem <code>down</code> que realmente desfaz, inclusive apagando o tipo ENUM criado.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Proibido</span>
+      <ul style="margin-bottom:0">
+        <li><code>sequelize.sync()</code> em qualquer ambiente. Ele mente sobre o estado do schema.</li>
+        <li>Editar migração já aplicada em produção. Crie outra.</li>
+        <li>Índice sem nome. Sem nome, você não consegue removê-lo depois.</li>
+        <li>Chave estrangeira sem <code>onDelete</code> explícito.</li>
+        <li>Coluna <code>TEXT</code> sem limite recebendo entrada de usuário.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Os três índices que sustentam o app</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Índice</th><th>Serve a</th></tr></thead>
+      <tbody>
+        <tr><td><code>registro (pratica_id, data_ref)</code> único, parcial em <code>removido_em IS NULL</code></td><td>A regra "uma rega por prática por dia". Faz o toque duplo virar um registro só, no banco, não na aplicação.</td></tr>
+        <tr><td><code>registro (usuario_id, data_ref)</code></td><td>A tela Hoje e o calendário de constância, que são as consultas mais quentes.</td></tr>
+        <tr><td><code>anotacao (tags_cegas)</code> GIN</td><td>Filtro por tag no diário sem o servidor saber qual é a tag.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>O dia devocional começa às 4h</h3>
+  <p>Este é o detalhe que quebra app de hábito e ninguém percebe na revisão. Quem ora às 23h50 e quem ora às 00h10 não podem cair em dias diferentes. Por isso <code>data_ref</code> é <code>DATEONLY</code>, calculado no cliente a partir do fuso da pessoa e do início do dia dela, e <code>concluido_em</code> é o carimbo real com fuso, usado só para conquista de horário.</p>
+  <pre><i>// app/lib/id.ts</i>
+<b>export function</b> diaDevocional(agora = <b>new</b> Date(), inicioHora = 4): string {
+  <b>const</b> d = <b>new</b> Date(agora);
+  <b>if</b> (d.getHours() &lt; inicioHora) d.setDate(d.getDate() - 1);
+  <b>return</b> `${d.getFullYear()}-${mm(d)}-${dd(d)}`;
+}</pre>
+</section>
+
+<section>
+  <div class="sh"><span class="n">05</span><h2>Segurança e LGPD</h2></div>
+  <p class="lede">Existe um fato jurídico que molda a arquitetura inteira, e é melhor encarar ele agora do que na véspera de publicar.</p>
+
+  <div class="nota perigo">
+    <span class="tag">O fato</span>
+    <p><b>A LGPD, no artigo 5º, inciso II, define convicção religiosa como dado pessoal sensível.</b> Este app não trata dado sensível por acidente em algum campo: ele é feito inteiro de dado sensível. O que a pessoa escreve no devocional, por quem ela ora, quanto ela jejua.</p>
+    <p style="margin-bottom:0">Consequência prática imediata: dado sensível <b>não aceita legítimo interesse</b> como base legal. O artigo 11 exige consentimento <b>específico e destacado</b>, para finalidades específicas.</p>
+  </div>
+
+  <h3>O que isso vira em código</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Exigência</th><th>Implementação</th></tr></thead>
+      <tbody>
+        <tr><td>Consentimento específico e destacado</td><td>Duas caixas separadas no cadastro, nenhuma marcada por padrão, e a API recusa cadastro sem as duas: <code>aceitaTermos</code> e <code>aceitaDadosSensiveis</code>.</td></tr>
+        <tr><td>Provar a que a pessoa consentiu</td><td>Colunas <code>consentimento_versao</code> e <code>consentimento_em</code>. Texto mudou, versão sobe, consentimento é pedido de novo.</td></tr>
+        <tr><td>Revogar tão fácil quanto consentir (art. 8º, §5º)</td><td>Botão em Ajustes, não e-mail para o suporte.</td></tr>
+        <tr><td>Acesso e portabilidade (art. 18)</td><td><code>GET /v1/meus-dados</code> devolve tudo em JSON legível, com o diário já decifrado.</td></tr>
+        <tr><td>Eliminação (art. 18, VI)</td><td>Exclusão lógica na hora, expurgo real em 30 dias. <code>paranoid: true</code> sozinho não atende a lei.</td></tr>
+        <tr><td>Comunicação de incidente (art. 48)</td><td>A Resolução CD/ANPD nº 15/2024 fixou <b>3 dias úteis</b> a partir do conhecimento. Tenha o plano escrito antes de precisar.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Cifra do diário, e o preço dela</h3>
+  <p>O texto do devocional e a lista de oração vão cifrados no banco com AES-256-GCM, que cifra e autentica ao mesmo tempo. O truque de implementação é fazer isso num campo virtual do model, para que a decisão saia das mãos de quem escreve a rota com pressa seis meses depois.</p>
+  <pre><i>// api/src/db/models/anotacao.js</i>
+texto: {
+  type: DataTypes.VIRTUAL,
+  get() { <b>const</b> g = <b>this</b>.getDataValue('textoCifrado'); <b>return</b> g ? decifrar(g) : null; },
+  set(valor) { <b>this</b>.setDataValue('textoCifrado', cifrar(valor)); },
+},</pre>
+  <div class="nota">
+    <span class="tag">O preço, dito na cara</span>
+    <p>Com o texto cifrado, <b>o Postgres não consegue buscar dentro dele</b>. Não existe truque: ou o servidor lê, ou ele busca. Escolhemos que ele não lê.</p>
+    <p style="margin-bottom:0">A busca do diário roda no celular, contra a cópia local em SQLite com FTS5, que o app já tem por ser offline primeiro. O servidor guarda e devolve, não pesquisa. Isso também significa que a busca só enxerga o que já sincronizou naquele aparelho, e isso precisa aparecer na interface.</p>
+  </div>
+
+  <h3>Autenticação</h3>
+  <p>Acesso em JWT de 15 minutos, refresh de 30 dias guardado no banco <b>como hash</b>, nunca como token. Se o banco vazar, ninguém se passa por ninguém.</p>
+  <p>O refresh é rotativo e agrupado em família. Quando o servidor vê um refresh já consumido, ele derruba a família inteira e obriga todo mundo a entrar de novo. É a forma mais simples de detectar roubo de token sem hardware especial: se alguém roubou e usou, o dono legítimo também vai tentar usar, e a colisão denuncia.</p>
+
+  <div class="grid g3">
+    <div class="card"><span class="tag">Senha</span><p style="margin:0">Argon2id nos parâmetros da OWASP, 19 MiB e 2 iterações, com rehash automático quando você subir o custo. Mínimo de 10 caracteres, sem exigir zoológico de símbolos.</p></div>
+    <div class="card"><span class="tag">No aparelho</span><p style="margin:0">Token em <code>expo-secure-store</code>, que usa Keychain e Keystore. <b>Nunca em AsyncStorage</b>, que é arquivo comum e sai no backup.</p></div>
+    <div class="card"><span class="tag">No log</span><p style="margin:0">Redação obrigatória de <code>authorization</code>, <code>senha</code>, <code>texto</code>, <code>titulo</code>, <code>pessoa</code> e <code>refresh</code>. Log com diário dentro é vazamento com data marcada.</p></div>
+  </div>
+
+  <h3>A falha que mais aparece em API, e o antídoto</h3>
+  <p>Autorização por objeto. Não basta saber quem é a pessoa, é preciso verificar que o recurso pedido é dela. Sem esta linha existe IDOR, que é o item número um da lista da OWASP para APIs.</p>
+  <pre><i>// api/src/rotas/registros.js</i>
+<b>const</b> pratica = <b>await</b> Pratica.findOne({ where: { id: dados.praticaId, <u>usuarioId</u> } });
+<b>if</b> (!pratica) <b>return</b> reply.code(404).send({ erro: 'pratica_nao_encontrada' });
+<i>// 404, não 403: dizer "existe mas não é sua" já entrega informação.</i></pre>
+
+  <div class="nota perigo">
+    <span class="tag">Não faça, e é fácil fazer sem pensar</span>
+    <p style="margin-bottom:0">Mandar conteúdo de diário para ferramenta de analytics, mesmo que só o tamanho do texto. Usar o diário para treinar modelo sem consentimento separado para essa finalidade. Backup sem cifra, ou chave guardada junto do backup. E-mail da pessoa na URL, que vai parar em log de proxy. Notificação push mostrando a anotação na tela de bloqueio.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">06</span><h2>Offline primeiro</h2></div>
+  <p class="lede">A pessoa registra oração às 5h da manhã, no ônibus, no culto, em lugar sem sinal. Se gravar depender de rede, o app falha exatamente no momento de uso.</p>
+  <ol>
+    <li><b>Gravar é local e imediato.</b> A tela nunca espera a rede, nunca mostra roda antes de confirmar a rega.</li>
+    <li><b>A operação entra numa fila de saída</b> no SQLite, com o id já gerado.</li>
+    <li><b>Quando há rede, a fila sobe em ordem.</b> Subir duas vezes não duplica, porque o id é o mesmo.</li>
+  </ol>
+  <p>O tratamento de erro da fila importa mais que o caminho feliz: falha de rede mantém o item, erro 4xx que não é 429 descarta. Repetir para sempre uma requisição inválida é como se cria fila zumbi que nunca esvazia.</p>
+  <pre><b>if</b> (resposta.ok || resposta.status === 409) { remover(item); <b>continue</b>; }  <i>// 409 = já existe lá</i>
+<b>if</b> (resposta.status &gt;= 400 &amp;&amp; resposta.status &lt; 500 &amp;&amp; resposta.status !== 429) { remover(item); <b>continue</b>; }
+<b>throw new</b> Error(`HTTP ${resposta.status}`);  <i>// 5xx e rede: tenta de novo depois</i></pre>
+</section>
+
+<section>
+  <div class="sh"><span class="n">07</span><h2>O design system dentro do app</h2></div>
+  <p class="lede">O app não tem paleta própria. Ele lê a do design system, e a conversão é automática.</p>
+  <pre>design-system/tokens.css  <i>fonte de verdade, editada à mão</i>
+        ↓ node gerar-tokens-json.js
+design-system/tokens.json <i>gerado</i>
+        ↓ node app/tema/gerar-tema.js
+app/tema/tema.ts          <i>gerado, com cores, tipo, espaço, forma e molas</i></pre>
+
+  <h3>Traduzindo tempo em mola</h3>
+  <p>O design system fala em duração e curva de bézier, que é a linguagem do CSS. O Reanimated fala em mola, com amortecimento e rigidez. A tradução dos três tokens de tempo está no tema, calibrada para dar a mesma sensação: nada pisca, nada salta.</p>
+  <pre><b>export const</b> movimento = {
+  rapido:  { damping: 22, stiffness: 320, mass: 0.7 },  <i>// --t-rapido, 160ms</i>
+  padrao:  { damping: 20, stiffness: 190, mass: 0.9 },  <i>// --t-padrao, 240ms</i>
+  crescer: { damping: 18, stiffness: 90,  mass: 1.1 },  <i>// --t-crescer, 640ms</i>
+};</pre>
+
+  <h3>O que anima, e o que não anima</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Elemento</th><th>Movimento</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td><b>Regar uma prática</b></td><td>O anel cresce 12% e assenta, com mola <code>crescer</code>, mais háptico leve</td><td>É o único momento do app que pode ser notado. Marca o gesto sem comemorar.</td></tr>
+        <tr><td><b>Botão pressionado</b></td><td>Escala 0.98, mola <code>rapido</code></td><td>Perceptível no dedo, invisível como movimento.</td></tr>
+        <tr><td><b>Barra de crescimento</b></td><td><code>withTiming</code> de 640ms, só para frente</td><td>A barra nunca anima para trás. Princípio "nada murcha".</td></tr>
+        <tr><td><b>Troca de tela</b></td><td>A transição nativa do expo-router, sem customizar</td><td>Transição de tela customizada envelhece rápido e quebra o gesto de voltar.</td></tr>
+        <tr><td><b>Conquista desbloqueada</b></td><td>Aparece com fade, sem confete, sem som</td><td>"Serena, não animada" é princípio de marca, e vale para código.</td></tr>
+        <tr><td><b>Lista carregando</b></td><td>Esqueleto estático, sem brilho passando</td><td>O brilho é ruído em tela que a pessoa abre às 5h da manhã.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nota">
+    <span class="tag">A regra que fecha</span>
+    <p style="margin:0">Toda animação passa por <code>useMovimentoReduzido()</code>, que lê <code>AccessibilityInfo.isReduceMotionEnabled()</code> e escuta a mudança. Quem pediu menos movimento no sistema recebe o estado final direto, sem transição. Isso não é enfeite de acessibilidade: para parte das pessoas, movimento na tela causa enjoo de verdade.</p>
+  </div>
+</section>
+
+
+<section>
+  <div class="sh"><span class="n">08</span><h2>Muitos ao mesmo tempo</h2></div>
+  <p class="lede">Este app tem um perfil de carga incomum e perigoso: quase todo mundo usa na mesma meia hora. Um app de tarefas espalha o uso pelo dia; um app devocional concentra tudo entre 5h30 e 7h.</p>
+
+  <h3>A conta que dá o tamanho do problema</h3>
+  <p>Com 100 mil contas e 60% ativas por dia, se 40% dessas usarem na janela de 30 minutos da manhã, são 24 mil sessões em 1800 segundos. A umas 5 requisições por sessão, dá 65 por segundo em média e talvez 200 no pico. <b>Isso é pouco.</b> Uma instância de 2 vCPU dá conta, desde que as consultas estejam indexadas.</p>
+  <p>Ou seja: o problema não é vazão. São quatro coisas específicas, e três delas eu encontrei medindo, não pensando.</p>
+
+  <h3>Gargalo 1, a corrida no índice único</h3>
+  <p>O <code>findOrCreate</code> procura por id. Se duas pessoas, ou dois aparelhos da mesma pessoa, regam a mesma prática no mesmo dia com <b>ids diferentes</b>, ele não acha, tenta inserir e bate no índice único <code>(pratica_id, data_ref)</code>.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Cenário, 12 requisições simultâneas</th><th>Antes</th><th>Depois</th></tr></thead>
+      <tbody>
+        <tr><td>Mesmo id (toque duplo, retry, fila subindo duas vezes)</td><td class="sim">12 de 12 · 1 linha</td><td class="sim">12 de 12 · 1 linha</td></tr>
+        <tr><td>Ids diferentes, mesma prática e mesmo dia</td><td class="nao">1 de 12 · <b>11 erros 500</b></td><td class="sim">12 de 12 · 1 linha</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>O banco ficava certo, com uma linha só. Mas onze pessoas recebiam erro por uma ação que deu certo. A correção é deixar o Postgres decidir, e ela tem um detalhe que economiza uma madrugada: <b>violação de unicidade dentro de uma transação aborta a transação inteira</b>, levando junto a anotação que ia ser gravada. <code>ON CONFLICT</code> não levanta violação, então a transação segue viva.</p>
+  <pre><b>INSERT INTO</b> registro (...) <b>VALUES</b> (...)
+<b>ON CONFLICT DO NOTHING</b>          <i>-- sem alvo: cobre a chave primária E o índice do dia</i>
+<b>RETURNING</b> *;
+<i>-- se não voltou linha, alguém chegou antes: leia a vencedora e devolva 200, não 500</i></pre>
+
+  <h3>Gargalo 2, o Argon2 no pico de login</h3>
+  <p>O Argon2id está em 19 MiB e uns 250 ms por hash, o que é proposital: é o que segura ataque de GPU. O efeito colateral é que login é a rota mais cara do sistema. Numa máquina de 2 vCPU são cerca de 8 hashes por segundo.</p>
+  <p>Se 200 pessoas precisarem entrar às 6h, sem limite o Node aceita as 200 de uma vez: <b>200 × 19 MiB = 3,8 GB</b> e a CPU travada. O processo morre por falta de memória, e aí ninguém entra, nem quem já estava logado.</p>
+  <p>O limitador resolve, mas a primeira versão dele não funcionou, e o motivo vale guardar:</p>
+  <pre><i>// ERRADO: await cede o controle mesmo com promessa já resolvida.
+// As 20 chamadas passam pela verificação antes de qualquer incremento.</i>
+<b>await this</b>._vaga();     <i>// verifica rodando &lt; limite</i>
+<b>this</b>.rodando++;         <i>// só incrementa depois. Tarde demais.</i>
+
+<i>// CERTO: o contador sobe no mesmo passo síncrono da verificação.</i>
+_vaga() { <b>if</b> (<b>this</b>.rodando &lt; <b>this</b>.simultaneos) { <b>this</b>.rodando++; <b>return</b> Promise.resolve(); } ... }</pre>
+  <p>Medido: com o limite em 4, a versão errada deixava 20 rodarem juntas. A corrigida segura em 4, e com 60 logins e espera curta, 16 passam e 44 recebem <code>503</code> com <code>Retry-After</code>, que é uma resposta honesta e que o app sabe tratar, em vez de o servidor cair.</p>
+
+  <h3>Gargalo 3, o rate limit que se dissolve</h3>
+  <div class="nota perigo">
+    <span class="tag">Falha silenciosa</span>
+    <p style="margin-bottom:0">O <code>@fastify/rate-limit</code> guarda a contagem <b>na memória do processo</b>. Com três instâncias atrás de um balanceador, o limite de 10 logins por 15 minutos vira 30 na prática, e a proteção contra força bruta se dissolve <b>sem nenhum erro aparecer em lugar nenhum</b>. Assim que existir a segunda instância, o Redis passa de opcional a obrigatório.</p>
+  </div>
+  <p>O bloqueio de conta por tentativa falha continua funcionando, porque o contador dele mora no banco. É a razão de ele existir junto do rate limit, e não no lugar dele.</p>
+
+  <h3>Gargalo 4, o pico que você mesma cria</h3>
+  <p>O erro que parece certo: "o lembrete é às 6h, então mando todo mundo às 6h". O que acontece: 30 mil notificações no mesmo segundo, o serviço de push enfileira, e pior, 30 mil pessoas abrem o app no mesmo minuto. É negação de serviço feita em casa, com hora marcada.</p>
+  <p>A correção é um deslocamento determinístico por pessoa, derivado do hash do id. Determinístico importa: ela recebe sempre no mesmo horário, então continua sendo hábito e não loteria.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>30 mil pessoas com lembrete às 06:00</th><th>Sem espalhamento</th><th>Janela de 20 minutos</th></tr></thead>
+      <tbody>
+        <tr><td>Pico de envios por segundo</td><td class="nao">30.000</td><td class="sim">26</td></tr>
+        <tr><td>Envios por minuto</td><td class="nao">tudo em um</td><td class="sim">entre 1.412 e 1.589</td></tr>
+        <tr><td>Horário da mesma pessoa em dias diferentes</td><td>igual</td><td class="sim">igual, 06:18 sempre</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Sincronização em lote</h3>
+  <p>Quem ficou 5 dias offline tem 15 itens na fila. Se cada item virar uma requisição, mil pessoas viram 15 mil requisições no mesmo minuto, cada uma pagando handshake, verificação de token e uma conexão do pool. Com <code>POST /v1/sync</code>, a mesma pessoa faz uma requisição, uma transação, uma conexão. O ganho não é de CPU, é de fila: a conexão fica presa por 40 ms em vez de por 15 idas e voltas.</p>
+  <p>Duas regras que fazem o lote não virar problema: teto de 200 itens, para a transação não segurar conexão por dez segundos; e item recusado volta identificado, para o app tirar da fila em vez de tentar para sempre.</p>
+
+  <h3>Pool de conexões, a conta</h3>
+  <p><code>pool.max</code> por instância × número de instâncias precisa caber no <code>max_connections</code> do Postgres, com folga para migração e para você abrir um psql. Com <code>max: 10</code> e 4 instâncias são 40 de 100. Confortável.</p>
+  <p>Acima de 8 instâncias, PgBouncer em modo transação. Aviso: nesse modo, <i>prepared statements</i> quebram, e o Sequelize os usa. É configuração, não é impossível, mas não é o dia de descobrir isso durante um incidente.</p>
+
+  <h3>O que NÃO fazer agora</h3>
+  <div class="grid g3">
+    <div class="card"><span class="tag">Adiar</span><p style="margin:0"><b>Réplica de leitura.</b> Só faz sentido quando a leitura estiver saturando a primária. Antes disso é uma fonte de bug de replicação atrasada, com a pessoa regando e a tela dizendo que não regou.</p></div>
+    <div class="card"><span class="tag">Adiar</span><p style="margin:0"><b>Microserviços.</b> Um app com sete tabelas e uma desenvolvedora não tem problema de acoplamento, tem problema de tempo. Dividir agora só multiplica o que você mantém.</p></div>
+    <div class="card"><span class="tag">Adiar</span><p style="margin:0"><b>Cache de leitura.</b> O que dá para cachear (trilhas, catálogo) é pequeno e raramente muda. O que é grande (diário) é por pessoa e cifrado. Ganho pequeno, invalidação complicada.</p></div>
+  </div>
+
+  <h3>O que medir, e o alarme de cada um</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Medida</th><th>Alarme quando</th><th>Porque</th></tr></thead>
+      <tbody>
+        <tr><td>p95 de <code>POST /v1/registros</code></td><td>acima de 400 ms</td><td>É a ação principal. Se ela demora, o app parece quebrado mesmo funcionando.</td></tr>
+        <tr><td>Saturação do pool</td><td>acima de 80% por 1 minuto</td><td>Fila de conexão é o primeiro sintoma real, e vem antes do erro.</td></tr>
+        <tr><td>Fila do limitador de senha</td><td>acima de 20 esperando</td><td>Diz que o pico de login chegou, antes de virar 503.</td></tr>
+        <tr><td>Erros 500 por minuto</td><td>qualquer coisa acima de zero por 5 min</td><td>Este sistema não tem 500 aceitável em operação normal.</td></tr>
+        <tr><td>Itens presos na fila offline</td><td>tentativas ≥ 8 em muitos aparelhos</td><td>Sinal de bug de sincronização, que o usuário não reporta porque o app "funciona".</td></tr>
+        <tr><td><code>log_min_duration_statement=500</code></td><td>qualquer consulta registrada</td><td>É assim que você acha o índice que faltou antes do usuário achar.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<section>
+  <div class="sh"><span class="n">09</span><h2>Web primeiro, loja depois</h2></div>
+  <p class="lede">A decisão é começar pelo navegador, sem publicar nas lojas, até haver gente suficiente para justificar o esforço. É uma escolha defensável, e ela tem um preço específico que precisa estar visível antes de começar.</p>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag">O que você ganha</span>
+      <ul style="margin-bottom:0">
+        <li><b>Zero atrito.</b> Um link abre o produto. Sem loja, sem instalar, sem revisão da Apple.</li>
+        <li><b>Você publica quando quiser.</b> Corrigir um texto leva um deploy, não três dias de análise.</li>
+        <li><b>O design system já é CSS.</b> A landing e o app compartilham os mesmos tokens sem conversão.</li>
+        <li><b>Link direto para o dia.</b> Você manda o devocional de hoje por WhatsApp e ele abre na tela certa.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">O que você paga</span>
+      <ul style="margin-bottom:0">
+        <li><b>O lembrete no iPhone fica fraco.</b> É o item mais grave, detalhado abaixo.</li>
+        <li><b>Sem biometria</b> para destravar o diário.</li>
+        <li><b>Busca do diário limitada</b> a filtro por tag e por referência.</li>
+        <li><b>Sem descoberta pela loja</b>, então todo usuário vem de canal seu.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>O problema do lembrete, que é o motor de retenção</h3>
+  <div class="nota perigo">
+    <span class="tag">Encare antes de decidir</span>
+    <p>No iPhone, notificação de site só funciona <b>depois</b> que a pessoa adiciona o site à tela de início. Não é uma configuração que você liga: depende de a pessoa abrir o menu de compartilhar e escolher "Adicionar à Tela de Início".</p>
+    <p style="margin-bottom:0">Traduzindo para o seu produto: <b>a maior parte dos usuários de iPhone simplesmente não vai receber o lembrete diário</b>, que é justamente o mecanismo que faz alguém voltar amanhã. No Android o cenário é melhor, mas ainda depende de instalar o PWA.</p>
+  </div>
+  <p>Três saídas, e elas se somam:</p>
+  <ol>
+    <li><b>Pedir a instalação na hora certa.</b> Não na primeira visita. Depois da terceira rega, quando a pessoa já viu valor, com uma tela que explica em uma frase por que instalar, e mostra o gesto do iPhone com imagem.</li>
+    <li><b>Lembrete por outro canal.</b> E-mail funciona mal para hábito diário. <b>WhatsApp funciona</b>, e você já opera Evolution API, então a infraestrutura existe. Regras: só para quem pediu, com opção de sair em toda mensagem, e o texto do lembrete nunca carrega conteúdo do diário.</li>
+    <li><b>Medir a diferença.</b> Acompanhe retenção de 7 e de 30 dias separada por plataforma. Se o iPhone sem lembrete retiver muito abaixo, você tem o número que justifica publicar na loja, em vez de um palpite.</li>
+  </ol>
+
+  <h3>Autenticação: cookie na web, Bearer no app, uma API só</h3>
+  <p>No app o token mora no Keychain, que só ele abre. Na web não existe equivalente, e guardar token em <code>localStorage</code> significa que qualquer XSS lê a sessão e a leva embora. Cookie <code>httpOnly</code> não é lido por JavaScript nenhum.</p>
+  <p>A troca: cookie é enviado pelo navegador automaticamente, o que abre a porta para CSRF. Um problema não substitui o outro, os dois precisam de resposta.</p>
+  <pre><i>// login: o app se identifica, o navegador não precisa</i>
+<b>if</b> (req.headers['x-cliente'] !== 'app') {
+  <b>const</b> csrf = app.gravarSessaoWeb(reply, tokens);  <i>// grava 3 cookies</i>
+  <b>return</b> { csrf, usuario };                        <i>// o token nunca chega ao JS</i>
+}
+<b>return</b> { ...tokens, usuario };                      <i>// app nativo recebe no corpo</i></pre>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Cookie</th><th>httpOnly</th><th>Caminho</th><th>Para quê</th></tr></thead>
+      <tbody>
+        <tr><td><code>jd_acesso</code></td><td class="sim">sim</td><td><code>/</code></td><td>O JWT de 15 minutos. Nenhum script alcança.</td></tr>
+        <tr><td><code>jd_refresh</code></td><td class="sim">sim</td><td><code>/v1/auth</code></td><td>Caminho restrito: não é enviado nas outras rotas, então nem chega perto delas.</td></tr>
+        <tr><td><code>jd_csrf</code></td><td class="nao">não</td><td><code>/</code></td><td>A metade visível da dupla submissão. O JS lê e devolve em <code>X-CSRF-Token</code>. Sozinho não vale nada.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A verificação de CSRF só se aplica a quem entrou por cookie e só em método que altera algo. O Bearer do app é imune por construção, porque o navegador não o envia sozinho. E a comparação usa <code>timingSafeEqual</code>, não <code>===</code>.</p>
+
+  <h3>Offline na web</h3>
+  <p>O <code>expo-sqlite</code> na web está em alpha e exige WASM no Metro mais os cabeçalhos <code>COOP</code> e <code>COEP</code> para liberar <code>SharedArrayBuffer</code>. Esses cabeçalhos quebram embutidos de terceiros e complicam a hospedagem. Para o que a fila precisa, IndexedDB puro resolve sem cobrar nada disso, e é o que está em <code>fila-offline.web.ts</code>.</p>
+  <p>O que se perde: sem SQLite não há FTS5, então <b>a busca por palavra dentro do diário não existe na web</b>. O servidor também não pode buscar, porque o texto está cifrado. Sobram os filtros por tag, que funcionam pelo índice cego já no banco, e por referência bíblica, que está em claro. Isso precisa aparecer na interface, não ser descoberto pela pessoa.</p>
+
+  <h3>Configuração do PWA</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Ajuste</th><th>Valor</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td><code>web.output</code></td><td><code>"static"</code></td><td>Gera HTML por rota, o que dá URL de verdade e indexação. <code>"single"</code> geraria uma SPA só, pior para a landing.</td></tr>
+        <tr><td><code>startUrl</code></td><td><code>/hoje</code></td><td>Quem instalou quer cair na tela do dia, não na página de venda.</td></tr>
+        <tr><td><code>display</code></td><td><code>standalone</code></td><td>Abre sem barra de navegador, o que faz parecer app.</td></tr>
+        <tr><td><code>themeColor</code></td><td>musgo <code>#2F5A43</code></td><td>A barra do sistema combina com o ícone.</td></tr>
+        <tr><td>Ícone maskable</td><td>512 e 1024</td><td>O Android recorta em círculo. Sem a versão maskable, a marca sai cortada.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>O caminho de volta para a loja</h3>
+  <p>A boa notícia é que quase nada precisa ser refeito, desde que estas três coisas sejam respeitadas desde já:</p>
+  <div class="grid g3">
+    <div class="card"><span class="tag">1</span><p style="margin:0"><b>Diferença de plataforma vive em arquivo, não em <code>if</code>.</b> <code>seguro.web.ts</code> ao lado de <code>seguro.ts</code>. O Metro escolhe sozinho e o resto do código não sabe da diferença.</p></div>
+    <div class="card"><span class="tag">2</span><p style="margin:0"><b>A API já fala as duas línguas.</b> Bearer e cookie convivem hoje. Publicar o app nativo não exige mudar uma rota.</p></div>
+    <div class="card"><span class="tag">3</span><p style="margin:0"><b>Nada de API só de navegador.</b> Se um componente usar <code>window</code> ou <code>document</code> direto, ele quebra no nativo. Isole no arquivo <code>.web</code>.</p></div>
+  </div>
+  <p style="margin-top:14px">Quando decidir publicar, o que sobra é gerar as builds com EAS, preencher as fichas das lojas e passar pela revisão. A Apple costuma questionar app que é "só um site embrulhado", então a versão nativa precisa entregar o que a web não entrega: notificação confiável, biometria e a busca completa do diário. Convenientemente, essa é exatamente a lista de tudo que você abriu mão agora.</p>
+</section>
+
+<section>
+  <div class="sh"><span class="n">10</span><h2>Usabilidade: o que não se negocia</h2></div>
+  <p class="lede">Seis regras. Se uma tela quebra qualquer uma, ela não sobe, mesmo que esteja bonita.</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag">No código</span>
+      <ul style="margin-bottom:0">
+        <li><b>44 px de alvo de toque</b>, sempre. O botão pequeno tem 36 px de altura visual e por isso precisa de <code>hitSlop</code>.</li>
+        <li><b>Rótulo acessível em tudo que não tem texto.</b> Botão só de ícone sem <code>accessibilityLabel</code> é um botão mudo no leitor de tela.</li>
+        <li><b>Estado nunca só na cor.</b> Pedido respondido diz "Respondida em 28 de agosto", não só fica verde.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">No teste</span>
+      <ul style="margin-bottom:0">
+        <li><b>360 px com fonte do sistema em 200%.</b> É onde layout de devocional quebra, e onde parte do público realmente está.</li>
+        <li><b>Uma mão, polegar direito.</b> A ação principal fica no terço inferior da tela.</li>
+        <li><b>Registro em menos de 15 segundos</b>, do desbloqueio ao confirmado. Cronometre com cinco pessoas.</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top:14px">E a regra que vale mais que as seis: <b>teste no sol.</b> Abra o app na rua, ao meio-dia, num celular com brilho automático. É o teste que reprova mais paleta bonita do que qualquer ferramenta, e o público deste app faz devocional na varanda de manhã.</p>
+</section>
+
+<section>
+  <div class="sh"><span class="n">11</span><h2>Qualidade e CI</h2></div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Camada</th><th>Ferramenta</th><th>Roda quando</th></tr></thead>
+      <tbody>
+        <tr><td>Tokens e contraste</td><td>Playwright, sem navegador</td><td>Toda PR. 2 segundos, falha rápido.</td></tr>
+        <tr><td>Regressão visual e axe</td><td>Playwright com Chromium</td><td>Toda PR que toca o design system.</td></tr>
+        <tr><td>Unidade da API</td><td><code>node --test</code></td><td>Toda PR. Foque em <code>lib/</code>: id, cifra, senha.</td></tr>
+        <tr><td>Integração da API</td><td>Postgres em container no CI</td><td>Toda PR. Rode as migrações do zero, sempre.</td></tr>
+        <tr><td>Fluxo no app</td><td>Maestro</td><td>Antes de cada release. Um fluxo só: abrir, regar, escrever, fechar.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="nota">
+    <span class="tag">O teste que mais paga</span>
+    <p style="margin:0">Rodar todas as migrações do zero contra um banco limpo, em toda PR. Migração que só funciona no seu banco, porque ele acumulou estado, é a falha que aparece na madrugada do deploy.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">12</span><h2>Ordem de construção</h2></div>
+  <p class="lede">Nesta ordem, cada passo entrega algo testável e nada fica pendurado esperando outra coisa.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Passo</th><th>Entrega</th><th>Como saber que terminou</th></tr></thead>
+      <tbody>
+        <tr><td><b>1. Banco</b></td><td>Migrações, models, seed das disciplinas</td><td><code>npm run migrar</code> do zero funciona duas vezes seguidas</td></tr>
+        <tr><td><b>2. Auth</b></td><td>Cadastro, login, refresh, sair</td><td>Refresh reutilizado derruba a família, testado</td></tr>
+        <tr><td><b>3. Registrar</b></td><td><code>POST /v1/registros</code> idempotente</td><td>Mandar o mesmo id duas vezes não cria dois</td></tr>
+        <tr><td><b>4. Tela Hoje</b></td><td>Componentes do design system em RN, rodando na web</td><td>Registro em menos de 15 segundos, cronometrado no navegador do celular</td></tr>
+        <tr><td><b>5. Offline</b></td><td>IndexedDB na web, SQLite no nativo, mesma fila</td><td>Modo avião, registra, liga a rede, sobe sozinho</td></tr>
+        <tr><td><b>6. Diário</b></td><td>Anotação cifrada e busca local</td><td>Dump do banco não mostra uma palavra em claro</td></tr>
+        <tr><td><b>7. Oração</b></td><td>Lista, status, testemunho</td><td>Nome de terceiro cifrado e fora de qualquer telemetria</td></tr>
+        <tr><td><b>8. LGPD</b></td><td>Exportar, excluir, revogar</td><td>Você mesma exporta e exclui a sua conta de teste</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>O passo 8 costuma ficar para o fim e virar dívida. Ele é pequeno se feito junto, e caro se feito depois de a base crescer.</p>
+</section>
+
+<footer>o meu jardim · manual de desenvolvimento v1.2 · orientação de engenharia, não parecer jurídico</footer>
+</div>
