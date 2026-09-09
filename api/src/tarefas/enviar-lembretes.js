@@ -62,8 +62,16 @@ function diasEntre(a, b) {
   return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000);
 }
 
-function diaAtualDe(iniciadaEm, hoje, total) {
-  return Math.max(1, Math.min(total, diasEntre(iniciadaEm, hoje) + 1));
+function somarDias(iso, n) {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+// Coorte na estreia vs. auto-ritmo depois — mesma regra do trilhas.js.
+function diaAtualDe(iniciadaEm, hoje, total, disponivelEm) {
+  const ancora = disponivelEm && iniciadaEm < somarDias(disponivelEm, total) ? disponivelEm : iniciadaEm;
+  return Math.max(1, Math.min(total, diasEntre(ancora, hoje) + 1));
 }
 
 /**
@@ -76,7 +84,7 @@ async function trilhaDoDiaPendente(inscricoes, dataDev) {
     if (insc.concluidaEm) continue;
     const total = insc.trilha?.dias ?? 0;
     if (!total) continue;
-    const diaAtual = diaAtualDe(insc.iniciadaEm, dataDev, total);
+    const diaAtual = diaAtualDe(insc.iniciadaEm, dataDev, total, insc.trilha.disponivelEm);
     const feito = (insc.regas ?? []).some((r) => r.ordem === diaAtual);
     if (feito) continue;
     const dia = await db.TrilhaDia.findOne({ where: { trilhaId: insc.trilhaId, ordem: diaAtual } });
@@ -117,7 +125,7 @@ async function rodar(agora = new Date()) {
   const inscricoes = await db.TrilhaInscricao.findAll({
     include: [
       { model: db.Usuario, required: true, attributes: atributosUsuario },
-      { model: db.Trilha, as: 'trilha', attributes: ['id', 'titulo', 'dias'] },
+      { model: db.Trilha, as: 'trilha', attributes: ['id', 'titulo', 'dias', 'disponivelEm'] },
       { model: db.TrilhaRega, as: 'regas', attributes: ['ordem'] },
     ],
   });

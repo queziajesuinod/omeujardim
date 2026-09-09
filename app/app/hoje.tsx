@@ -32,12 +32,6 @@ import { espaco, forma, tipo } from '../tema/tema';
 
 const CHAVE_CONVITE = 'jd_convite_lembrete';
 
-// Rótulo bonito para o código da disciplina que vem no conteúdo da estação.
-const DISC_NOME: Record<string, string> = {
-  leitura: 'Leitura da Palavra', meditacao: 'Meditação', memorizacao: 'Memorização',
-  oracao: 'Oração', gratidao: 'Gratidão', jejum: 'Jejum', servico: 'Serviço', generosidade: 'Generosidade',
-};
-
 function saudacao() {
   const h = new Date().getHours();
   if (h < 12) return 'Bom dia';
@@ -110,7 +104,15 @@ export default function Hoje() {
     // camada que dá valor com o tempo, então é convite, nunca obrigação.
     const total = await registrarRega();
     const jaConvidou = total === 3 ? await lerPreferencia(CHAVE_CONVITE) : 'sim';
-    if (total === 3 && !jaConvidou) setMostrarConvite(true);
+    if (total === 3 && !jaConvidou) { setMostrarConvite(true); return; }
+
+    // Com estação, ao regar o diário já abre DIRETO, direcionado com a referência
+    // da instrução do dia (sem o passo "quer escrever?"). Sem estação, o convite.
+    const codigo = pratica.disciplina?.codigo;
+    const it = estacao.data?.seguindo
+      ? estacao.data.conteudo.find((x) => x.disciplinaCodigo === codigo)
+      : undefined;
+    if (it) router.push({ pathname: '/anotar', params: { pratica: pratica.id, referencia: it.titulo } });
     else setPerguntarDiario(pratica);
   }
 
@@ -140,6 +142,12 @@ export default function Hoje() {
   const previstas = lista.filter((p) => p.diasSemana.includes(diaSemana));
   const feitas = previstas.filter((p) => regadas.has(p.id)).length;
   const nome = usuario?.nome?.split(' ')[0];
+
+  // Conteúdo do dia da estação, indexado pelo código da disciplina, para entrar
+  // logo abaixo do check da prática correspondente. Só aparece o que a pessoa
+  // marcou para o dia; conteúdo de estação sem prática no dia não é mostrado.
+  const conteudoEstacao = (estacao.data?.seguindo ? estacao.data.conteudo : []) ?? [];
+  const conteudoPorCodigo = Object.fromEntries(conteudoEstacao.map((it) => [it.disciplinaCodigo, it]));
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top', 'left', 'right']}>
@@ -222,6 +230,7 @@ export default function Hoje() {
             <View style={{ gap: espaco.e3 }}>
               {previstas.map((p, i) => {
                 const estado = regadas.has(p.id) ? 'regada' : 'a-regar';
+                const conteudo = conteudoPorCodigo[p.disciplina?.codigo ?? ''];
                 return (
                   <Animated.View
                     key={p.id}
@@ -237,6 +246,15 @@ export default function Hoje() {
                       onRegar={() => aoRegar(p)}
                       onDesregar={() => setDesmarcar(p)}
                     />
+                    {/* A orientação da estação é só a INSTRUÇÃO desta prática (não tem
+                        check nem abre diário próprio): quem leva ao diário é o check
+                        acima. Assim não há duas aberturas para a mesma direção. */}
+                    {conteudo ? (
+                      <View style={[estilos.itemEstacao, { backgroundColor: c.brandSoft, borderColor: c.brandSoft, marginTop: espaco.e2 }]}>
+                        <Text style={[tipo.u2, { color: c.ink }]}>{conteudo.titulo}</Text>
+                        <Text style={[tipo.l3, { color: c.ink2, marginTop: espaco.e1 }]}>{conteudo.corpo}</Text>
+                      </View>
+                    ) : null}
                   </Animated.View>
                 );
               })}
@@ -247,26 +265,6 @@ export default function Hoje() {
             </View>
           </>
         )}
-
-        {/* O conteúdo do dia da estação, por prática: a leitura, a meditação, a memorização. */}
-        {estacao.data?.seguindo && estacao.data.conteudo.length > 0 ? (
-          <View style={{ marginTop: espaco.e6 }}>
-            <Text style={[tipo.u4, { color: c.ink3, marginBottom: espaco.e3 }]}>A ESTAÇÃO HOJE</Text>
-            <View style={{ gap: espaco.e3 }}>
-              {estacao.data.conteudo.map((it, i) => (
-                <Pressable
-                  key={`${it.disciplinaCodigo}-${i}`}
-                  onPress={() => router.push({ pathname: '/anotar', params: { referencia: it.titulo } })}
-                  style={[estilos.itemEstacao, { backgroundColor: c.surface, borderColor: c.line }]}
-                >
-                  <Text style={[tipo.u4, { color: c.brand }]}>{(DISC_NOME[it.disciplinaCodigo] ?? it.disciplinaCodigo).toUpperCase()}</Text>
-                  <Text style={[tipo.u2, { color: c.ink, marginTop: espaco.e1 }]}>{it.titulo}</Text>
-                  <Text style={[tipo.l3, { color: c.ink2, marginTop: espaco.e1 }]}>{it.corpo}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        ) : null}
 
         {mostrarConvite ? <ConviteLembrete aoFechar={fecharConvite} /> : null}
       </ScrollView>
@@ -284,7 +282,14 @@ export default function Hoje() {
             onPress={() => {
               const p = perguntarDiario;
               setPerguntarDiario(null);
-              if (p) router.push({ pathname: '/anotar', params: { pratica: p.id } });
+              if (!p) return;
+              // Com estação, o diário já vai direcionado com a referência da
+              // instrução do dia (a leitura, o tema da meditação/oração...).
+              const it = conteudoPorCodigo[p.disciplina?.codigo ?? ''];
+              router.push({
+                pathname: '/anotar',
+                params: it ? { pratica: p.id, referencia: it.titulo } : { pratica: p.id },
+              });
             }}
           >
             Escrever no diário

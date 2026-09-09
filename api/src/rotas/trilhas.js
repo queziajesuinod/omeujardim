@@ -10,9 +10,26 @@ function diasEntre(a, b) {
   return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000);
 }
 
-/** O dia atual da trilha: contado do início, preso entre 1 e o total. */
-function diaAtualDe(iniciadaEm, hoje, total) {
-  const n = diasEntre(iniciadaEm, hoje) + 1;
+/** Soma `n` dias a uma data-calendário YYYY-MM-DD. */
+function somarDias(iso, n) {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * O dia atual da trilha, preso entre 1 e o total. A âncora da contagem depende de
+ * QUANDO a pessoa entrou em relação à estreia:
+ *  - Entrou DURANTE a estreia (iniciadaEm < estreia + total): caminha no ritmo da
+ *    ESTREIA — quem entra no 10º dia cai no dia 10, e os anteriores ficam para
+ *    resgatar. Toda a turma da estreia no mesmo dia.
+ *  - Entrou DEPOIS da estreia (ou trilha sem estreia): caminha no PRÓPRIO ritmo,
+ *    começando no dia 1 a partir da entrada dela.
+ */
+function diaAtualDe(iniciadaEm, hoje, total, disponivelEm) {
+  const naEstreia = disponivelEm && iniciadaEm < somarDias(disponivelEm, total);
+  const ancora = naEstreia ? disponivelEm : iniciadaEm;
+  const n = diasEntre(ancora, hoje) + 1;
   return Math.max(1, Math.min(total, n));
 }
 
@@ -100,7 +117,7 @@ module.exports = async function rotasTrilhas(app) {
     });
     return inscricoes.map((i) => ({
       trilhaId: i.trilhaId,
-      diaAtual: diaAtualDe(i.iniciadaEm, dataRef, i.trilha.dias),
+      diaAtual: diaAtualDe(i.iniciadaEm, dataRef, i.trilha.dias, i.trilha.disponivelEm),
       total: i.trilha.dias,
       feitos: i.regas.length,
       concluidaEm: i.concluidaEm,
@@ -162,7 +179,7 @@ module.exports = async function rotasTrilhas(app) {
       iniciadaEm: inscricao.iniciadaEm,
       concluidaEm: inscricao.concluidaEm,
       total: inscricao.trilha.dias,
-      diaAtual: diaAtualDe(inscricao.iniciadaEm, dataRef, inscricao.trilha.dias),
+      diaAtual: diaAtualDe(inscricao.iniciadaEm, dataRef, inscricao.trilha.dias, inscricao.trilha.disponivelEm),
       regados: inscricao.regas.map((r) => r.ordem),
     };
   });
@@ -186,7 +203,7 @@ module.exports = async function rotasTrilhas(app) {
     if (!inscricao) return reply.code(404).send({ erro: 'inscricao_nao_encontrada' });
 
     const total = inscricao.trilha.dias;
-    const diaAtual = diaAtualDe(inscricao.iniciadaEm, dataRef, total);
+    const diaAtual = diaAtualDe(inscricao.iniciadaEm, dataRef, total, inscricao.trilha.disponivelEm);
     if (ordem > diaAtual) return reply.code(409).send({ erro: 'dia_futuro', mensagem: 'Esse dia ainda não chegou.' });
 
     const dia = await TrilhaDia.findOne({ where: { trilhaId: id, ordem } });

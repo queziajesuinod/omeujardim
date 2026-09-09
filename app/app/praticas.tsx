@@ -69,7 +69,9 @@ export default function Praticas() {
     for (const p of praticas.data) {
       inicial[p.disciplinaId] = {
         ativa: true,
-        metaPorSemana: p.metaPorSemana,
+        // A meta ("X vezes por semana") é o número de dias marcados — os dois são
+        // a mesma coisa. Isto também conserta dados antigos em que divergiam.
+        metaPorSemana: p.diasSemana.length,
         diasSemana: p.diasSemana,
       };
     }
@@ -90,12 +92,21 @@ export default function Praticas() {
     });
   }
 
+  // + e − mexem nos DIAS (a meta é o número de dias): + marca o próximo dia livre,
+  // − desmarca o último dia. Nunca zera nem passa de sete.
   function ajustarMeta(discId: string, delta: number) {
     setSel((s) => {
       const atual = s[discId];
       if (!atual) return s;
-      const meta = Math.min(21, Math.max(1, atual.metaPorSemana + delta));
-      return { ...s, [discId]: { ...atual, metaPorSemana: meta } };
+      const dias = new Set(atual.diasSemana);
+      if (delta > 0) {
+        for (let d = 0; d < 7; d++) if (!dias.has(d)) { dias.add(d); break; }
+      } else {
+        if (dias.size <= 1) return s;
+        for (let d = 6; d >= 0; d--) if (dias.has(d)) { dias.delete(d); break; }
+      }
+      const diasSemana = [...dias].sort((a, b) => a - b);
+      return { ...s, [discId]: { ...atual, diasSemana, metaPorSemana: diasSemana.length } };
     });
   }
 
@@ -110,7 +121,9 @@ export default function Praticas() {
       const diasSemana = tem
         ? atual.diasSemana.filter((d) => d !== dia)
         : [...atual.diasSemana, dia];
-      return { ...s, [discId]: { ...atual, diasSemana } };
+      // A meta acompanha os dias escolhidos: marcar/desmarcar um dia muda o "X
+      // vezes por semana" junto.
+      return { ...s, [discId]: { ...atual, diasSemana, metaPorSemana: diasSemana.length } };
     });
   }
 
