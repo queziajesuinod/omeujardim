@@ -1,1500 +1,3198 @@
 <!doctype html>
 <html lang="pt-BR" data-theme="claro">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>O meu jardim · Painel</title>
-<style>
-  /* Painel de gestão: desktop-first, denso, para operar. As cores vêm da mesma
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>O meu jardim · Painel</title>
+    <style>
+      /* Painel de gestão: desktop-first, denso, para operar. As cores vêm da mesma
      família da marca (musgo, latão, terra), mas o fundo aqui é papel neutro e
      claro, não verde. O tema escuro é uma alternativa por escolha, guardada no
      navegador — nunca imposta. Um lugar só define a paleta: este bloco. */
-  :root {
-    --bg: #F4F3EE; --surface: #FFFFFF; --surface-2: #ECEBE3; --line: #E3E1D7;
-    --ink: #191E19; --ink-2: #4A544B; --ink-3: #7C837A;
-    --brand: #2F5A43; --brand-2: #4C8163; --brand-soft: #E5EEE6;
-    --accent: #8E641A; --accent-soft: #F3E8CF;
-    --alert: #9C4F3B; --alert-soft: #F3DED7;
-    --on-forte: #FFFFFF;
-    --sombra: 0 1px 2px rgba(20,26,20,.05), 0 4px 14px rgba(20,26,20,.05);
-    --sombra-forte: 0 2px 6px rgba(20,26,20,.08), 0 12px 32px rgba(20,26,20,.10);
-  }
-  :root[data-theme="escuro"] {
-    --bg: #10130E; --surface: #191D15; --surface-2: #232819; --line: #333829;
-    --ink: #ECEEE3; --ink-2: #C0C7B6; --ink-3: #89907F;
-    --brand: #86C29B; --brand-2: #5E9E78; --brand-soft: #1E2A20;
-    --accent: #DDAE55; --accent-soft: #2C2717;
-    --alert: #E0937E; --alert-soft: #2E1F1A;
-    --on-forte: #10130E;
-    --sombra: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.32);
-    --sombra-forte: 0 2px 6px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.42);
-  }
-  * { box-sizing: border-box; }
-  html { color-scheme: light dark; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    transition: background .25s ease, color .25s ease; }
-  h1, h2 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+      :root {
+        --bg: #f4f3ee;
+        --surface: #ffffff;
+        --surface-2: #ecebe3;
+        --line: #e3e1d7;
+        --ink: #191e19;
+        --ink-2: #4a544b;
+        --ink-3: #7c837a;
+        --brand: #2f5a43;
+        --brand-2: #4c8163;
+        --brand-soft: #e5eee6;
+        --accent: #8e641a;
+        --accent-soft: #f3e8cf;
+        --alert: #9c4f3b;
+        --alert-soft: #f3ded7;
+        --on-forte: #ffffff;
+        --sombra:
+          0 1px 2px rgba(20, 26, 20, 0.05), 0 4px 14px rgba(20, 26, 20, 0.05);
+        --sombra-forte:
+          0 2px 6px rgba(20, 26, 20, 0.08), 0 12px 32px rgba(20, 26, 20, 0.1);
+      }
+      :root[data-theme='escuro'] {
+        --bg: #10130e;
+        --surface: #191d15;
+        --surface-2: #232819;
+        --line: #333829;
+        --ink: #eceee3;
+        --ink-2: #c0c7b6;
+        --ink-3: #89907f;
+        --brand: #86c29b;
+        --brand-2: #5e9e78;
+        --brand-soft: #1e2a20;
+        --accent: #ddae55;
+        --accent-soft: #2c2717;
+        --alert: #e0937e;
+        --alert-soft: #2e1f1a;
+        --on-forte: #10130e;
+        --sombra: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.32);
+        --sombra-forte:
+          0 2px 6px rgba(0, 0, 0, 0.4), 0 14px 34px rgba(0, 0, 0, 0.42);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        transition:
+          background 0.25s ease,
+          color 0.25s ease;
+      }
+      h1,
+      h2 {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-weight: 400;
+      }
 
-  /* Marca: o jardim fechado (o arco) com o broto dentro. Herda a cor de quem a segura. */
-  .marca svg, .marca-topo svg { display: block; width: 100%; height: 100%; }
+      /* Marca: o jardim fechado (o arco) com o broto dentro. Herda a cor de quem a segura. */
+      .marca svg,
+      .marca-topo svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
 
-  .capa { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-  .cartao { background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
-    box-shadow: var(--sombra); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-  .login { width: 384px; max-width: 100%; padding: 32px; animation: pop .3s cubic-bezier(.2,.8,.2,1); }
-  .login .marca { width: 56px; height: 56px; color: var(--brand); margin: 0 auto 14px; }
-  .login h1 { font-size: 27px; margin: 0 0 4px; text-align: center; }
-  .login p { color: var(--ink-3); font-size: 14px; margin: 0 0 22px; text-align: center; }
+      .capa {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .cartao {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: var(--sombra);
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease,
+          border-color 0.18s ease;
+      }
+      .login {
+        width: 384px;
+        max-width: 100%;
+        padding: 32px;
+        animation: pop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .login .marca {
+        width: 56px;
+        height: 56px;
+        color: var(--brand);
+        margin: 0 auto 14px;
+      }
+      .login h1 {
+        font-size: 27px;
+        margin: 0 0 4px;
+        text-align: center;
+      }
+      .login p {
+        color: var(--ink-3);
+        font-size: 14px;
+        margin: 0 0 22px;
+        text-align: center;
+      }
 
-  label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin: 12px 0 6px; }
-  input, select, textarea {
-    width: 100%; padding: 11px 12px; border: 1.5px solid var(--line); border-radius: 10px;
-    background: var(--surface); color: var(--ink); font-size: 15px; font-family: inherit;
-    transition: border-color .15s ease, box-shadow .15s ease; }
-  input:focus, select:focus, textarea:focus {
-    outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
-  .campo-senha { position: relative; }
-  .campo-senha input { padding-right: 44px; }
-  .olho { position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-    background: transparent; border: none; color: var(--ink-3); min-height: 0;
-    padding: 6px; border-radius: 8px; display: flex; align-items: center; box-shadow: none; }
-  .olho:hover { background: var(--surface-2); }
-  label.check { display: flex; align-items: center; gap: 8px; font-weight: 500;
-    color: var(--ink-2); margin: 14px 0 0; cursor: pointer; }
-  label.check input { width: auto; margin: 0; }
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink-2);
+        margin: 12px 0 6px;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 11px 12px;
+        border: 1.5px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface);
+        color: var(--ink);
+        font-size: 15px;
+        font-family: inherit;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px var(--brand-soft);
+      }
+      .campo-senha {
+        position: relative;
+      }
+      .campo-senha input {
+        padding-right: 44px;
+      }
+      .olho {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--ink-3);
+        min-height: 0;
+        padding: 6px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        box-shadow: none;
+      }
+      .olho:hover {
+        background: var(--surface-2);
+      }
+      label.check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        color: var(--ink-2);
+        margin: 14px 0 0;
+        cursor: pointer;
+      }
+      label.check input {
+        width: auto;
+        margin: 0;
+      }
 
-  button {
-    font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
-    background: var(--brand); color: var(--on-forte); border: 1.5px solid var(--brand);
-    border-radius: 999px; padding: 11px 20px; min-height: 44px;
-    transition: filter .15s ease, transform .1s ease, background .15s ease, color .15s ease; }
-  button:hover:not(:disabled) { filter: brightness(1.06); }
-  button:active:not(:disabled) { transform: translateY(1px); }
-  button.secundario { background: transparent; color: var(--brand); }
-  button.perigo { background: var(--alert); border-color: var(--alert); color: var(--on-forte); }
-  button:disabled { opacity: .55; cursor: default; }
-  .erro { color: var(--alert); font-size: 13px; margin-top: 12px; min-height: 18px; }
+      button {
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--brand);
+        color: var(--on-forte);
+        border: 1.5px solid var(--brand);
+        border-radius: 999px;
+        padding: 11px 20px;
+        min-height: 44px;
+        transition:
+          filter 0.15s ease,
+          transform 0.1s ease,
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      button:hover:not(:disabled) {
+        filter: brightness(1.06);
+      }
+      button:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+      button.secundario {
+        background: transparent;
+        color: var(--brand);
+      }
+      button.perigo {
+        background: var(--alert);
+        border-color: var(--alert);
+        color: var(--on-forte);
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      .erro {
+        color: var(--alert);
+        font-size: 13px;
+        margin-top: 12px;
+        min-height: 18px;
+      }
 
-  /* Alternância de tema: um botão só, flutuando no canto, presente nas duas telas. */
-  .btn-tema { position: fixed; top: 14px; right: 16px; z-index: 80;
-    width: 42px; height: 42px; min-height: 0; padding: 0; border-radius: 999px;
-    background: var(--surface); color: var(--ink-2); border: 1px solid var(--line);
-    display: grid; place-items: center; box-shadow: var(--sombra); }
-  .btn-tema:hover { color: var(--brand); border-color: var(--brand); filter: none; }
-  .btn-tema svg { width: 20px; height: 20px; }
+      /* Alternância de tema: um botão só, flutuando no canto, presente nas duas telas. */
+      .btn-tema {
+        position: fixed;
+        top: 14px;
+        right: 16px;
+        z-index: 80;
+        width: 42px;
+        height: 42px;
+        min-height: 0;
+        padding: 0;
+        border-radius: 999px;
+        background: var(--surface);
+        color: var(--ink-2);
+        border: 1px solid var(--line);
+        display: grid;
+        place-items: center;
+        box-shadow: var(--sombra);
+      }
+      .btn-tema:hover {
+        color: var(--brand);
+        border-color: var(--brand);
+        filter: none;
+      }
+      .btn-tema svg {
+        width: 20px;
+        height: 20px;
+      }
 
-  .topo { display: flex; align-items: center; gap: 14px; padding: 15px 28px; padding-right: 78px;
-    border-bottom: 1px solid var(--line); background: var(--surface); position: sticky; top: 0; z-index: 30; }
-  .marca-topo { width: 30px; height: 30px; color: var(--brand); flex-shrink: 0; }
-  .topo h1 { font-size: 20px; margin: 0; flex-grow: 1; }
+      .topo {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 15px 28px;
+        padding-right: 78px;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface);
+        position: sticky;
+        top: 0;
+        z-index: 30;
+      }
+      .marca-topo {
+        width: 30px;
+        height: 30px;
+        color: var(--brand);
+        flex-shrink: 0;
+      }
+      .topo h1 {
+        font-size: 20px;
+        margin: 0;
+        flex-grow: 1;
+      }
 
-  .layout { display: flex; align-items: flex-start; }
-  .menu { width: 220px; flex-shrink: 0; padding: 20px 12px; border-right: 1px solid var(--line);
-    background: var(--surface); min-height: calc(100vh - 62px); position: sticky; top: 62px; }
-  .menu a { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 10px;
-    color: var(--ink-2); font-size: 14px; font-weight: 500; cursor: pointer; margin-bottom: 4px;
-    transition: background .15s ease, color .15s ease; }
-  .menu a svg { width: 18px; height: 18px; opacity: .8; }
-  .menu a:hover { background: var(--surface-2); }
-  .menu a[aria-current="true"] { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
-  .menu a[aria-current="true"] svg { opacity: 1; }
-  .principal { flex: 1; min-width: 0; padding: 30px 40px 60px; }
-  @media (max-width: 760px) {
-    .topo { padding: 14px 20px; padding-right: 68px; }
-    .layout { flex-direction: column; }
-    .menu { width: 100%; min-height: 0; position: static; display: flex; gap: 6px; overflow-x: auto;
-      border-right: none; border-bottom: 1px solid var(--line); padding: 12px; }
-    .menu a { margin-bottom: 0; white-space: nowrap; }
-    .principal { padding: 20px; }
-  }
+      .layout {
+        display: flex;
+        align-items: flex-start;
+      }
+      .menu {
+        width: 220px;
+        flex-shrink: 0;
+        padding: 20px 12px;
+        border-right: 1px solid var(--line);
+        background: var(--surface);
+        min-height: calc(100vh - 62px);
+        position: sticky;
+        top: 62px;
+      }
+      .menu a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        color: var(--ink-2);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 4px;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      .menu a svg {
+        width: 18px;
+        height: 18px;
+        opacity: 0.8;
+      }
+      .menu a:hover {
+        background: var(--surface-2);
+      }
+      .menu a[aria-current='true'] {
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-weight: 600;
+      }
+      .menu a[aria-current='true'] svg {
+        opacity: 1;
+      }
+      .principal {
+        flex: 1;
+        min-width: 0;
+        padding: 30px 40px 60px;
+      }
+      @media (max-width: 760px) {
+        .topo {
+          padding: 14px 20px;
+          padding-right: 68px;
+        }
+        .layout {
+          flex-direction: column;
+        }
+        .menu {
+          width: 100%;
+          min-height: 0;
+          position: static;
+          display: flex;
+          gap: 6px;
+          overflow-x: auto;
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+          padding: 12px;
+        }
+        .menu a {
+          margin-bottom: 0;
+          white-space: nowrap;
+        }
+        .principal {
+          padding: 20px;
+        }
+      }
 
-  .filtros { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
-  .filtros button { min-height: 38px; padding: 7px 16px; font-size: 13px;
-    background: var(--surface); color: var(--ink-2); border-color: var(--line); box-shadow: none; }
-  .filtros button[aria-pressed="true"] { background: var(--brand-soft); color: var(--brand); border-color: var(--brand); }
+      .filtros {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+      }
+      .filtros button {
+        min-height: 38px;
+        padding: 7px 16px;
+        font-size: 13px;
+        background: var(--surface);
+        color: var(--ink-2);
+        border-color: var(--line);
+        box-shadow: none;
+      }
+      .filtros button[aria-pressed='true'] {
+        background: var(--brand-soft);
+        color: var(--brand);
+        border-color: var(--brand);
+      }
 
-  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
-  .metrica { position: relative; padding: 22px; overflow: hidden;
-    animation: surge .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 55ms); }
-  .metrica:hover { transform: translateY(-3px); box-shadow: var(--sombra-forte); border-color: var(--brand-soft); }
-  .metrica .icone { position: absolute; top: 18px; right: 18px; width: 40px; height: 40px;
-    border-radius: 12px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; }
-  .metrica .icone .ic { width: 20px; height: 20px; }
-  .metrica .rotulo { font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase;
-    color: var(--ink-3); font-weight: 700; padding-right: 46px; }
-  .metrica .valor { font-family: Georgia, serif; font-size: 44px; line-height: 1.05;
-    color: var(--brand); margin-top: 8px; font-variant-numeric: tabular-nums; }
-  .metrica .nota { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; }
+      .grade {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 16px;
+      }
+      .metrica {
+        position: relative;
+        padding: 22px;
+        overflow: hidden;
+        animation: surge 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        animation-delay: calc(var(--i, 0) * 55ms);
+      }
+      .metrica:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--sombra-forte);
+        border-color: var(--brand-soft);
+      }
+      .metrica .icone {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        display: grid;
+        place-items: center;
+      }
+      .metrica .icone .ic {
+        width: 20px;
+        height: 20px;
+      }
+      .metrica .rotulo {
+        font-size: 11.5px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        font-weight: 700;
+        padding-right: 46px;
+      }
+      .metrica .valor {
+        font-family: Georgia, serif;
+        font-size: 44px;
+        line-height: 1.05;
+        color: var(--brand);
+        margin-top: 8px;
+        font-variant-numeric: tabular-nums;
+      }
+      .metrica .nota {
+        font-size: 12.5px;
+        color: var(--ink-3);
+        margin-top: 6px;
+      }
 
-  .grafico { margin-top: 18px; padding: 22px; }
-  .grafico h2 { font-size: 16px; margin: 0 0 18px; color: var(--ink); }
-  .barras { display: flex; align-items: flex-end; gap: 3px; height: 150px; }
-  .barras .b { flex: 1; border-radius: 4px 4px 0 0; min-height: 2px;
-    background: linear-gradient(to top, var(--brand), var(--brand-2));
-    transform-origin: bottom; animation: cresce .7s cubic-bezier(.2,.8,.2,1) both;
-    transition: filter .12s ease; }
-  .barras .b:hover { filter: brightness(1.12); }
-  .catlinha { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
-  .catlinha .nome { width: 96px; font-size: 13px; color: var(--ink-2); }
-  .catlinha .trilho { flex: 1; height: 12px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
-  .catlinha .fill { height: 100%; border-radius: 999px;
-    background: linear-gradient(to right, var(--brand), var(--brand-2));
-    width: 0; animation: enche .8s cubic-bezier(.2,.8,.2,1) forwards; }
-  .catlinha .n { width: 34px; text-align: right; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+      .grafico {
+        margin-top: 18px;
+        padding: 22px;
+      }
+      .grafico h2 {
+        font-size: 16px;
+        margin: 0 0 18px;
+        color: var(--ink);
+      }
+      /* Acordeão das listas de assinaturas: clicar no título recolhe/abre. */
+      #secao-assinaturas .cartao.grafico > h2 {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        user-select: none;
+      }
+      #secao-assinaturas .cartao.grafico > h2 .cont {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink-3);
+      }
+      #secao-assinaturas .cartao.grafico > h2::after {
+        content: '▾';
+        margin-left: auto;
+        font-size: 13px;
+        color: var(--ink-3);
+        transition: transform 0.18s ease;
+      }
+      #secao-assinaturas .cartao.grafico.recolhido > h2 {
+        margin-bottom: 0;
+      }
+      #secao-assinaturas .cartao.grafico.recolhido > h2::after {
+        transform: rotate(-90deg);
+      }
+      #secao-assinaturas .cartao.grafico.recolhido > *:not(h2) {
+        display: none;
+      }
+      .barras {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 150px;
+      }
+      .barras .b {
+        flex: 1;
+        border-radius: 4px 4px 0 0;
+        min-height: 2px;
+        background: linear-gradient(to top, var(--brand), var(--brand-2));
+        transform-origin: bottom;
+        animation: cresce 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        transition: filter 0.12s ease;
+      }
+      .barras .b:hover {
+        filter: brightness(1.12);
+      }
+      .catlinha {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .catlinha .nome {
+        width: 96px;
+        font-size: 13px;
+        color: var(--ink-2);
+      }
+      .catlinha .trilho {
+        flex: 1;
+        height: 12px;
+        background: var(--surface-2);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .catlinha .fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(to right, var(--brand), var(--brand-2));
+        width: 0;
+        animation: enche 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      .catlinha .n {
+        width: 34px;
+        text-align: right;
+        font-size: 13px;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
 
-  .badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
-  .badge.pub { background: var(--brand-soft); color: var(--brand); }
-  .badge.breve { background: var(--accent-soft); color: var(--accent); }
-  .badge.rasc { background: var(--surface-2); color: var(--ink-3); }
-  .badge.alerta { background: var(--alert-soft); color: var(--alert); }
-  .acao-link { color: var(--brand); cursor: pointer; font-size: 13px; margin-right: 12px; font-weight: 500; }
-  .acao-link:hover { text-decoration: underline; }
-  .acao-link.perigo { color: var(--alert); }
+      .badge {
+        display: inline-block;
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+      .badge.pub {
+        background: var(--brand-soft);
+        color: var(--brand);
+      }
+      .badge.breve {
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+      .badge.rasc {
+        background: var(--surface-2);
+        color: var(--ink-3);
+      }
+      .badge.alerta {
+        background: var(--alert-soft);
+        color: var(--alert);
+      }
+      .acao-link {
+        color: var(--brand);
+        cursor: pointer;
+        font-size: 13px;
+        margin-right: 12px;
+        font-weight: 500;
+      }
+      .acao-link:hover {
+        text-decoration: underline;
+      }
+      .acao-link.perigo {
+        color: var(--alert);
+      }
 
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 11px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  th { color: var(--ink-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
-  td { color: var(--ink-2); }
-  tbody tr { transition: background .12s ease; }
-  tbody tr:hover { background: var(--surface-2); }
-  .papel-chip { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px;
-    background: var(--brand-soft); color: var(--brand); margin-right: 4px; }
-  .pag { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 13px; color: var(--ink-3); }
-  .col-check { width: 34px; }
-  .col-check input { width: auto; margin: 0; cursor: pointer; }
-  .acoes-conta { text-align: right; }
-  tr.linha-off { background: var(--surface-2); }
-  .barra-massa { display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    flex-wrap: wrap; background: var(--brand-soft); border: 1px solid var(--brand); border-radius: 12px;
-    padding: 10px 8px 10px 16px; margin-bottom: 14px; animation: surge .25s cubic-bezier(.2,.7,.2,1) both; }
-  .barra-massa #massa-info { font-size: 13px; font-weight: 600; color: var(--brand); }
-  .barra-massa .massa-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
-  .barra-massa button { min-height: 36px; padding: 6px 14px; font-size: 13px; box-shadow: none; }
-  .barra-massa button.secundario { background: var(--surface); }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 11px 8px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+      }
+      th {
+        color: var(--ink-3);
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      td {
+        color: var(--ink-2);
+      }
+      tbody tr {
+        transition: background 0.12s ease;
+      }
+      tbody tr:hover {
+        background: var(--surface-2);
+      }
+      .papel-chip {
+        display: inline-block;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        margin-right: 4px;
+      }
+      .pag {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+      .col-check {
+        width: 34px;
+      }
+      .col-check input {
+        width: auto;
+        margin: 0;
+        cursor: pointer;
+      }
+      .acoes-conta {
+        text-align: right;
+      }
+      tr.linha-off {
+        background: var(--surface-2);
+      }
+      .barra-massa {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: var(--brand-soft);
+        border: 1px solid var(--brand);
+        border-radius: 12px;
+        padding: 10px 8px 10px 16px;
+        margin-bottom: 14px;
+        animation: surge 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      .barra-massa #massa-info {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--brand);
+      }
+      .barra-massa .massa-acoes {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .barra-massa button {
+        min-height: 36px;
+        padding: 6px 14px;
+        font-size: 13px;
+        box-shadow: none;
+      }
+      .barra-massa button.secundario {
+        background: var(--surface);
+      }
 
-  /* Notificações do próprio painel: toasts no canto e diálogos no centro, no
+      /* Notificações do próprio painel: toasts no canto e diálogos no centro, no
      lugar de alert/confirm/prompt do navegador. */
-  .toasts { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column;
-    gap: 10px; z-index: 90; max-width: 92vw; }
-  .toast { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--brand);
-    color: var(--ink); padding: 13px 16px; border-radius: 12px; box-shadow: var(--sombra-forte);
-    font-size: 14px; max-width: 360px; opacity: 0; transform: translateX(18px);
-    transition: opacity .28s ease, transform .28s ease; }
-  .toast.mostra { opacity: 1; transform: none; }
-  .toast.erro { border-left-color: var(--alert); }
+      .toasts {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 90;
+        max-width: 92vw;
+      }
+      .toast {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--brand);
+        color: var(--ink);
+        padding: 13px 16px;
+        border-radius: 12px;
+        box-shadow: var(--sombra-forte);
+        font-size: 14px;
+        max-width: 360px;
+        opacity: 0;
+        transform: translateX(18px);
+        transition:
+          opacity 0.28s ease,
+          transform 0.28s ease;
+      }
+      .toast.mostra {
+        opacity: 1;
+        transform: none;
+      }
+      .toast.erro {
+        border-left-color: var(--alert);
+      }
 
-  .overlay { position: fixed; inset: 0; background: rgba(10,14,10,.5); backdrop-filter: blur(2px);
-    display: grid; place-items: center; z-index: 95; padding: 20px; animation: fade .18s ease; }
-  .dialogo { width: 440px; max-width: 100%; padding: 26px; animation: pop .22s cubic-bezier(.2,.8,.2,1); }
-  .dialogo h2 { font-size: 21px; margin: 0 0 8px; }
-  .dialogo .dtexto { font-size: 14px; color: var(--ink-2); margin: 0; line-height: 1.55; }
-  .dialogo .dacoes { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 14, 10, 0.5);
+        backdrop-filter: blur(2px);
+        display: grid;
+        place-items: center;
+        z-index: 95;
+        padding: 20px;
+        animation: fade 0.18s ease;
+      }
+      .dialogo {
+        width: 440px;
+        max-width: 100%;
+        padding: 26px;
+        animation: pop 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .dialogo h2 {
+        font-size: 21px;
+        margin: 0 0 8px;
+      }
+      .dialogo .dtexto {
+        font-size: 14px;
+        color: var(--ink-2);
+        margin: 0;
+        line-height: 1.55;
+      }
+      .dialogo .dacoes {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 22px;
+      }
 
-  @keyframes surge { from { opacity: 0; transform: translateY(12px); } }
-  @keyframes cresce { from { transform: scaleY(0); } }
-  @keyframes enche { from { width: 0; } }
-  @keyframes fade { from { opacity: 0; } }
-  @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(6px); } }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
-  }
-  .oculto { display: none; }
-</style>
-</head>
-<body>
+      @keyframes surge {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+      }
+      @keyframes cresce {
+        from {
+          transform: scaleY(0);
+        }
+      }
+      @keyframes enche {
+        from {
+          width: 0;
+        }
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+        }
+      }
+      @keyframes pop {
+        from {
+          opacity: 0;
+          transform: scale(0.96) translateY(6px);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+      .oculto {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="btn-tema" type="button" aria-label="Alternar tema"></button>
 
-<button class="btn-tema" type="button" aria-label="Alternar tema"></button>
-
-<!-- Entrada -->
-<div id="capa" class="capa">
-  <div class="cartao login">
-    <div class="marca">
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M12 57 V28 a20 20 0 0 1 40 0 V57" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-        <path d="M32 53 V41" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-        <path d="M31 43 C 22 42.5, 17.6 36, 18.4 28 C 27 29, 31.8 35, 31 43 Z" fill="currentColor"/>
-        <path d="M33 43 C 42 42.5, 46.4 36, 45.6 28 C 37 29, 32.2 35, 33 43 Z" fill="currentColor"/>
-      </svg>
-    </div>
-    <h1>O meu jardim</h1>
-    <p>Painel de gestão. Acesso restrito.</p>
-    <form id="form-login">
-      <label for="email">E-mail</label>
-      <input id="email" type="email" autocomplete="username" placeholder="voce@exemplo.com">
-      <label for="senha">Senha</label>
-      <div class="campo-senha">
-        <input id="senha" type="password" autocomplete="current-password">
-        <button id="ver-senha" type="button" class="olho" aria-label="Mostrar senha" aria-pressed="false">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.75"/>
-            <line id="risco-olho" x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    <!-- Entrada -->
+    <div id="capa" class="capa">
+      <div class="cartao login">
+        <div class="marca">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path
+              d="M12 57 V28 a20 20 0 0 1 40 0 V57"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M32 53 V41"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M31 43 C 22 42.5, 17.6 36, 18.4 28 C 27 29, 31.8 35, 31 43 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M33 43 C 42 42.5, 46.4 36, 45.6 28 C 37 29, 32.2 35, 33 43 Z"
+              fill="currentColor"
+            />
           </svg>
+        </div>
+        <h1>O meu jardim</h1>
+        <p>Painel de gestão. Acesso restrito.</p>
+        <form id="form-login">
+          <label for="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            autocomplete="username"
+            placeholder="voce@exemplo.com"
+          />
+          <label for="senha">Senha</label>
+          <div class="campo-senha">
+            <input id="senha" type="password" autocomplete="current-password" />
+            <button
+              id="ver-senha"
+              type="button"
+              class="olho"
+              aria-label="Mostrar senha"
+              aria-pressed="false"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                />
+                <line
+                  id="risco-olho"
+                  x1="3"
+                  y1="3"
+                  x2="21"
+                  y2="21"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <label class="check"
+            ><input id="gravar-senha" type="checkbox" />
+            <span>Gravar e-mail e senha neste navegador</span></label
+          >
+          <div style="margin-top: 22px">
+            <button id="btn-entrar" type="submit" style="width: 100%">
+              Entrar
+            </button>
+          </div>
+          <div id="erro-login" class="erro"></div>
+          <details style="margin-top: 16px">
+            <summary
+              style="font-size: 12px; color: var(--ink-3); cursor: pointer"
+            >
+              Endereço da API
+            </summary>
+            <input
+              id="api"
+              style="margin-top: 8px; font-size: 13px"
+              placeholder="http://localhost:3337"
+            />
+          </details>
+        </form>
+      </div>
+    </div>
+
+    <!-- Painel -->
+    <div id="painel" class="oculto">
+      <div class="topo">
+        <span class="marca-topo" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <path
+              d="M12 57 V28 a20 20 0 0 1 40 0 V57"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M32 53 V41"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M31 43 C 22 42.5, 17.6 36, 18.4 28 C 27 29, 31.8 35, 31 43 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M33 43 C 42 42.5, 46.4 36, 45.6 28 C 37 29, 32.2 35, 33 43 Z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
+        <h1>O meu jardim</h1>
+        <span id="quem" style="font-size: 13px; color: var(--ink-3)"></span>
+        <button
+          class="secundario"
+          id="btn-sair"
+          style="min-height: 38px; padding: 7px 16px; font-size: 13px"
+        >
+          Sair
         </button>
       </div>
-      <label class="check"><input id="gravar-senha" type="checkbox"> <span>Gravar e-mail e senha neste navegador</span></label>
-      <div style="margin-top:22px"><button id="btn-entrar" type="submit" style="width:100%">Entrar</button></div>
-      <div id="erro-login" class="erro"></div>
-      <details style="margin-top:16px">
-        <summary style="font-size:12px;color:var(--ink-3);cursor:pointer">Endereço da API</summary>
-        <input id="api" style="margin-top:8px;font-size:13px" placeholder="http://localhost:3337">
-      </details>
-    </form>
-  </div>
-</div>
+      <div class="layout">
+        <nav class="menu" id="menu"></nav>
+        <main class="principal">
+          <div class="filtros" id="filtros">
+            <button data-p="mes" aria-pressed="true">Mês</button>
+            <button data-p="3meses" aria-pressed="false">
+              Últimos 3 meses
+            </button>
+            <button data-p="ano" aria-pressed="false">Ano</button>
+          </div>
 
-<!-- Painel -->
-<div id="painel" class="oculto">
-  <div class="topo">
-    <span class="marca-topo" aria-hidden="true">
-      <svg viewBox="0 0 64 64">
-        <path d="M12 57 V28 a20 20 0 0 1 40 0 V57" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-        <path d="M32 53 V41" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-        <path d="M31 43 C 22 42.5, 17.6 36, 18.4 28 C 27 29, 31.8 35, 31 43 Z" fill="currentColor"/>
-        <path d="M33 43 C 42 42.5, 46.4 36, 45.6 28 C 37 29, 32.2 35, 33 43 Z" fill="currentColor"/>
-      </svg>
-    </span>
-    <h1>O meu jardim</h1>
-    <span id="quem" style="font-size:13px;color:var(--ink-3)"></span>
-    <button class="secundario" id="btn-sair" style="min-height:38px;padding:7px 16px;font-size:13px">Sair</button>
-  </div>
-  <div class="layout">
-    <nav class="menu" id="menu"></nav>
-    <main class="principal">
-    <div class="filtros" id="filtros">
-      <button data-p="mes" aria-pressed="true">Mês</button>
-      <button data-p="3meses" aria-pressed="false">Últimos 3 meses</button>
-      <button data-p="ano" aria-pressed="false">Ano</button>
+          <section id="secao-metricas" class="oculto">
+            <div
+              class="cartao grafico"
+              style="margin-top: 0; margin-bottom: 18px"
+            >
+              <h2>Plano e preço</h2>
+              <p style="font-size: 12px; color: var(--ink-3); margin: 0 0 14px">
+                Mudar o preço vale só para quem assinar daqui em diante. Quem já
+                é cliente segue no valor dele. Para migrar antigos, marque a
+                troca — cada um confirma o novo valor no app (aviso e novo
+                aceite).
+              </p>
+              <div
+                style="
+                  display: flex;
+                  gap: 16px;
+                  align-items: flex-end;
+                  flex-wrap: wrap;
+                "
+              >
+                <div>
+                  <label style="margin-top: 0">Novo preço (R$)</label>
+                  <input
+                    id="preco-valor"
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    style="width: 140px"
+                    placeholder="19,90"
+                  />
+                </div>
+                <div>
+                  <label style="margin-top: 0">Rótulo (opcional)</label>
+                  <input
+                    id="preco-rotulo"
+                    style="width: 200px"
+                    placeholder="reajuste 2026"
+                  />
+                </div>
+                <button id="preco-salvar">Definir preço vigente</button>
+              </div>
+              <div
+                style="
+                  margin-top: 16px;
+                  display: flex;
+                  gap: 12px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                "
+              >
+                <span
+                  id="preco-atual"
+                  style="font-size: 14px; color: var(--ink-2)"
+                ></span>
+                <button
+                  id="preco-migrar"
+                  class="secundario"
+                  style="min-height: 36px; padding: 6px 14px; font-size: 13px"
+                >
+                  Migrar antigos para o preço vigente
+                </button>
+              </div>
+            </div>
+            <div class="grade" id="grade"></div>
+            <div class="cartao grafico">
+              <h2>Sementes regadas por dia</h2>
+              <div class="barras" id="barras"></div>
+            </div>
+          </section>
+
+          <section id="secao-contas" class="oculto">
+            <div class="grade" style="margin-bottom: 18px">
+              <div class="cartao metrica">
+                <div class="rotulo">Retorno em 7 dias</div>
+                <div class="valor" id="ret7">0%</div>
+                <div class="nota" id="ret7-nota"></div>
+              </div>
+              <div class="cartao metrica">
+                <div class="rotulo">Retorno em 30 dias</div>
+                <div class="valor" id="ret30">0%</div>
+                <div class="nota" id="ret30-nota"></div>
+              </div>
+            </div>
+            <div class="cartao grafico">
+              <h2>Usuários ativos por dia</h2>
+              <div class="barras" id="barras-ativos"></div>
+            </div>
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Contas</h2>
+              <input
+                id="busca-contas"
+                placeholder="Buscar por nome ou e-mail"
+                style="width: 100%; margin-bottom: 14px"
+              />
+              <div id="barra-massa" class="barra-massa oculto">
+                <span id="massa-info">0 selecionadas</span>
+                <div class="massa-acoes">
+                  <button class="secundario" data-massa="desativar">
+                    Desativar
+                  </button>
+                  <button class="secundario" data-massa="reativar">
+                    Reativar
+                  </button>
+                  <button class="perigo" data-massa="excluir">Excluir</button>
+                </div>
+              </div>
+              <div style="overflow-x: auto">
+                <table id="tabela-contas">
+                  <thead>
+                    <tr>
+                      <th class="col-check">
+                        <input
+                          type="checkbox"
+                          id="check-todos"
+                          aria-label="Selecionar todas"
+                        />
+                      </th>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Papéis</th>
+                      <th>Assinatura</th>
+                      <th>Entrou</th>
+                      <th>Última rega</th>
+                      <th>Regas</th>
+                      <th class="acoes-conta">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="pag">
+                <button
+                  id="pag-ant"
+                  class="secundario"
+                  style="min-height: 34px; padding: 5px 14px"
+                >
+                  Anterior
+                </button>
+                <span id="pag-info"></span>
+                <button
+                  id="pag-prox"
+                  class="secundario"
+                  style="min-height: 34px; padding: 5px 14px"
+                >
+                  Próximo
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section id="secao-assinaturas" class="oculto">
+            <div class="grade" id="ass-contadores"></div>
+
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Pagamentos pendentes</h2>
+              <p
+                style="
+                  color: var(--ink-3);
+                  font-size: 13px;
+                  margin: -10px 0 16px;
+                "
+              >
+                PIX aguardando confirmação. Se a pessoa já pagou e não caiu
+                sozinho, use "Confirmar Pagamento".
+              </p>
+              <div id="ass-pendentes"></div>
+            </div>
+
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Vencimento próximo</h2>
+              <p
+                style="
+                  color: var(--ink-3);
+                  font-size: 13px;
+                  margin: -10px 0 16px;
+                "
+              >
+                Assinaturas ativas que vencem nos próximos 7 dias.
+              </p>
+              <div id="ass-proximo"></div>
+            </div>
+
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Passou do vencimento</h2>
+              <p
+                style="
+                  color: var(--ink-3);
+                  font-size: 13px;
+                  margin: -10px 0 16px;
+                "
+              >
+                Venceram e seguem sem novo pagamento. Gere um PIX para cobrar.
+              </p>
+              <div id="ass-vencidas"></div>
+            </div>
+
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Cancelaram</h2>
+              <p
+                style="
+                  color: var(--ink-3);
+                  font-size: 13px;
+                  margin: -10px 0 16px;
+                "
+              >
+                Canceladas mantêm acesso até o fim do período; encerradas já
+                saíram.
+              </p>
+              <div id="ass-cancelaram"></div>
+            </div>
+
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Ativos e engajados</h2>
+              <p
+                style="
+                  color: var(--ink-3);
+                  font-size: 13px;
+                  margin: -10px 0 16px;
+                "
+              >
+                Assinatura usável e ao menos uma rega nos últimos 7 dias.
+              </p>
+              <div id="ass-engajados"></div>
+            </div>
+          </section>
+
+          <section id="secao-estacoes" class="oculto">
+            <div class="cartao grafico">
+              <h2>Nova estação</h2>
+              <p style="font-size: 12px; color: var(--ink-3); margin: 0 0 12px">
+                Front-matter (nome, tema, descricao) e um <code>##</code> por
+                dia. Em cada dia, uma linha por disciplina no formato
+                <code>codigo | titulo | corpo</code> (ex.:
+                <code>leitura | João 1 | Leia devagar…</code>). Códigos:
+                leitura, meditacao, memorizacao, oracao, gratidao, jejum,
+                servico, generosidade.
+              </p>
+              <textarea
+                id="es-md"
+                rows="10"
+                placeholder="---&#10;nome: Estacao de plantio&#10;tema: fundamentos&#10;descricao: Quarenta dias para firmar a raiz.&#10;---&#10;## Dia 1&#10;leitura | Joao 1.1-18 | O Verbo se fez carne. Leia devagar.&#10;meditacao | O silencio | Cinco minutos parada, so ouvindo.&#10;memorizacao | Salmo 1.1 | Bem-aventurado o homem..."
+              ></textarea>
+              <div
+                style="
+                  display: flex;
+                  gap: 16px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                  margin-top: 12px;
+                "
+              >
+                <label style="margin: 0; font-size: 13px"
+                  >Estreia (opcional)
+                  <input
+                    type="date"
+                    id="es-data"
+                    style="width: auto; display: inline-block"
+                /></label>
+                <label
+                  style="
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 13px;
+                  "
+                  ><input
+                    type="checkbox"
+                    id="es-pub"
+                    checked
+                    style="width: auto"
+                  />
+                  Publicar já</label
+                >
+                <button id="es-importar">Importar</button>
+                <span
+                  id="es-msg"
+                  style="font-size: 13px; color: var(--ink-3)"
+                ></span>
+              </div>
+            </div>
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Estações</h2>
+              <div style="overflow-x: auto">
+                <table id="es-tabela">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Tema</th>
+                      <th>Dias</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="secao-intercessao" class="oculto">
+            <div class="grade" style="margin-bottom: 18px">
+              <div class="cartao metrica">
+                <div class="rotulo">Termômetro de respondidas</div>
+                <div class="valor" id="termometro">0%</div>
+                <div class="nota" id="termometro-nota"></div>
+              </div>
+              <div class="cartao metrica">
+                <div class="rotulo">Em oração agora</div>
+                <div class="valor" id="em-oracao">0</div>
+                <div class="nota">pedidos compartilhados</div>
+              </div>
+              <div class="cartao metrica">
+                <div class="rotulo">Respondidas no período</div>
+                <div class="valor" id="resp-periodo">0</div>
+                <div class="nota">motivo de gratidão</div>
+              </div>
+            </div>
+            <div class="cartao grafico">
+              <h2>Em oração, por categoria</h2>
+              <div id="categorias"></div>
+              <p style="font-size: 12px; color: var(--ink-3); margin-top: 16px">
+                Só a categoria e a contagem. Nunca o pedido, o nome ou o
+                testemunho — eles seguem cifrados e privados.
+              </p>
+            </div>
+          </section>
+
+          <section id="secao-trilhas" class="oculto">
+            <div class="cartao grafico">
+              <h2 id="tr-titulo-editor">Nova trilha</h2>
+              <p style="font-size: 12px; color: var(--ink-3); margin: 0 0 12px">
+                Front-matter (titulo, autor, tema) e um <code>##</code> por dia.
+                O dia é um mini devocional: escreva na ordem que quiser,
+                intercalando à vontade — parágrafos de texto viram texto
+                corrido; <code>referencia: Citação | versículo</code> vira a
+                caixa cor de terra (o versículo é opcional);
+                <code>link: rótulo | url</code> vira um botão que abre fora
+                (vídeo, música). Pode ter vários de cada.
+                <code>pergunta:</code> no fim leva ao diário. Reimportar com o
+                mesmo título substitui a trilha (se não tiver participantes).
+              </p>
+              <textarea
+                id="tr-md"
+                rows="12"
+                placeholder="---&#10;titulo: Nao temas&#10;autor: Quezia&#10;tema: medo&#10;---&#10;## O convite que se repete&#10;O medo aperta o peito de manha cedo.&#10;&#10;referencia: Salmo 27.1 | O Senhor e a minha luz; a quem temerei?&#10;&#10;A pergunta do salmo nao nega o medo.&#10;link: Louvor para hoje | https://youtube.com/...&#10;pergunta: Onde voce precisa ouvir isso hoje?"
+              ></textarea>
+              <div
+                style="
+                  display: flex;
+                  gap: 16px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                  margin-top: 12px;
+                "
+              >
+                <label style="margin: 0; font-size: 13px"
+                  >Estreia (opcional)
+                  <input
+                    type="date"
+                    id="tr-data"
+                    style="width: auto; display: inline-block"
+                /></label>
+                <label
+                  style="
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 13px;
+                  "
+                  ><input
+                    type="checkbox"
+                    id="tr-pub"
+                    checked
+                    style="width: auto"
+                  />
+                  Publicar já</label
+                >
+                <button id="tr-importar">Importar</button>
+                <span
+                  id="tr-cancelar-edicao"
+                  class="acao-link"
+                  style="display: none"
+                  >Cancelar edição</span
+                >
+                <span
+                  id="tr-msg"
+                  style="font-size: 13px; color: var(--ink-3)"
+                ></span>
+              </div>
+            </div>
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Trilhas</h2>
+              <div style="overflow-x: auto">
+                <table id="tr-tabela">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Autor</th>
+                      <th>Dias</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="secao-documentos" class="oculto">
+            <div class="cartao grafico" id="doc-termos">
+              <h2>Termos de uso</h2>
+              <p style="font-size: 12px; color: var(--ink-3); margin: 0 0 12px">
+                O texto que o app mostra na modal ao tocar em “termos de uso”.
+                Salvar já publica.
+              </p>
+              <label style="margin-top: 0">Título</label>
+              <input class="doc-titulo" placeholder="Termos de uso" />
+              <label>Texto</label>
+              <textarea
+                class="doc-corpo"
+                rows="14"
+                placeholder="Escreva os termos de uso aqui…"
+              ></textarea>
+              <div
+                style="
+                  display: flex;
+                  gap: 12px;
+                  align-items: center;
+                  margin-top: 12px;
+                "
+              >
+                <button class="doc-salvar" data-chave="termos">
+                  Salvar e publicar
+                </button>
+                <span
+                  class="doc-msg"
+                  style="font-size: 13px; color: var(--ink-3)"
+                ></span>
+              </div>
+            </div>
+            <div
+              class="cartao grafico"
+              id="doc-privacidade"
+              style="margin-top: 18px"
+            >
+              <h2>Política de privacidade e segurança</h2>
+              <p style="font-size: 12px; color: var(--ink-3); margin: 0 0 12px">
+                O texto que o app mostra ao tocar em “política de privacidade”.
+                Salvar já publica.
+              </p>
+              <label style="margin-top: 0">Título</label>
+              <input class="doc-titulo" placeholder="Política de privacidade" />
+              <label>Texto</label>
+              <textarea
+                class="doc-corpo"
+                rows="14"
+                placeholder="Escreva a política de privacidade aqui…"
+              ></textarea>
+              <div
+                style="
+                  display: flex;
+                  gap: 12px;
+                  align-items: center;
+                  margin-top: 12px;
+                "
+              >
+                <button class="doc-salvar" data-chave="privacidade">
+                  Salvar e publicar
+                </button>
+                <span
+                  class="doc-msg"
+                  style="font-size: 13px; color: var(--ink-3)"
+                ></span>
+              </div>
+            </div>
+          </section>
+
+          <section id="secao-praticas" class="oculto">
+            <div class="cartao grafico">
+              <h2 id="pr-titulo-editor">Nova prática</h2>
+              <p style="font-size: 12px; color: var(--ink-3); margin: 0 0 12px">
+                As disciplinas que o app oferece (oração, leitura, meditação…).
+                O <strong>código</strong> é o nome interno, em minúsculas e sem
+                espaço — não muda depois. O <strong>ícone</strong> escolhe o
+                desenho: escolha um dos prontos na lista, ou um nome novo (que
+                aparece como um círculo até um desenho ser feito). Mudanças no
+                catálogo levam até uma hora para aparecerem no app.
+              </p>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 160px">
+                  <label style="margin-top: 0">Nome</label
+                  ><input id="pr-nome" placeholder="Adoração" />
+                </div>
+                <div style="flex: 1; min-width: 140px">
+                  <label style="margin-top: 0">Código</label
+                  ><input id="pr-codigo" placeholder="adoracao" />
+                </div>
+                <div style="flex: 1; min-width: 140px">
+                  <label style="margin-top: 0">Ícone</label>
+                  <input id="pr-icone" list="pr-icones" placeholder="oracao" />
+                  <datalist id="pr-icones">
+                    <option value="oracao"></option>
+                    <option value="leitura"></option>
+                    <option value="meditacao"></option>
+                    <option value="jejum"></option>
+                    <option value="memorizacao"></option>
+                    <option value="gratidao"></option>
+                    <option value="servico"></option>
+                    <option value="generosidade"></option>
+                    <option value="cruz"></option>
+                    <option value="estrela"></option>
+                    <option value="louvor"></option>
+                    <option value="calice"></option>
+                    <option value="vela"></option>
+                    <option value="montanha"></option>
+                    <option value="testemunho"></option>
+                    <option value="gota"></option>
+                    <option value="broto"></option>
+                    <option value="casa"></option>
+                  </datalist>
+                </div>
+                <div style="width: 90px">
+                  <label style="margin-top: 0">Ordem</label
+                  ><input
+                    id="pr-ordem"
+                    type="number"
+                    min="0"
+                    placeholder="auto"
+                  />
+                </div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  gap: 12px;
+                  align-items: center;
+                  margin-top: 12px;
+                "
+              >
+                <button id="pr-salvar">Criar prática</button>
+                <span
+                  id="pr-cancelar-edicao"
+                  class="acao-link"
+                  style="display: none"
+                  >Cancelar edição</span
+                >
+                <span
+                  id="pr-msg"
+                  style="font-size: 13px; color: var(--ink-3)"
+                ></span>
+              </div>
+            </div>
+            <div class="cartao grafico" style="margin-top: 18px">
+              <h2>Práticas</h2>
+              <div style="overflow-x: auto">
+                <table id="pr-tabela">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Código</th>
+                      <th>Ícone</th>
+                      <th>Ordem</th>
+                      <th>Em uso</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
 
-    <section id="secao-metricas" class="oculto">
-      <div class="cartao grafico" style="margin-top:0;margin-bottom:18px">
-        <h2>Plano e preço</h2>
-        <p style="font-size:12px;color:var(--ink-3);margin:0 0 14px">
-          Mudar o preço vale só para quem assinar daqui em diante. Quem já é cliente segue no valor dele. Para migrar antigos, marque a troca — cada um confirma o novo valor no app (aviso e novo aceite).
-        </p>
-        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
-          <div>
-            <label style="margin-top:0">Novo preço (R$)</label>
-            <input id="preco-valor" type="number" step="0.01" min="1" style="width:140px" placeholder="19,90">
-          </div>
-          <div>
-            <label style="margin-top:0">Rótulo (opcional)</label>
-            <input id="preco-rotulo" style="width:200px" placeholder="reajuste 2026">
-          </div>
-          <button id="preco-salvar">Definir preço vigente</button>
-        </div>
-        <div style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-          <span id="preco-atual" style="font-size:14px;color:var(--ink-2)"></span>
-          <button id="preco-migrar" class="secundario" style="min-height:36px;padding:6px 14px;font-size:13px">Migrar antigos para o preço vigente</button>
-        </div>
-      </div>
-      <div class="grade" id="grade"></div>
-      <div class="cartao grafico">
-        <h2>Sementes regadas por dia</h2>
-        <div class="barras" id="barras"></div>
-      </div>
-    </section>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+    <div id="overlay" class="overlay oculto">
+      <div
+        class="cartao dialogo"
+        id="dialogo"
+        role="dialog"
+        aria-modal="true"
+      ></div>
+    </div>
 
-    <section id="secao-contas" class="oculto">
-      <div class="grade" style="margin-bottom:18px">
-        <div class="cartao metrica"><div class="rotulo">Retorno em 7 dias</div><div class="valor" id="ret7">0%</div><div class="nota" id="ret7-nota"></div></div>
-        <div class="cartao metrica"><div class="rotulo">Retorno em 30 dias</div><div class="valor" id="ret30">0%</div><div class="nota" id="ret30-nota"></div></div>
-      </div>
-      <div class="cartao grafico">
-        <h2>Usuários ativos por dia</h2>
-        <div class="barras" id="barras-ativos"></div>
-      </div>
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Contas</h2>
-        <input id="busca-contas" placeholder="Buscar por nome ou e-mail" style="width:100%;margin-bottom:14px">
-        <div id="barra-massa" class="barra-massa oculto">
-          <span id="massa-info">0 selecionadas</span>
-          <div class="massa-acoes">
-            <button class="secundario" data-massa="desativar">Desativar</button>
-            <button class="secundario" data-massa="reativar">Reativar</button>
-            <button class="perigo" data-massa="excluir">Excluir</button>
-          </div>
-        </div>
-        <div style="overflow-x:auto">
-          <table id="tabela-contas">
-            <thead><tr>
-              <th class="col-check"><input type="checkbox" id="check-todos" aria-label="Selecionar todas"></th>
-              <th>Nome</th><th>E-mail</th><th>Papéis</th><th>Assinatura</th><th>Entrou</th><th>Última rega</th><th>Regas</th><th class="acoes-conta">Ações</th>
-            </tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="pag">
-          <button id="pag-ant" class="secundario" style="min-height:34px;padding:5px 14px">Anterior</button>
-          <span id="pag-info"></span>
-          <button id="pag-prox" class="secundario" style="min-height:34px;padding:5px 14px">Próximo</button>
-        </div>
-      </div>
-    </section>
+    <script>
+      const $ = s => document.querySelector(s)
+      let API = localStorage.getItem('painel_api') || 'http://localhost:3337'
+      // Sessão por cookie httpOnly (o token vive no cookie que o JS não lê; só o
+      // CSRF fica em memória). Persiste ao atualizar a página e renova sozinho a
+      // cada 15 min pelo refresh. Nada de token em localStorage (invariante).
+      let csrf = null
+      let periodo = 'mes'
+      let papeis = []
 
-    <section id="secao-assinaturas" class="oculto">
-      <div class="grade" id="ass-contadores"></div>
-
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Pagamentos pendentes</h2>
-        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">PIX aguardando confirmação. Se a pessoa já pagou e não caiu sozinho, use "Conferir na Efí".</p>
-        <div id="ass-pendentes"></div>
-      </div>
-
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Vencimento próximo</h2>
-        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">Assinaturas ativas que vencem nos próximos 7 dias.</p>
-        <div id="ass-proximo"></div>
-      </div>
-
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Passou do vencimento</h2>
-        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">Venceram e seguem sem novo pagamento. Gere um PIX para cobrar.</p>
-        <div id="ass-vencidas"></div>
-      </div>
-
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Cancelaram</h2>
-        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">Canceladas mantêm acesso até o fim do período; encerradas já saíram.</p>
-        <div id="ass-cancelaram"></div>
-      </div>
-
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Ativos e engajados</h2>
-        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">Assinatura usável e ao menos uma rega nos últimos 7 dias.</p>
-        <div id="ass-engajados"></div>
-      </div>
-    </section>
-
-    <section id="secao-estacoes" class="oculto">
-      <div class="cartao grafico">
-        <h2>Nova estação</h2>
-        <p style="font-size:12px;color:var(--ink-3);margin:0 0 12px">
-          Front-matter (nome, tema, descricao) e um <code>##</code> por dia. Em cada dia, uma linha por disciplina no formato <code>codigo | titulo | corpo</code> (ex.: <code>leitura | João 1 | Leia devagar…</code>). Códigos: leitura, meditacao, memorizacao, oracao, gratidao, jejum, servico, generosidade.
-        </p>
-        <textarea id="es-md" rows="10" placeholder="---&#10;nome: Estacao de plantio&#10;tema: fundamentos&#10;descricao: Quarenta dias para firmar a raiz.&#10;---&#10;## Dia 1&#10;leitura | Joao 1.1-18 | O Verbo se fez carne. Leia devagar.&#10;meditacao | O silencio | Cinco minutos parada, so ouvindo.&#10;memorizacao | Salmo 1.1 | Bem-aventurado o homem..."></textarea>
-        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px">
-          <label style="margin:0;font-size:13px">Estreia (opcional) <input type="date" id="es-data" style="width:auto;display:inline-block"></label>
-          <label style="margin:0;display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="es-pub" checked style="width:auto"> Publicar já</label>
-          <button id="es-importar">Importar</button>
-          <span id="es-msg" style="font-size:13px;color:var(--ink-3)"></span>
-        </div>
-      </div>
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Estações</h2>
-        <div style="overflow-x:auto">
-          <table id="es-tabela">
-            <thead><tr><th>Nome</th><th>Tema</th><th>Dias</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="secao-intercessao" class="oculto">
-      <div class="grade" style="margin-bottom:18px">
-        <div class="cartao metrica">
-          <div class="rotulo">Termômetro de respondidas</div>
-          <div class="valor" id="termometro">0%</div>
-          <div class="nota" id="termometro-nota"></div>
-        </div>
-        <div class="cartao metrica">
-          <div class="rotulo">Em oração agora</div>
-          <div class="valor" id="em-oracao">0</div>
-          <div class="nota">pedidos compartilhados</div>
-        </div>
-        <div class="cartao metrica">
-          <div class="rotulo">Respondidas no período</div>
-          <div class="valor" id="resp-periodo">0</div>
-          <div class="nota">motivo de gratidão</div>
-        </div>
-      </div>
-      <div class="cartao grafico">
-        <h2>Em oração, por categoria</h2>
-        <div id="categorias"></div>
-        <p style="font-size:12px;color:var(--ink-3);margin-top:16px">
-          Só a categoria e a contagem. Nunca o pedido, o nome ou o testemunho — eles seguem cifrados e privados.
-        </p>
-      </div>
-    </section>
-
-    <section id="secao-trilhas" class="oculto">
-      <div class="cartao grafico">
-        <h2 id="tr-titulo-editor">Nova trilha</h2>
-        <p style="font-size:12px;color:var(--ink-3);margin:0 0 12px">
-          Front-matter (titulo, autor, tema) e um <code>##</code> por dia. O dia é um mini devocional: escreva na ordem que quiser, intercalando à vontade — parágrafos de texto viram texto corrido; <code>referencia: Citação | versículo</code> vira a caixa cor de terra (o versículo é opcional); <code>link: rótulo | url</code> vira um botão que abre fora (vídeo, música). Pode ter vários de cada. <code>pergunta:</code> no fim leva ao diário. Reimportar com o mesmo título substitui a trilha (se não tiver participantes).
-        </p>
-        <textarea id="tr-md" rows="12" placeholder="---&#10;titulo: Nao temas&#10;autor: Quezia&#10;tema: medo&#10;---&#10;## O convite que se repete&#10;O medo aperta o peito de manha cedo.&#10;&#10;referencia: Salmo 27.1 | O Senhor e a minha luz; a quem temerei?&#10;&#10;A pergunta do salmo nao nega o medo.&#10;link: Louvor para hoje | https://youtube.com/...&#10;pergunta: Onde voce precisa ouvir isso hoje?"></textarea>
-        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px">
-          <label style="margin:0;font-size:13px">Estreia (opcional) <input type="date" id="tr-data" style="width:auto;display:inline-block"></label>
-          <label style="margin:0;display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="tr-pub" checked style="width:auto"> Publicar já</label>
-          <button id="tr-importar">Importar</button>
-          <span id="tr-cancelar-edicao" class="acao-link" style="display:none">Cancelar edição</span>
-          <span id="tr-msg" style="font-size:13px;color:var(--ink-3)"></span>
-        </div>
-      </div>
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Trilhas</h2>
-        <div style="overflow-x:auto">
-          <table id="tr-tabela">
-            <thead><tr><th>Título</th><th>Autor</th><th>Dias</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="secao-documentos" class="oculto">
-      <div class="cartao grafico" id="doc-termos">
-        <h2>Termos de uso</h2>
-        <p style="font-size:12px;color:var(--ink-3);margin:0 0 12px">O texto que o app mostra na modal ao tocar em “termos de uso”. Salvar já publica.</p>
-        <label style="margin-top:0">Título</label>
-        <input class="doc-titulo" placeholder="Termos de uso">
-        <label>Texto</label>
-        <textarea class="doc-corpo" rows="14" placeholder="Escreva os termos de uso aqui…"></textarea>
-        <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
-          <button class="doc-salvar" data-chave="termos">Salvar e publicar</button>
-          <span class="doc-msg" style="font-size:13px;color:var(--ink-3)"></span>
-        </div>
-      </div>
-      <div class="cartao grafico" id="doc-privacidade" style="margin-top:18px">
-        <h2>Política de privacidade e segurança</h2>
-        <p style="font-size:12px;color:var(--ink-3);margin:0 0 12px">O texto que o app mostra ao tocar em “política de privacidade”. Salvar já publica.</p>
-        <label style="margin-top:0">Título</label>
-        <input class="doc-titulo" placeholder="Política de privacidade">
-        <label>Texto</label>
-        <textarea class="doc-corpo" rows="14" placeholder="Escreva a política de privacidade aqui…"></textarea>
-        <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
-          <button class="doc-salvar" data-chave="privacidade">Salvar e publicar</button>
-          <span class="doc-msg" style="font-size:13px;color:var(--ink-3)"></span>
-        </div>
-      </div>
-    </section>
-
-    <section id="secao-praticas" class="oculto">
-      <div class="cartao grafico">
-        <h2 id="pr-titulo-editor">Nova prática</h2>
-        <p style="font-size:12px;color:var(--ink-3);margin:0 0 12px">
-          As disciplinas que o app oferece (oração, leitura, meditação…). O <strong>código</strong> é o nome interno, em minúsculas e sem espaço — não muda depois. O <strong>ícone</strong> escolhe o desenho: escolha um dos prontos na lista, ou um nome novo (que aparece como um círculo até um desenho ser feito). Mudanças no catálogo levam até uma hora para aparecerem no app.
-        </p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:160px"><label style="margin-top:0">Nome</label><input id="pr-nome" placeholder="Adoração"></div>
-          <div style="flex:1;min-width:140px"><label style="margin-top:0">Código</label><input id="pr-codigo" placeholder="adoracao"></div>
-          <div style="flex:1;min-width:140px"><label style="margin-top:0">Ícone</label>
-            <input id="pr-icone" list="pr-icones" placeholder="oracao">
-            <datalist id="pr-icones">
-              <option value="oracao"></option><option value="leitura"></option><option value="meditacao"></option>
-              <option value="jejum"></option><option value="memorizacao"></option><option value="gratidao"></option>
-              <option value="servico"></option><option value="generosidade"></option>
-              <option value="cruz"></option><option value="estrela"></option><option value="louvor"></option>
-              <option value="calice"></option><option value="vela"></option><option value="montanha"></option>
-              <option value="testemunho"></option><option value="gota"></option><option value="broto"></option>
-              <option value="casa"></option>
-            </datalist>
-          </div>
-          <div style="width:90px"><label style="margin-top:0">Ordem</label><input id="pr-ordem" type="number" min="0" placeholder="auto"></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
-          <button id="pr-salvar">Criar prática</button>
-          <span id="pr-cancelar-edicao" class="acao-link" style="display:none">Cancelar edição</span>
-          <span id="pr-msg" style="font-size:13px;color:var(--ink-3)"></span>
-        </div>
-      </div>
-      <div class="cartao grafico" style="margin-top:18px">
-        <h2>Práticas</h2>
-        <div style="overflow-x:auto">
-          <table id="pr-tabela">
-            <thead><tr><th>Nome</th><th>Código</th><th>Ícone</th><th>Ordem</th><th>Em uso</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-    </main>
-  </div>
-</div>
-
-<div id="toasts" class="toasts" aria-live="polite"></div>
-<div id="overlay" class="overlay oculto"><div class="cartao dialogo" id="dialogo" role="dialog" aria-modal="true"></div></div>
-
-<script>
-  const $ = (s) => document.querySelector(s);
-  let API = localStorage.getItem('painel_api') || 'http://localhost:3337';
-  // Sessão por cookie httpOnly (o token vive no cookie que o JS não lê; só o
-  // CSRF fica em memória). Persiste ao atualizar a página e renova sozinho a
-  // cada 15 min pelo refresh. Nada de token em localStorage (invariante).
-  let csrf = null;
-  let periodo = 'mes';
-  let papeis = [];
-
-  const PAPEIS_PAINEL = ['admin', 'trilheiro', 'intercessor'];
-  const CAT_LABEL = { saude: 'Saúde', trabalho: 'Trabalho', familia: 'Família', direcao: 'Direção', luto: 'Luto', gratidao: 'Gratidão', outros: 'Outros' };
-  const pode = (p) => papeis.includes(p);
-
-  // --- Tema: claro por padrão, escuro por escolha, guardado no navegador ------
-  const SVG_LUA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-  const SVG_SOL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 1v2.5M12 20.5V23M4.2 4.2l1.8 1.8M18 18l1.8 1.8M1 12h2.5M20.5 12H23M4.2 19.8l1.8-1.8M18 6l1.8-1.8"/></svg>';
-  function aplicarTema(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('painel_tema', t);
-    const escuro = t === 'escuro';
-    document.querySelectorAll('.btn-tema').forEach((b) => {
-      b.innerHTML = escuro ? SVG_SOL : SVG_LUA;
-      b.setAttribute('aria-label', escuro ? 'Usar tema claro' : 'Usar tema escuro');
-    });
-  }
-  aplicarTema(localStorage.getItem('painel_tema') || 'claro');
-  document.addEventListener('click', (e) => {
-    const b = e.target.closest('.btn-tema'); if (!b) return;
-    aplicarTema(document.documentElement.getAttribute('data-theme') === 'escuro' ? 'claro' : 'escuro');
-  });
-
-  // --- Notificações do painel: toast e diálogo, no lugar de alert/confirm/prompt
-  function toast(msg, tipo = 'ok') {
-    const t = document.createElement('div');
-    t.className = 'toast ' + tipo;
-    t.textContent = msg;
-    $('#toasts').appendChild(t);
-    requestAnimationFrame(() => t.classList.add('mostra'));
-    setTimeout(() => { t.classList.remove('mostra'); setTimeout(() => t.remove(), 320); }, 4200);
-  }
-  function fecharDialogo() { $('#overlay').classList.add('oculto'); $('#dialogo').innerHTML = ''; }
-  function confirmar(titulo, texto, { perigo = false, ok = 'Confirmar' } = {}) {
-    return new Promise((resolve) => {
-      $('#dialogo').innerHTML =
-        `<h2>${titulo}</h2><p class="dtexto">${texto}</p>`
-        + `<div class="dacoes"><button class="secundario" data-r="0">Cancelar</button>`
-        + `<button class="${perigo ? 'perigo' : ''}" data-r="1">${ok}</button></div>`;
-      $('#overlay').classList.remove('oculto');
-      $('#dialogo').querySelectorAll('button').forEach((b) =>
-        b.addEventListener('click', () => { fecharDialogo(); resolve(b.dataset.r === '1'); }));
-    });
-  }
-  function perguntarData(titulo, valor) {
-    return new Promise((resolve) => {
-      $('#dialogo').innerHTML =
-        `<h2>${titulo}</h2><label style="margin-top:0">Data de estreia</label>`
-        + `<input type="date" id="dlg-data" value="${valor || ''}">`
-        + `<p class="dtexto" style="margin-top:10px">Deixe em branco para remover a data e voltar a rascunho de estreia.</p>`
-        + `<div class="dacoes"><button class="secundario" data-r="cancel">Cancelar</button>`
-        + `<button data-r="ok">Salvar</button></div>`;
-      $('#overlay').classList.remove('oculto');
-      $('#dialogo').querySelector('[data-r="cancel"]').addEventListener('click', () => { fecharDialogo(); resolve(null); });
-      $('#dialogo').querySelector('[data-r="ok"]').addEventListener('click', () => {
-        const v = $('#dlg-data').value; fecharDialogo(); resolve(v || '');
-      });
-    });
-  }
-
-  // Contagem animada do zero ao valor. Respeita quem pediu menos movimento.
-  const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function animarNumero(el, alvo, sufixo = '') {
-    alvo = Number(alvo) || 0;
-    if (semMovimento) { el.textContent = alvo + sufixo; return; }
-    let t0 = null; const dur = 750;
-    const passo = (ts) => {
-      if (t0 === null) t0 = ts;
-      const p = Math.min(1, (ts - t0) / dur);
-      const e = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(alvo * e) + sufixo;
-      if (p < 1) requestAnimationFrame(passo); else el.textContent = alvo + sufixo;
-    };
-    requestAnimationFrame(passo);
-  }
-  function svgIcone(inner) {
-    return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
-  }
-
-  // Renova a sessão pelo cookie de refresh (httpOnly), em FILA ÚNICA: várias
-  // chamadas que expiram juntas compartilham o mesmo refresh, em vez de rodarem
-  // em paralelo — o que dispararia a proteção de reuso e derrubaria a família de
-  // sessão inteira. Devolve true se conseguiu e guarda o novo CSRF.
-  let renovando = null;
-  function renovarSessao() {
-    if (!renovando) {
-      renovando = (async () => {
-        try {
-          const r = await fetch(API + '/v1/auth/refresh', {
-            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Cliente': 'painel' }, body: '{}', credentials: 'include',
-          });
-          if (!r.ok) { csrf = null; return false; }
-          const d = await r.json().catch(() => ({}));
-          if (d.csrf) csrf = d.csrf;
-          return true;
-        } catch { return false; }
-      })().finally(() => { renovando = null; });
-    }
-    return renovando;
-  }
-
-  async function api(path, opts = {}, jaRenovou = false) {
-    const metodo = (opts.method || 'GET').toUpperCase();
-    // X-Cliente: painel dá ao painel um espaço de cookie próprio (jd_painel_*),
-    // separado do PWA (jd_*), no mesmo host de API. Sem isso, um login derruba o
-    // cookie do outro. Precisa ir em TODA requisição, não só no login.
-    const headers = { 'X-Cliente': 'painel' };
-    if (opts.body) headers['Content-Type'] = 'application/json';
-    // O cookie vai sozinho; para métodos que alteram, mande o CSRF de volta.
-    if (csrf && !['GET', 'HEAD', 'OPTIONS'].includes(metodo)) headers['X-CSRF-Token'] = csrf;
-    const r = await fetch(API + path, { ...opts, headers, credentials: 'include' });
-
-    if (r.status === 204) return null;
-    const dados = await r.json().catch(() => ({}));
-
-    // Token expirado (401) ou CSRF dessincronizado (403): renova uma vez — o
-    // refresh re-sincroniza o CSRF — e repete a chamada.
-    const auth = path.startsWith('/v1/auth/');
-    const precisaRenovar = r.status === 401 || (r.status === 403 && dados.erro === 'csrf_invalido');
-    if (precisaRenovar && !jaRenovou && !auth) {
-      if (await renovarSessao()) return api(path, opts, true);
-    }
-    if (!r.ok) throw Object.assign(new Error(dados.erro || 'erro'), { status: r.status, dados });
-    return dados;
-  }
-
-  async function sairServidor() {
-    try {
-      await fetch(API + '/v1/auth/sair', {
-        method: 'POST',
-        headers: csrf ? { 'X-Cliente': 'painel', 'X-CSRF-Token': csrf } : { 'X-Cliente': 'painel' },
-        credentials: 'include',
-      });
-    } catch { /* sem rede: o cookie expira sozinho */ }
-  }
-
-  async function entrar(email, senha) {
-    // X-Cliente: painel (via api()) faz o servidor tratar como web e gravar a
-    // sessão em cookie httpOnly no espaço jd_painel_*, devolvendo só o CSRF (o
-    // token nunca vem para o JavaScript). Só 'app' pula o cookie e usa Bearer.
-    const d = await api('/v1/auth/login', { method: 'POST', body: JSON.stringify({ email, senha, dispositivo: 'painel' }) });
-    if (d.csrf) csrf = d.csrf;
-    const eu = await api('/v1/eu');
-    papeis = eu.papeis || [];
-    if (!papeis.some((p) => PAPEIS_PAINEL.includes(p))) { await sairServidor(); csrf = null; papeis = []; throw new Error('sem_permissao'); }
-    return eu;
-  }
-
-  // Mostra o painel para um usuário já resolvido (login ou sessão restaurada).
-  function abrirPainel(eu) {
-    $('#quem').textContent = eu.email;
-    $('#capa').classList.add('oculto');
-    $('#painel').classList.remove('oculto');
-    montarMenu();
-  }
-
-  function renderIntercessao(d) {
-    animarNumero($('#termometro'), d.termometro, '%');
-    $('#termometro-nota').textContent = `${d.respondidas} de ${d.total} compartilhadas`;
-    animarNumero($('#em-oracao'), d.emOracao);
-    animarNumero($('#resp-periodo'), d.respondidasPeriodo);
-    const max = Math.max(1, ...d.porCategoria.map((c) => c.n));
-    $('#categorias').innerHTML = d.porCategoria.length
-      ? d.porCategoria.map((c, i) =>
-          `<div class="catlinha"><span class="nome">${CAT_LABEL[c.categoria] || c.categoria}</span>`
-          + `<span class="trilho"><span class="fill" style="width:${Math.round((c.n / max) * 100)}%;animation-delay:${i * 60}ms"></span></span>`
-          + `<span class="n">${c.n}</span></div>`
-        ).join('')
-      : '<div style="color:var(--ink-3);font-size:13px">Ninguém compartilhou pedido para intercessão ainda.</div>';
-  }
-
-  const CARTOES = [
-    { chave: 'usuariosAtivos', rotulo: 'Usuários ativos', nota: 'regaram no período',
-      icone: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
-    { chave: 'regas', rotulo: 'Sementes regadas', nota: 'no período',
-      icone: '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>' },
-    { chave: 'pedidos', rotulo: 'Orações', nota: 'criadas no período',
-      icone: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>' },
-    { chave: 'respondidas', rotulo: 'Orações respondidas', nota: 'no período',
-      icone: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>' },
-    { chave: 'novasContas', rotulo: 'Novas contas', nota: 'no período',
-      icone: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>' },
-    { chave: 'totalContas', rotulo: 'Contas no total', nota: 'desde sempre',
-      icone: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 5v6c0 1.66-4 3-9 3s-9-1.34-9-3V5"/><path d="M21 11v6c0 1.66-4 3-9 3s-9-1.34-9-3v-6"/>' },
-  ];
-
-  const ICONES_MENU = {
-    metricas: '<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
-    contas: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
-    assinaturas: '<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>',
-    trilhas: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
-    estacoes: '<path d="M12 2v6M12 8c-3 0-5 2-5 5 0 2 1 3 2 4M12 8c3 0 5 2 5 5 0 2-1 3-2 4"/><path d="M8 22h8"/>',
-    intercessao: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>',
-    documentos: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/>',
-    praticas: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>',
-  };
-
-  function barras(el, serie, vazio) {
-    const max = Math.max(1, ...serie.map((d) => d.n));
-    el.innerHTML = serie.map((d, i) =>
-      `<div class="b" title="${d.dia}: ${d.n}" style="height:${Math.round((d.n / max) * 100)}%;animation-delay:${i * 16}ms"></div>`
-    ).join('') || `<div style="color:var(--ink-3);font-size:13px">${vazio}</div>`;
-  }
-
-  const emReais = (centavos) => (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  async function carregarPlano() {
-    try {
-      const p = await api('/v1/admin/plano/preco');
-      $('#preco-atual').textContent = `Vigente: ${emReais(p.valorCentavos)}${p.rotulo ? ' (' + p.rotulo + ')' : ''} · ${p.emPrecoAntigo} em preço antigo`;
-      $('#preco-migrar').disabled = p.emPrecoAntigo === 0;
-    } catch (e) { console.error(e); }
-  }
-
-  function render(m) {
-    $('#grade').innerHTML = CARTOES.map((c, i) =>
-      `<div class="cartao metrica" style="--i:${i}">`
-      + `<div class="icone">${svgIcone(c.icone)}</div>`
-      + `<div class="rotulo">${c.rotulo}</div>`
-      + `<div class="valor" data-alvo="${m[c.chave] ?? 0}">0</div>`
-      + `<div class="nota">${c.nota}</div></div>`
-    ).join('');
-    $('#grade').querySelectorAll('.valor').forEach((el) => animarNumero(el, el.dataset.alvo));
-    barras($('#barras'), m.serieRegas || [], 'Sem regas no período.');
-  }
-
-  function renderContas(d) {
-    const r = d.retencao || {};
-    animarNumero($('#ret7'), r.pct7 ?? 0, '%');
-    $('#ret7-nota').textContent = `${r.retornaram7 ?? 0} de ${r.antigas7 ?? 0} contas voltaram`;
-    animarNumero($('#ret30'), r.pct30 ?? 0, '%');
-    $('#ret30-nota').textContent = `${r.retornaram30 ?? 0} de ${r.antigas30 ?? 0} contas voltaram`;
-    barras($('#barras-ativos'), d.serieAtivos || [], 'Sem atividade no período.');
-  }
-
-  // --- Assinaturas: segmentos e histórico de cobrança por conta --------------
-  const ASS_CARTOES = [
-    { chave: 'usaveis', rotulo: 'Assinaturas usáveis', nota: 'ativas + trial no prazo' },
-    { chave: 'engajados', rotulo: 'Ativos e engajados', nota: 'regaram nos últimos 7 dias' },
-    { chave: 'inadimplentes', rotulo: 'Pagamento pendente', nota: 'inadimplentes' },
-    { chave: 'canceladas', rotulo: 'Canceladas', nota: 'com acesso até vencer' },
-    { chave: 'encerradas', rotulo: 'Encerradas', nota: 'já sem acesso' },
-    { chave: 'trials', rotulo: 'Em teste grátis', nota: 'trial' },
-  ];
-  const COBR_LBL = { pago: 'Pago', pendente: 'Aguardando', recusada: 'Recusada', estornada: 'Estornada', expirada: 'Expirada' };
-  const METODO_LBL = { cartao: 'Cartão', pix: 'PIX' };
-  const corCobr = (s) => s === 'pago' ? 'var(--brand)' : s === 'pendente' ? 'var(--accent)' : 'var(--alert)';
-  const esc = (s) => String(s || '').replace(/"/g, '&quot;');
-
-  function linhasAss(itens, colExtra, valorExtra) {
-    if (!itens || !itens.length) return '<p style="color:var(--ink-3);font-size:13px">Ninguém nesta lista agora.</p>';
-    return `<table><thead><tr><th>Pessoa</th><th>Situação</th><th>${colExtra}</th><th></th></tr></thead><tbody>`
-      + itens.map((u) => {
-          const nome = u.nome || '—';
-          return `<tr data-id="${u.id}" data-nome="${esc(nome)}">`
-            + `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${u.email || ''}</div></td>`
-            + `<td>${chipAssinatura(u.status)}</td>`
-            + `<td>${valorExtra(u)}</td>`
-            + `<td><span class="acao-link" data-acao="pagamentos">Pagamentos</span></td></tr>`;
-        }).join('')
-      + '</tbody></table>';
-  }
-
-  // PIX pendentes: é sobre COBRANÇA (traz o id da cobrança para o Conferir), não
-  // assinatura — por isso não usa linhasAss.
-  function linhasPendentes(itens) {
-    if (!itens || !itens.length) return '<p style="color:var(--ink-3);font-size:13px">Nenhum PIX pendente agora.</p>';
-    return '<table><thead><tr><th>Pessoa</th><th>Valor</th><th>Criado</th><th></th></tr></thead><tbody>'
-      + itens.map((c) => {
-          const nome = c.nome || '—';
-          const data = String(c.criadoEm || '').slice(0, 10);
-          return '<tr>'
-            + `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${c.email || ''}</div></td>`
-            + `<td>${emReais(c.valorCentavos)}</td>`
-            + `<td>${data}</td>`
-            + `<td><span class="acao-link" data-conferir="${c.id}">Conferir na Efí</span></td></tr>`;
-        }).join('')
-      + '</tbody></table>';
-  }
-
-  function linhasVencidas(itens) {
-    if (!itens || !itens.length) return '<p style="color:var(--ink-3);font-size:13px">Ninguém vencido agora.</p>';
-    return '<table><thead><tr><th>Pessoa</th><th>Situação</th><th>Venceu em</th><th></th></tr></thead><tbody>'
-      + itens.map((u) => {
-          const nome = u.nome || '—';
-          return '<tr>'
-            + `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${u.email || ''}</div></td>`
-            + `<td>${chipAssinatura(u.status)}</td>`
-            + `<td style="color:var(--alert)">${u.periodoFim || '—'}</td>`
-            + `<td><span class="acao-link" data-cobrar="${u.id}" data-nome="${esc(nome)}">Cobrar por PIX</span></td></tr>`;
-        }).join('')
-      + '</tbody></table>';
-  }
-
-  async function renderAssinaturas() {
-    const d = await api('/v1/admin/assinaturas/resumo');
-    const cont = d.contadores || {};
-    $('#ass-contadores').innerHTML = ASS_CARTOES.map((c, i) =>
-      `<div class="cartao metrica" style="--i:${i}"><div class="rotulo">${c.rotulo}</div>`
-      + `<div class="valor" data-alvo="${cont[c.chave] ?? 0}">0</div><div class="nota">${c.nota}</div></div>`
-    ).join('');
-    $('#ass-contadores').querySelectorAll('.valor').forEach((el) => animarNumero(el, el.dataset.alvo));
-
-    $('#ass-pendentes').innerHTML = linhasPendentes(d.pendentes);
-    $('#ass-pendentes').querySelectorAll('[data-conferir]').forEach((b) => {
-      b.addEventListener('click', () => conferirCobranca(b.dataset.conferir, b, renderAssinaturas));
-    });
-    $('#ass-proximo').innerHTML = linhasAss(d.vencimentoProximo, 'Vence em', (u) => u.periodoFim || '—');
-    $('#ass-vencidas').innerHTML = linhasVencidas(d.vencidas);
-    $('#ass-vencidas').querySelectorAll('[data-cobrar]').forEach((b) => {
-      b.addEventListener('click', () => cobrarPix(b.dataset.cobrar, b.dataset.nome || '', b));
-    });
-    $('#ass-cancelaram').innerHTML = linhasAss(d.cancelaram, 'Acesso até',
-      (u) => u.periodoFim || (u.canceladaEm ? 'cancelou em ' + u.canceladaEm : '—'));
-    $('#ass-engajados').innerHTML = linhasAss(d.ativosEngajados, 'Última rega',
-      (u) => u.ultimaRega || '—');
-  }
-
-  async function verCobrancas(id, nome) {
-    const titulo = `<h2>Pagamentos de ${nome}</h2>`;
-    const fechar = '<div class="dacoes"><button data-r="fechar">Fechar</button></div>';
-    const comFechar = (html) => {
-      $('#dialogo').innerHTML = titulo + html + fechar;
-      $('#dialogo').querySelector('[data-r="fechar"]').addEventListener('click', fecharDialogo);
-    };
-    $('#dialogo').innerHTML = titulo + '<p class="dtexto">Carregando…</p>';
-    $('#overlay').classList.remove('oculto');
-    try {
-      const d = await api('/v1/admin/usuarios/' + id + '/cobrancas');
-      const a = d.assinatura;
-      const cab = a
-        ? `<p class="dtexto">${chipAssinatura(a.status)} · ${emReais(a.valorCentavos || 0)}${a.proximaCobranca ? ' · próxima ' + a.proximaCobranca : ''}</p>`
-        : '<p class="dtexto">Sem assinatura registrada.</p>';
-      const linhas = (d.cobrancas || []).length
-        ? '<table><thead><tr><th>Data</th><th>Método</th><th>Valor</th><th>Situação</th><th></th></tr></thead><tbody>'
-          + d.cobrancas.map((c) => {
-              const data = String(c.pagoEm || c.criadoEm || '').slice(0, 10);
-              // PIX pendente pode ser conferido na Efí — rede de segurança para
-              // quando o webhook não chegou. Cartão confirma pelo webhook, sem botão.
-              const conferir = (c.status === 'pendente' && c.metodo === 'pix')
-                ? `<span class="acao-link" data-conferir="${c.id}">Conferir na Efí</span>`
-                : '';
-              return `<tr><td>${data}</td><td>${METODO_LBL[c.metodo] || c.metodo}</td>`
-                + `<td>${emReais(c.valorCentavos)}</td>`
-                + `<td style="color:${corCobr(c.status)}">${COBR_LBL[c.status] || c.status}</td>`
-                + `<td>${conferir}</td></tr>`;
-            }).join('')
-          + '</tbody></table>'
-        : '<p class="dtexto">Nenhuma cobrança ainda.</p>';
-      comFechar(cab + linhas);
-      $('#dialogo').querySelectorAll('[data-conferir]').forEach((b) => {
-        b.addEventListener('click', () => conferirCobranca(b.dataset.conferir, b, () => verCobrancas(id, nome)));
-      });
-    } catch (e) {
-      comFechar('<p class="dtexto">Não consegui carregar os pagamentos.</p>');
-    }
-  }
-
-  // Conferência manual de um PIX pendente. O servidor reconsulta a Efí (fonte da
-  // verdade) e só credita se estiver pago no valor certo — aqui só mostramos o
-  // resultado e reabrimos o diálogo já atualizado. Idempotente: apertar de novo
-  // num já pago não cobra nem estende duas vezes.
-  const MOTIVO_CONFERIR = {
-    nao_confirmado_na_efi: 'A Efí ainda não registrou esse PIX como pago.',
-    valor_insuficiente: 'O valor pago é menor que o da cobrança.',
-    txid_desconhecido: 'A Efí não reconheceu esse PIX.',
-  };
-  async function conferirCobranca(cobrancaId, botao, aoConfirmar) {
-    const antes = botao.textContent;
-    botao.textContent = 'Conferindo…';
-    botao.style.pointerEvents = 'none';
-    try {
-      const r = await api('/v1/admin/cobrancas/' + cobrancaId + '/conferir', { method: 'POST', body: '{}' });
-      if (r.acao === 'pago' || r.acao === 'repetido') {
-        toast('Pagamento confirmado.');
-        if (aoConfirmar) aoConfirmar();   // no diálogo: reabre; na lista: recarrega
-      } else {
-        toast(MOTIVO_CONFERIR[r.motivo] || ('Ainda pendente' + (r.statusEfi ? ' (' + r.statusEfi + ')' : '')), 'erro');
-        botao.textContent = antes;
-        botao.style.pointerEvents = '';
+      const PAPEIS_PAINEL = ['admin', 'trilheiro', 'intercessor']
+      const CAT_LABEL = {
+        saude: 'Saúde',
+        trabalho: 'Trabalho',
+        familia: 'Família',
+        direcao: 'Direção',
+        luto: 'Luto',
+        gratidao: 'Gratidão',
+        outros: 'Outros'
       }
-    } catch (e) {
-      toast((e.dados && e.dados.mensagem) || 'Não consegui conferir agora.', 'erro');
-      botao.textContent = antes;
-      botao.style.pointerEvents = '';
-    }
-  }
+      const pode = p => papeis.includes(p)
 
-  // Gera um PIX de cobrança para um vencido e mostra o copia-e-cola/QR para
-  // enviar. O crédito só acontece quando a Efí confirmar (webhook ou Conferir).
-  async function cobrarPix(usuarioId, nome, botao) {
-    const antes = botao.textContent;
-    botao.textContent = 'Gerando…';
-    botao.style.pointerEvents = 'none';
-    try {
-      const r = await api('/v1/admin/usuarios/' + usuarioId + '/cobrar-pix', { method: 'POST', body: '{}' });
-      mostrarPix(nome, r);
-    } catch (e) {
-      toast((e.dados && e.dados.mensagem) || 'Não consegui gerar o PIX.', 'erro');
-    } finally {
-      botao.textContent = antes;
-      botao.style.pointerEvents = '';
-    }
-  }
+      // --- Tema: claro por padrão, escuro por escolha, guardado no navegador ------
+      const SVG_LUA =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      const SVG_SOL =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 1v2.5M12 20.5V23M4.2 4.2l1.8 1.8M18 18l1.8 1.8M1 12h2.5M20.5 12H23M4.2 19.8l1.8-1.8M18 6l1.8-1.8"/></svg>'
+      function aplicarTema(t) {
+        document.documentElement.setAttribute('data-theme', t)
+        localStorage.setItem('painel_tema', t)
+        const escuro = t === 'escuro'
+        document.querySelectorAll('.btn-tema').forEach(b => {
+          b.innerHTML = escuro ? SVG_SOL : SVG_LUA
+          b.setAttribute(
+            'aria-label',
+            escuro ? 'Usar tema claro' : 'Usar tema escuro'
+          )
+        })
+      }
+      aplicarTema(localStorage.getItem('painel_tema') || 'claro')
+      document.addEventListener('click', e => {
+        const b = e.target.closest('.btn-tema')
+        if (!b) return
+        aplicarTema(
+          document.documentElement.getAttribute('data-theme') === 'escuro'
+            ? 'claro'
+            : 'escuro'
+        )
+      })
 
-  function mostrarPix(nome, r) {
-    const titulo = `<h2>PIX para ${nome}</h2>`;
-    const fechar = '<div class="dacoes"><button data-r="fechar">Fechar</button></div>';
-    const img = r.imagemQrcode
-      ? `<img src="${r.imagemQrcode}" alt="QR do PIX" style="width:200px;height:200px;display:block;margin:0 auto 14px;border-radius:8px">`
-      : '';
-    const corpo = `<p class="dtexto">Valor ${emReais(r.valorCentavos)}. Envie o código abaixo para a pessoa pagar; ele vira "pago" quando a Efí confirmar.</p>`
-      + img
-      + `<textarea readonly style="width:100%;min-height:84px;font-size:12px;font-family:monospace" onclick="this.select()">${r.copiaecola || ''}</textarea>`;
-    $('#dialogo').innerHTML = titulo + corpo + fechar;
-    $('#dialogo').querySelector('[data-r="fechar"]').addEventListener('click', fecharDialogo);
-    $('#overlay').classList.remove('oculto');
-  }
+      // --- Notificações do painel: toast e diálogo, no lugar de alert/confirm/prompt
+      function toast(msg, tipo = 'ok') {
+        const t = document.createElement('div')
+        t.className = 'toast ' + tipo
+        t.textContent = msg
+        $('#toasts').appendChild(t)
+        requestAnimationFrame(() => t.classList.add('mostra'))
+        setTimeout(() => {
+          t.classList.remove('mostra')
+          setTimeout(() => t.remove(), 320)
+        }, 4200)
+      }
+      function fecharDialogo() {
+        $('#overlay').classList.add('oculto')
+        $('#dialogo').innerHTML = ''
+      }
+      function confirmar(
+        titulo,
+        texto,
+        { perigo = false, ok = 'Confirmar' } = {}
+      ) {
+        return new Promise(resolve => {
+          $('#dialogo').innerHTML =
+            `<h2>${titulo}</h2><p class="dtexto">${texto}</p>` +
+            `<div class="dacoes"><button class="secundario" data-r="0">Cancelar</button>` +
+            `<button class="${perigo ? 'perigo' : ''}" data-r="1">${ok}</button></div>`
+          $('#overlay').classList.remove('oculto')
+          $('#dialogo')
+            .querySelectorAll('button')
+            .forEach(b =>
+              b.addEventListener('click', () => {
+                fecharDialogo()
+                resolve(b.dataset.r === '1')
+              })
+            )
+        })
+      }
+      function perguntarData(titulo, valor) {
+        return new Promise(resolve => {
+          $('#dialogo').innerHTML =
+            `<h2>${titulo}</h2><label style="margin-top:0">Data de estreia</label>` +
+            `<input type="date" id="dlg-data" value="${valor || ''}">` +
+            `<p class="dtexto" style="margin-top:10px">Deixe em branco para remover a data e voltar a rascunho de estreia.</p>` +
+            `<div class="dacoes"><button class="secundario" data-r="cancel">Cancelar</button>` +
+            `<button data-r="ok">Salvar</button></div>`
+          $('#overlay').classList.remove('oculto')
+          $('#dialogo')
+            .querySelector('[data-r="cancel"]')
+            .addEventListener('click', () => {
+              fecharDialogo()
+              resolve(null)
+            })
+          $('#dialogo')
+            .querySelector('[data-r="ok"]')
+            .addEventListener('click', () => {
+              const v = $('#dlg-data').value
+              fecharDialogo()
+              resolve(v || '')
+            })
+        })
+      }
 
-  const CHIP_ASSINATURA = {
-    trial: ['breve', 'trial'], ativa: ['pub', 'ativa'], inadimplente: ['alerta', 'inadimplente'],
-    cancelada: ['rasc', 'cancelada'], encerrada: ['rasc', 'encerrada'], iniciada: ['rasc', 'pendente'],
-  };
-  function chipAssinatura(status) {
-    const c = CHIP_ASSINATURA[status];
-    return c ? `<span class="badge ${c[0]}">${c[1]}</span>` : '<span style="color:var(--ink-3)">—</span>';
-  }
+      // Contagem animada do zero ao valor. Respeita quem pediu menos movimento.
+      const semMovimento = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches
+      function animarNumero(el, alvo, sufixo = '') {
+        alvo = Number(alvo) || 0
+        if (semMovimento) {
+          el.textContent = alvo + sufixo
+          return
+        }
+        let t0 = null
+        const dur = 750
+        const passo = ts => {
+          if (t0 === null) t0 = ts
+          const p = Math.min(1, (ts - t0) / dur)
+          const e = 1 - Math.pow(1 - p, 3)
+          el.textContent = Math.round(alvo * e) + sufixo
+          if (p < 1) requestAnimationFrame(passo)
+          else el.textContent = alvo + sufixo
+        }
+        requestAnimationFrame(passo)
+      }
+      function svgIcone(inner) {
+        return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+      }
 
-  let contasPagina = 1;
-  let contasBusca = '';
-  async function carregarUsuarios() {
-    const d = await api(`/v1/admin/usuarios?pagina=${contasPagina}&limite=20&busca=${encodeURIComponent(contasBusca)}`);
-    const corpo = $('#tabela-contas').querySelector('tbody');
-    corpo.innerHTML = d.itens.map((u) => {
-      const papeis = (u.papeis || []).length
-        ? u.papeis.map((p) => `<span class="papel-chip">${p}</span>`).join('')
-        : '<span style="color:var(--ink-3)">—</span>';
-      const chip = u.desativado ? ' <span class="badge rasc">desativada</span>' : '';
-      const chipAss = chipAssinatura(u.assinatura_status);
-      const alternar = u.desativado
-        ? `<span class="acao-link" data-acao="reativar" data-nome="${u.nome}">Reativar</span>`
-        : `<span class="acao-link" data-acao="desativar" data-nome="${u.nome}">Desativar</span>`;
-      const cancelarAss = ['trial', 'ativa', 'inadimplente'].includes(u.assinatura_status)
-        ? `<span class="acao-link" data-acao="cancelar-assinatura" data-nome="${u.nome}">Cancelar assinatura</span>`
-        : '';
-      return `<tr data-id="${u.id}" class="${u.desativado ? 'linha-off' : ''}">`
-        + `<td class="col-check"><input type="checkbox" class="check-conta" value="${u.id}" aria-label="Selecionar ${u.nome}"></td>`
-        + `<td style="color:var(--ink)">${u.nome}${chip}</td><td>${u.email}</td><td>${papeis}</td>`
-        + `<td>${chipAss}</td><td>${u.criado_em}</td><td>${u.ultima_rega || '—'}</td><td>${u.total_regas}</td>`
-        + `<td class="acoes-conta">${cancelarAss}${alternar}<span class="acao-link perigo" data-acao="excluir" data-nome="${u.nome}">Excluir</span></td></tr>`;
-    }).join('') || '<tr><td colspan="9" style="color:var(--ink-3)">Nenhuma conta encontrada.</td></tr>';
-    const paginas = Math.max(1, Math.ceil(d.total / d.limite));
-    $('#pag-info').textContent = `Página ${d.pagina} de ${paginas} · ${d.total} contas`;
-    $('#pag-ant').disabled = d.pagina <= 1;
-    $('#pag-prox').disabled = d.pagina >= paginas;
-    atualizarBarraMassa();
-  }
+      // Renova a sessão pelo cookie de refresh (httpOnly), em FILA ÚNICA: várias
+      // chamadas que expiram juntas compartilham o mesmo refresh, em vez de rodarem
+      // em paralelo — o que dispararia a proteção de reuso e derrubaria a família de
+      // sessão inteira. Devolve true se conseguiu e guarda o novo CSRF.
+      let renovando = null
+      function renovarSessao() {
+        if (!renovando) {
+          renovando = (async () => {
+            try {
+              const r = await fetch(API + '/v1/auth/refresh', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Cliente': 'painel'
+                },
+                body: '{}',
+                credentials: 'include'
+              })
+              if (!r.ok) {
+                csrf = null
+                return false
+              }
+              const d = await r.json().catch(() => ({}))
+              if (d.csrf) csrf = d.csrf
+              return true
+            } catch {
+              return false
+            }
+          })().finally(() => {
+            renovando = null
+          })
+        }
+        return renovando
+      }
 
-  // Seleção e ações em massa sobre contas.
-  function contasMarcadas() {
-    return [...document.querySelectorAll('.check-conta:checked')].map((c) => c.value);
-  }
-  function atualizarBarraMassa() {
-    const marcadas = document.querySelectorAll('.check-conta:checked').length;
-    const total = document.querySelectorAll('.check-conta').length;
-    $('#barra-massa').classList.toggle('oculto', marcadas === 0);
-    $('#massa-info').textContent = `${marcadas} ${marcadas === 1 ? 'selecionada' : 'selecionadas'}`;
-    const todos = $('#check-todos');
-    if (todos) { todos.checked = total > 0 && marcadas === total; todos.indeterminate = marcadas > 0 && marcadas < total; }
-  }
-  const VERBO = { desativar: 'desativadas', reativar: 'reativadas', excluir: 'excluídas' };
-  const ROTULO = { desativar: 'Desativar', reativar: 'Reativar', excluir: 'Excluir' };
-  async function acaoMassa(acao) {
-    const ids = contasMarcadas();
-    if (!ids.length) return;
-    const texto = acao === 'excluir'
-      ? `Excluir ${ids.length} conta(s)? Cada uma sai do app agora e é apagada de vez em 30 dias. Depois disso não dá para desfazer.`
-      : acao === 'desativar'
-        ? `Desativar ${ids.length} conta(s)? As pessoas deixam de entrar, mas os dados ficam. Dá para reativar depois.`
-        : `Reativar ${ids.length} conta(s)?`;
-    if (!await confirmar(`${ROTULO[acao]} contas`, texto, { perigo: acao === 'excluir', ok: ROTULO[acao] })) return;
-    try {
-      const r = await api('/v1/admin/usuarios/acoes', { method: 'POST', body: JSON.stringify({ ids, acao }) });
-      let msg = `${r.afetadas} ${r.afetadas === 1 ? 'conta' : 'contas'} ${VERBO[acao]}.`;
-      if (r.ignoradas) msg += ' Sua própria conta foi ignorada.';
-      toast(msg);
-      await carregarUsuarios();
-    } catch (e) { toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro'); }
-  }
+      async function api(path, opts = {}, jaRenovou = false) {
+        const metodo = (opts.method || 'GET').toUpperCase()
+        // X-Cliente: painel dá ao painel um espaço de cookie próprio (jd_painel_*),
+        // separado do PWA (jd_*), no mesmo host de API. Sem isso, um login derruba o
+        // cookie do outro. Precisa ir em TODA requisição, não só no login.
+        const headers = { 'X-Cliente': 'painel' }
+        if (opts.body) headers['Content-Type'] = 'application/json'
+        // O cookie vai sozinho; para métodos que alteram, mande o CSRF de volta.
+        if (csrf && !['GET', 'HEAD', 'OPTIONS'].includes(metodo))
+          headers['X-CSRF-Token'] = csrf
+        const r = await fetch(API + path, {
+          ...opts,
+          headers,
+          credentials: 'include'
+        })
 
-  // Cada seção do painel: o rótulo do menu, os papéis que a veem, e como carrega.
-  // O menu mostra só o que o papel de quem entrou permite.
-  const SECOES = [
-    { id: 'metricas', rotulo: 'Visão geral', el: 'secao-metricas', papeis: ['admin'],
-      carregar: async () => { render(await api('/v1/admin/metricas?periodo=' + periodo)); await carregarPlano(); } },
-    { id: 'contas', rotulo: 'Contas', el: 'secao-contas', papeis: ['admin'],
-      carregar: async () => { renderContas(await api('/v1/admin/contas?periodo=' + periodo)); await carregarUsuarios(); } },
-    { id: 'assinaturas', rotulo: 'Assinaturas', el: 'secao-assinaturas', papeis: ['admin'],
-      carregar: renderAssinaturas },
-    { id: 'trilhas', rotulo: 'Trilhas', el: 'secao-trilhas', papeis: ['trilheiro', 'admin'],
-      carregar: renderTrilhas },
-    { id: 'estacoes', rotulo: 'Estações', el: 'secao-estacoes', papeis: ['trilheiro', 'admin'],
-      carregar: renderEstacoes },
-    { id: 'intercessao', rotulo: 'Intercessão', el: 'secao-intercessao', papeis: ['admin', 'intercessor'],
-      carregar: async () => renderIntercessao(await api('/v1/admin/intercessao?periodo=' + periodo)) },
-    { id: 'praticas', rotulo: 'Práticas', el: 'secao-praticas', papeis: ['admin'],
-      carregar: renderPraticas },
-    { id: 'documentos', rotulo: 'Textos legais', el: 'secao-documentos', papeis: ['admin'],
-      carregar: carregarDocumentos },
-  ];
-  let secaoAtiva = null;
-  const permitidas = () => SECOES.filter((s) => s.papeis.some((p) => pode(p)));
+        if (r.status === 204) return null
+        const dados = await r.json().catch(() => ({}))
 
-  function montarMenu() {
-    const itens = permitidas();
-    $('#menu').innerHTML = itens.map((s) =>
-      `<a data-id="${s.id}">${svgIcone(ICONES_MENU[s.id] || '')}<span>${s.rotulo}</span></a>`).join('');
-    [...$('#menu').children].forEach((a) => a.addEventListener('click', () => irPara(a.dataset.id)));
-    if (itens[0]) irPara(itens[0].id);
-  }
+        // Token expirado (401) ou CSRF dessincronizado (403): renova uma vez — o
+        // refresh re-sincroniza o CSRF — e repete a chamada.
+        const auth = path.startsWith('/v1/auth/')
+        const precisaRenovar =
+          r.status === 401 ||
+          (r.status === 403 && dados.erro === 'csrf_invalido')
+        if (precisaRenovar && !jaRenovou && !auth) {
+          if (await renovarSessao()) return api(path, opts, true)
+        }
+        if (!r.ok)
+          throw Object.assign(new Error(dados.erro || 'erro'), {
+            status: r.status,
+            dados
+          })
+        return dados
+      }
 
-  async function irPara(id) {
-    secaoAtiva = SECOES.find((s) => s.id === id);
-    if (!secaoAtiva) return;
-    SECOES.forEach((s) => $('#' + s.el).classList.toggle('oculto', s.id !== id));
-    [...$('#menu').children].forEach((a) => a.setAttribute('aria-current', String(a.dataset.id === id)));
-    try { await secaoAtiva.carregar(); } catch (e) { console.error(e); toast('Não consegui carregar esta seção.', 'erro'); }
-  }
+      async function sairServidor() {
+        try {
+          await fetch(API + '/v1/auth/sair', {
+            method: 'POST',
+            headers: csrf
+              ? { 'X-Cliente': 'painel', 'X-CSRF-Token': csrf }
+              : { 'X-Cliente': 'painel' },
+            credentials: 'include'
+          })
+        } catch {
+          /* sem rede: o cookie expira sozinho */
+        }
+      }
 
-  const hojeISO = () => new Date().toISOString().slice(0, 10);
-  function statusTrilha(t) {
-    if (!t.publicadaEm) return { txt: 'rascunho', cls: 'rasc' };
-    if (t.disponivelEm && t.disponivelEm > hojeISO()) return { txt: 'em breve', cls: 'breve' };
-    return { txt: 'disponível', cls: 'pub' };
-  }
-  async function renderTrilhas() {
-    const trilhas = await api('/v1/admin/trilhas');
-    const corpo = $('#tr-tabela').querySelector('tbody');
-    corpo.innerHTML = trilhas.map((t) => {
-      const s = statusTrilha(t);
-      const estreia = t.disponivelEm ? ` · estreia ${t.disponivelEm}` : '';
-      const pubAcao = t.publicadaEm
-        ? `<span class="acao-link" data-acao="despublicar" data-id="${t.id}">Despublicar</span>`
-        : `<span class="acao-link" data-acao="publicar" data-id="${t.id}">Publicar</span>`;
-      // Regras: editar só em rascunho sem inscritos; excluir só sem inscritos.
-      const editar = (!t.publicadaEm && !t.temInscritos)
-        ? `<span class="acao-link" data-acao="editar" data-id="${t.id}">Editar</span>` : '';
-      const excluir = !t.temInscritos
-        ? `<span class="acao-link perigo" data-acao="excluir" data-id="${t.id}" data-nome="${t.titulo}">Excluir</span>` : '';
-      const nota = t.temInscritos
-        ? '<span style="color:var(--ink-3);font-size:11px">com participantes</span>'
-        : (t.publicadaEm ? '<span style="color:var(--ink-3);font-size:11px">despublique para editar</span>' : '');
-      return `<tr>
+      async function entrar(email, senha) {
+        // X-Cliente: painel (via api()) faz o servidor tratar como web e gravar a
+        // sessão em cookie httpOnly no espaço jd_painel_*, devolvendo só o CSRF (o
+        // token nunca vem para o JavaScript). Só 'app' pula o cookie e usa Bearer.
+        const d = await api('/v1/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, senha, dispositivo: 'painel' })
+        })
+        if (d.csrf) csrf = d.csrf
+        const eu = await api('/v1/eu')
+        papeis = eu.papeis || []
+        if (!papeis.some(p => PAPEIS_PAINEL.includes(p))) {
+          await sairServidor()
+          csrf = null
+          papeis = []
+          throw new Error('sem_permissao')
+        }
+        return eu
+      }
+
+      // Mostra o painel para um usuário já resolvido (login ou sessão restaurada).
+      function abrirPainel(eu) {
+        $('#quem').textContent = eu.email
+        $('#capa').classList.add('oculto')
+        $('#painel').classList.remove('oculto')
+        montarMenu()
+      }
+
+      function renderIntercessao(d) {
+        animarNumero($('#termometro'), d.termometro, '%')
+        $('#termometro-nota').textContent =
+          `${d.respondidas} de ${d.total} compartilhadas`
+        animarNumero($('#em-oracao'), d.emOracao)
+        animarNumero($('#resp-periodo'), d.respondidasPeriodo)
+        const max = Math.max(1, ...d.porCategoria.map(c => c.n))
+        $('#categorias').innerHTML = d.porCategoria.length
+          ? d.porCategoria
+              .map(
+                (c, i) =>
+                  `<div class="catlinha"><span class="nome">${CAT_LABEL[c.categoria] || c.categoria}</span>` +
+                  `<span class="trilho"><span class="fill" style="width:${Math.round((c.n / max) * 100)}%;animation-delay:${i * 60}ms"></span></span>` +
+                  `<span class="n">${c.n}</span></div>`
+              )
+              .join('')
+          : '<div style="color:var(--ink-3);font-size:13px">Ninguém compartilhou pedido para intercessão ainda.</div>'
+      }
+
+      const CARTOES = [
+        {
+          chave: 'usuariosAtivos',
+          rotulo: 'Usuários ativos',
+          nota: 'regaram no período',
+          icone:
+            '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'
+        },
+        {
+          chave: 'regas',
+          rotulo: 'Sementes regadas',
+          nota: 'no período',
+          icone: '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>'
+        },
+        {
+          chave: 'pedidos',
+          rotulo: 'Orações',
+          nota: 'criadas no período',
+          icone:
+            '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>'
+        },
+        {
+          chave: 'respondidas',
+          rotulo: 'Orações respondidas',
+          nota: 'no período',
+          icone:
+            '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>'
+        },
+        {
+          chave: 'novasContas',
+          rotulo: 'Novas contas',
+          nota: 'no período',
+          icone:
+            '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>'
+        },
+        {
+          chave: 'totalContas',
+          rotulo: 'Contas no total',
+          nota: 'desde sempre',
+          icone:
+            '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 5v6c0 1.66-4 3-9 3s-9-1.34-9-3V5"/><path d="M21 11v6c0 1.66-4 3-9 3s-9-1.34-9-3v-6"/>'
+        }
+      ]
+
+      const ICONES_MENU = {
+        metricas: '<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
+        contas:
+          '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+        assinaturas:
+          '<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>',
+        trilhas:
+          '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+        estacoes:
+          '<path d="M12 2v6M12 8c-3 0-5 2-5 5 0 2 1 3 2 4M12 8c3 0 5 2 5 5 0 2-1 3-2 4"/><path d="M8 22h8"/>',
+        intercessao:
+          '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>',
+        documentos:
+          '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/>',
+        praticas:
+          '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>'
+      }
+
+      function barras(el, serie, vazio) {
+        const max = Math.max(1, ...serie.map(d => d.n))
+        el.innerHTML =
+          serie
+            .map(
+              (d, i) =>
+                `<div class="b" title="${d.dia}: ${d.n}" style="height:${Math.round((d.n / max) * 100)}%;animation-delay:${i * 16}ms"></div>`
+            )
+            .join('') ||
+          `<div style="color:var(--ink-3);font-size:13px">${vazio}</div>`
+      }
+
+      const emReais = centavos =>
+        (centavos / 100).toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        })
+      // Toda data no painel em dd/mm/aaaa. Aceita 'YYYY-MM-DD' ou ISO com hora.
+      const dataBR = s => {
+        const iso = String(s || '').slice(0, 10)
+        const p = iso.split('-')
+        return p.length === 3 && p[0] ? `${p[2]}/${p[1]}/${p[0]}` : ''
+      }
+      async function carregarPlano() {
+        try {
+          const p = await api('/v1/admin/plano/preco')
+          $('#preco-atual').textContent =
+            `Vigente: ${emReais(p.valorCentavos)}${p.rotulo ? ' (' + p.rotulo + ')' : ''} · ${p.emPrecoAntigo} em preço antigo`
+          $('#preco-migrar').disabled = p.emPrecoAntigo === 0
+        } catch (e) {
+          console.error(e)
+        }
+      }
+
+      function render(m) {
+        $('#grade').innerHTML = CARTOES.map(
+          (c, i) =>
+            `<div class="cartao metrica" style="--i:${i}">` +
+            `<div class="icone">${svgIcone(c.icone)}</div>` +
+            `<div class="rotulo">${c.rotulo}</div>` +
+            `<div class="valor" data-alvo="${m[c.chave] ?? 0}">0</div>` +
+            `<div class="nota">${c.nota}</div></div>`
+        ).join('')
+        $('#grade')
+          .querySelectorAll('.valor')
+          .forEach(el => animarNumero(el, el.dataset.alvo))
+        barras($('#barras'), m.serieRegas || [], 'Sem regas no período.')
+      }
+
+      function renderContas(d) {
+        const r = d.retencao || {}
+        animarNumero($('#ret7'), r.pct7 ?? 0, '%')
+        $('#ret7-nota').textContent =
+          `${r.retornaram7 ?? 0} de ${r.antigas7 ?? 0} contas voltaram`
+        animarNumero($('#ret30'), r.pct30 ?? 0, '%')
+        $('#ret30-nota').textContent =
+          `${r.retornaram30 ?? 0} de ${r.antigas30 ?? 0} contas voltaram`
+        barras(
+          $('#barras-ativos'),
+          d.serieAtivos || [],
+          'Sem atividade no período.'
+        )
+      }
+
+      // --- Assinaturas: segmentos e histórico de cobrança por conta --------------
+      const ASS_CARTOES = [
+        {
+          chave: 'usaveis',
+          rotulo: 'Assinaturas usáveis',
+          nota: 'ativas + trial no prazo'
+        },
+        {
+          chave: 'engajados',
+          rotulo: 'Ativos e engajados',
+          nota: 'regaram nos últimos 7 dias'
+        },
+        {
+          chave: 'inadimplentes',
+          rotulo: 'Pagamento pendente',
+          nota: 'inadimplentes'
+        },
+        {
+          chave: 'canceladas',
+          rotulo: 'Canceladas',
+          nota: 'com acesso até vencer'
+        },
+        { chave: 'encerradas', rotulo: 'Encerradas', nota: 'já sem acesso' },
+        { chave: 'trials', rotulo: 'Em teste grátis', nota: 'trial' }
+      ]
+      const COBR_LBL = {
+        pago: 'Pago',
+        pendente: 'Aguardando',
+        recusada: 'Recusada',
+        estornada: 'Estornada',
+        expirada: 'Expirada'
+      }
+      const METODO_LBL = { cartao: 'Cartão', pix: 'PIX' }
+      const corCobr = s =>
+        s === 'pago'
+          ? 'var(--brand)'
+          : s === 'pendente'
+            ? 'var(--accent)'
+            : 'var(--alert)'
+      const esc = s => String(s || '').replace(/"/g, '&quot;')
+
+      function linhasAss(itens, colExtra, valorExtra) {
+        if (!itens || !itens.length)
+          return '<p style="color:var(--ink-3);font-size:13px">Ninguém nesta lista agora.</p>'
+        return (
+          `<table><thead><tr><th>Pessoa</th><th>Situação</th><th>${colExtra}</th><th></th></tr></thead><tbody>` +
+          itens
+            .map(u => {
+              const nome = u.nome || '—'
+              return (
+                `<tr data-id="${u.id}" data-nome="${esc(nome)}">` +
+                `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${u.email || ''}</div></td>` +
+                `<td>${chipAssinatura(u.status)}</td>` +
+                `<td>${valorExtra(u)}</td>` +
+                `<td><span class="acao-link" data-acao="pagamentos">Pagamentos</span></td></tr>`
+              )
+            })
+            .join('') +
+          '</tbody></table>'
+        )
+      }
+
+      // PIX pendentes: é sobre COBRANÇA (traz o id da cobrança para o Conferir), não
+      // assinatura — por isso não usa linhasAss.
+      function linhasPendentes(itens) {
+        if (!itens || !itens.length)
+          return '<p style="color:var(--ink-3);font-size:13px">Nenhum PIX pendente agora.</p>'
+        return (
+          '<table><thead><tr><th>Pessoa</th><th>Valor</th><th>Criado</th><th></th></tr></thead><tbody>' +
+          itens
+            .map(c => {
+              const nome = c.nome || '—'
+              const data = dataBR(c.criadoEm)
+              return (
+                '<tr>' +
+                `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${c.email || ''}</div></td>` +
+                `<td>${emReais(c.valorCentavos)}</td>` +
+                `<td>${data}</td>` +
+                `<td><span class="acao-link" data-conferir="${c.id}">Confirmar Pagamento</span></td></tr>`
+              )
+            })
+            .join('') +
+          '</tbody></table>'
+        )
+      }
+
+      function linhasVencidas(itens) {
+        if (!itens || !itens.length)
+          return '<p style="color:var(--ink-3);font-size:13px">Ninguém vencido agora.</p>'
+        return (
+          '<table><thead><tr><th>Pessoa</th><th>Situação</th><th>Venceu em</th><th></th></tr></thead><tbody>' +
+          itens
+            .map(u => {
+              const nome = u.nome || '—'
+              return (
+                '<tr>' +
+                `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${u.email || ''}</div></td>` +
+                `<td>${chipAssinatura(u.status)}</td>` +
+                `<td style="color:var(--alert)">${dataBR(u.periodoFim) || '—'}</td>` +
+                `<td><span class="acao-link" data-cobrar="${u.id}" data-nome="${esc(nome)}">Cobrar por PIX</span></td></tr>`
+              )
+            })
+            .join('') +
+          '</tbody></table>'
+        )
+      }
+
+      async function renderAssinaturas() {
+        const d = await api('/v1/admin/assinaturas/resumo')
+        const cont = d.contadores || {}
+        $('#ass-contadores').innerHTML = ASS_CARTOES.map(
+          (c, i) =>
+            `<div class="cartao metrica" style="--i:${i}"><div class="rotulo">${c.rotulo}</div>` +
+            `<div class="valor" data-alvo="${cont[c.chave] ?? 0}">0</div><div class="nota">${c.nota}</div></div>`
+        ).join('')
+        $('#ass-contadores')
+          .querySelectorAll('.valor')
+          .forEach(el => animarNumero(el, el.dataset.alvo))
+
+        $('#ass-pendentes').innerHTML = linhasPendentes(d.pendentes)
+        $('#ass-pendentes')
+          .querySelectorAll('[data-conferir]')
+          .forEach(b => {
+            b.addEventListener('click', () =>
+              conferirCobranca(b.dataset.conferir, b, renderAssinaturas)
+            )
+          })
+        $('#ass-proximo').innerHTML = linhasAss(
+          d.vencimentoProximo,
+          'Vence em',
+          u => dataBR(u.periodoFim) || '—'
+        )
+        $('#ass-vencidas').innerHTML = linhasVencidas(d.vencidas)
+        $('#ass-vencidas')
+          .querySelectorAll('[data-cobrar]')
+          .forEach(b => {
+            b.addEventListener('click', () =>
+              cobrarPix(b.dataset.cobrar, b.dataset.nome || '', b)
+            )
+          })
+        $('#ass-cancelaram').innerHTML = linhasAss(
+          d.cancelaram,
+          'Acesso até',
+          u =>
+            dataBR(u.periodoFim) ||
+            (u.canceladaEm ? 'cancelou em ' + dataBR(u.canceladaEm) : '—')
+        )
+        $('#ass-engajados').innerHTML = linhasAss(
+          d.ativosEngajados,
+          'Última rega',
+          u => dataBR(u.ultimaRega) || '—'
+        )
+        // Mostra a contagem de cada lista no título do acordeão, para saber o
+        // tamanho sem precisar abrir.
+        ;[
+          ['ass-pendentes', d.pendentes],
+          ['ass-proximo', d.vencimentoProximo],
+          ['ass-vencidas', d.vencidas],
+          ['ass-cancelaram', d.cancelaram],
+          ['ass-engajados', d.ativosEngajados]
+        ].forEach(([idLista, arr]) => {
+          const cartao = document
+            .getElementById(idLista)
+            ?.closest('.cartao.grafico')
+          const h2 = cartao && cartao.querySelector('h2')
+          if (!h2) return
+          let cont = h2.querySelector('.cont')
+          if (!cont) {
+            cont = document.createElement('span')
+            cont.className = 'cont'
+            h2.appendChild(cont)
+          }
+          cont.textContent = arr && arr.length ? '(' + arr.length + ')' : ''
+        })
+      }
+
+      async function verCobrancas(id, nome) {
+        const titulo = `<h2>Pagamentos de ${nome}</h2>`
+        const fechar =
+          '<div class="dacoes"><button data-r="fechar">Fechar</button></div>'
+        const comFechar = html => {
+          $('#dialogo').innerHTML = titulo + html + fechar
+          $('#dialogo')
+            .querySelector('[data-r="fechar"]')
+            .addEventListener('click', fecharDialogo)
+        }
+        $('#dialogo').innerHTML = titulo + '<p class="dtexto">Carregando…</p>'
+        $('#overlay').classList.remove('oculto')
+        try {
+          const d = await api('/v1/admin/usuarios/' + id + '/cobrancas')
+          const a = d.assinatura
+          const cab = a
+            ? `<p class="dtexto">${chipAssinatura(a.status)} · ${emReais(a.valorCentavos || 0)}${a.proximaCobranca ? ' · próxima ' + dataBR(a.proximaCobranca) : ''}</p>`
+            : '<p class="dtexto">Sem assinatura registrada.</p>'
+          const linhas = (d.cobrancas || []).length
+            ? '<table><thead><tr><th>Data</th><th>Método</th><th>Valor</th><th>Situação</th><th></th></tr></thead><tbody>' +
+              d.cobrancas
+                .map(c => {
+                  const data = dataBR(c.pagoEm || c.criadoEm)
+                  // PIX pendente pode ser conferido na Efí — rede de segurança para
+                  // quando o webhook não chegou. Cartão confirma pelo webhook, sem botão.
+                  const conferir =
+                    c.status === 'pendente' && c.metodo === 'pix'
+                      ? `<span class="acao-link" data-conferir="${c.id}">Confirmar Pagamento</span>`
+                      : ''
+                  return (
+                    `<tr><td>${data}</td><td>${METODO_LBL[c.metodo] || c.metodo}</td>` +
+                    `<td>${emReais(c.valorCentavos)}</td>` +
+                    `<td style="color:${corCobr(c.status)}">${COBR_LBL[c.status] || c.status}</td>` +
+                    `<td>${conferir}</td></tr>`
+                  )
+                })
+                .join('') +
+              '</tbody></table>'
+            : '<p class="dtexto">Nenhuma cobrança ainda.</p>'
+          comFechar(cab + linhas)
+          $('#dialogo')
+            .querySelectorAll('[data-conferir]')
+            .forEach(b => {
+              b.addEventListener('click', () =>
+                conferirCobranca(b.dataset.conferir, b, () =>
+                  verCobrancas(id, nome)
+                )
+              )
+            })
+        } catch (e) {
+          comFechar(
+            '<p class="dtexto">Não consegui carregar os pagamentos.</p>'
+          )
+        }
+      }
+
+      // Conferência manual de um PIX pendente. O servidor reconsulta a Efí (fonte da
+      // verdade) e só credita se estiver pago no valor certo — aqui só mostramos o
+      // resultado e reabrimos o diálogo já atualizado. Idempotente: apertar de novo
+      // num já pago não cobra nem estende duas vezes.
+      const MOTIVO_CONFERIR = {
+        nao_confirmado_na_efi: 'A Efí ainda não registrou esse PIX como pago.',
+        valor_insuficiente: 'O valor pago é menor que o da cobrança.',
+        txid_desconhecido: 'A Efí não reconheceu esse PIX.'
+      }
+      async function conferirCobranca(cobrancaId, botao, aoConfirmar) {
+        const antes = botao.textContent
+        botao.textContent = 'Conferindo…'
+        botao.style.pointerEvents = 'none'
+        try {
+          const r = await api(
+            '/v1/admin/cobrancas/' + cobrancaId + '/conferir',
+            { method: 'POST', body: '{}' }
+          )
+          if (r.acao === 'pago' || r.acao === 'repetido') {
+            toast('Pagamento confirmado.')
+            if (aoConfirmar) aoConfirmar() // no diálogo: reabre; na lista: recarrega
+          } else {
+            toast(
+              MOTIVO_CONFERIR[r.motivo] ||
+                'Ainda pendente' +
+                  (r.statusEfi ? ' (' + r.statusEfi + ')' : ''),
+              'erro'
+            )
+            botao.textContent = antes
+            botao.style.pointerEvents = ''
+          }
+        } catch (e) {
+          toast(
+            (e.dados && e.dados.mensagem) || 'Não consegui conferir agora.',
+            'erro'
+          )
+          botao.textContent = antes
+          botao.style.pointerEvents = ''
+        }
+      }
+
+      // Gera um PIX de cobrança para um vencido e mostra o copia-e-cola/QR para
+      // enviar. O crédito só acontece quando a Efí confirmar (webhook ou Conferir).
+      async function cobrarPix(usuarioId, nome, botao) {
+        const antes = botao.textContent
+        botao.textContent = 'Gerando…'
+        botao.style.pointerEvents = 'none'
+        try {
+          const r = await api(
+            '/v1/admin/usuarios/' + usuarioId + '/cobrar-pix',
+            { method: 'POST', body: '{}' }
+          )
+          mostrarPix(nome, r)
+        } catch (e) {
+          toast(
+            (e.dados && e.dados.mensagem) || 'Não consegui gerar o PIX.',
+            'erro'
+          )
+        } finally {
+          botao.textContent = antes
+          botao.style.pointerEvents = ''
+        }
+      }
+
+      function mostrarPix(nome, r) {
+        const titulo = `<h2>PIX para ${nome}</h2>`
+        const fechar =
+          '<div class="dacoes"><button data-r="fechar">Fechar</button></div>'
+        const img = r.imagemQrcode
+          ? `<img src="${r.imagemQrcode}" alt="QR do PIX" style="width:200px;height:200px;display:block;margin:0 auto 14px;border-radius:8px">`
+          : ''
+        const corpo =
+          `<p class="dtexto">Valor ${emReais(r.valorCentavos)}. Envie o código abaixo para a pessoa pagar; ele vira "pago" quando a Efí confirmar.</p>` +
+          img +
+          `<textarea readonly style="width:100%;min-height:84px;font-size:12px;font-family:monospace" onclick="this.select()">${r.copiaecola || ''}</textarea>`
+        $('#dialogo').innerHTML = titulo + corpo + fechar
+        $('#dialogo')
+          .querySelector('[data-r="fechar"]')
+          .addEventListener('click', fecharDialogo)
+        $('#overlay').classList.remove('oculto')
+      }
+
+      const CHIP_ASSINATURA = {
+        trial: ['breve', 'trial'],
+        ativa: ['pub', 'ativa'],
+        inadimplente: ['alerta', 'inadimplente'],
+        cancelada: ['rasc', 'cancelada'],
+        encerrada: ['rasc', 'encerrada'],
+        iniciada: ['rasc', 'pendente']
+      }
+      function chipAssinatura(status) {
+        const c = CHIP_ASSINATURA[status]
+        return c
+          ? `<span class="badge ${c[0]}">${c[1]}</span>`
+          : '<span style="color:var(--ink-3)">—</span>'
+      }
+
+      let contasPagina = 1
+      let contasBusca = ''
+      async function carregarUsuarios() {
+        const d = await api(
+          `/v1/admin/usuarios?pagina=${contasPagina}&limite=20&busca=${encodeURIComponent(contasBusca)}`
+        )
+        const corpo = $('#tabela-contas').querySelector('tbody')
+        corpo.innerHTML =
+          d.itens
+            .map(u => {
+              const papeis = (u.papeis || []).length
+                ? u.papeis
+                    .map(p => `<span class="papel-chip">${p}</span>`)
+                    .join('')
+                : '<span style="color:var(--ink-3)">—</span>'
+              const chip = u.desativado
+                ? ' <span class="badge rasc">desativada</span>'
+                : ''
+              const chipAss = chipAssinatura(u.assinatura_status)
+              const alternar = u.desativado
+                ? `<span class="acao-link" data-acao="reativar" data-nome="${u.nome}">Reativar</span>`
+                : `<span class="acao-link" data-acao="desativar" data-nome="${u.nome}">Desativar</span>`
+              const cancelarAss = ['trial', 'ativa', 'inadimplente'].includes(
+                u.assinatura_status
+              )
+                ? `<span class="acao-link" data-acao="cancelar-assinatura" data-nome="${u.nome}">Cancelar assinatura</span>`
+                : ''
+              return (
+                `<tr data-id="${u.id}" class="${u.desativado ? 'linha-off' : ''}">` +
+                `<td class="col-check"><input type="checkbox" class="check-conta" value="${u.id}" aria-label="Selecionar ${u.nome}"></td>` +
+                `<td style="color:var(--ink)">${u.nome}${chip}</td><td>${u.email}</td><td>${papeis}</td>` +
+                `<td>${chipAss}</td><td>${dataBR(u.criado_em)}</td><td>${dataBR(u.ultima_rega) || '—'}</td><td>${u.total_regas}</td>` +
+                `<td class="acoes-conta">${cancelarAss}${alternar}<span class="acao-link perigo" data-acao="excluir" data-nome="${u.nome}">Excluir</span></td></tr>`
+              )
+            })
+            .join('') ||
+          '<tr><td colspan="9" style="color:var(--ink-3)">Nenhuma conta encontrada.</td></tr>'
+        const paginas = Math.max(1, Math.ceil(d.total / d.limite))
+        $('#pag-info').textContent =
+          `Página ${d.pagina} de ${paginas} · ${d.total} contas`
+        $('#pag-ant').disabled = d.pagina <= 1
+        $('#pag-prox').disabled = d.pagina >= paginas
+        atualizarBarraMassa()
+      }
+
+      // Seleção e ações em massa sobre contas.
+      function contasMarcadas() {
+        return [...document.querySelectorAll('.check-conta:checked')].map(
+          c => c.value
+        )
+      }
+      function atualizarBarraMassa() {
+        const marcadas = document.querySelectorAll(
+          '.check-conta:checked'
+        ).length
+        const total = document.querySelectorAll('.check-conta').length
+        $('#barra-massa').classList.toggle('oculto', marcadas === 0)
+        $('#massa-info').textContent =
+          `${marcadas} ${marcadas === 1 ? 'selecionada' : 'selecionadas'}`
+        const todos = $('#check-todos')
+        if (todos) {
+          todos.checked = total > 0 && marcadas === total
+          todos.indeterminate = marcadas > 0 && marcadas < total
+        }
+      }
+      const VERBO = {
+        desativar: 'desativadas',
+        reativar: 'reativadas',
+        excluir: 'excluídas'
+      }
+      const ROTULO = {
+        desativar: 'Desativar',
+        reativar: 'Reativar',
+        excluir: 'Excluir'
+      }
+      async function acaoMassa(acao) {
+        const ids = contasMarcadas()
+        if (!ids.length) return
+        const texto =
+          acao === 'excluir'
+            ? `Excluir ${ids.length} conta(s)? Cada uma sai do app agora e é apagada de vez em 30 dias. Depois disso não dá para desfazer.`
+            : acao === 'desativar'
+              ? `Desativar ${ids.length} conta(s)? As pessoas deixam de entrar, mas os dados ficam. Dá para reativar depois.`
+              : `Reativar ${ids.length} conta(s)?`
+        if (
+          !(await confirmar(`${ROTULO[acao]} contas`, texto, {
+            perigo: acao === 'excluir',
+            ok: ROTULO[acao]
+          }))
+        )
+          return
+        try {
+          const r = await api('/v1/admin/usuarios/acoes', {
+            method: 'POST',
+            body: JSON.stringify({ ids, acao })
+          })
+          let msg = `${r.afetadas} ${r.afetadas === 1 ? 'conta' : 'contas'} ${VERBO[acao]}.`
+          if (r.ignoradas) msg += ' Sua própria conta foi ignorada.'
+          toast(msg)
+          await carregarUsuarios()
+        } catch (e) {
+          toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro')
+        }
+      }
+
+      // Cada seção do painel: o rótulo do menu, os papéis que a veem, e como carrega.
+      // O menu mostra só o que o papel de quem entrou permite.
+      const SECOES = [
+        {
+          id: 'metricas',
+          rotulo: 'Visão geral',
+          el: 'secao-metricas',
+          papeis: ['admin'],
+          carregar: async () => {
+            render(await api('/v1/admin/metricas?periodo=' + periodo))
+            await carregarPlano()
+          }
+        },
+        {
+          id: 'contas',
+          rotulo: 'Contas',
+          el: 'secao-contas',
+          papeis: ['admin'],
+          carregar: async () => {
+            renderContas(await api('/v1/admin/contas?periodo=' + periodo))
+            await carregarUsuarios()
+          }
+        },
+        {
+          id: 'assinaturas',
+          rotulo: 'Assinaturas',
+          el: 'secao-assinaturas',
+          papeis: ['admin'],
+          carregar: renderAssinaturas
+        },
+        {
+          id: 'trilhas',
+          rotulo: 'Trilhas',
+          el: 'secao-trilhas',
+          papeis: ['trilheiro', 'admin'],
+          carregar: renderTrilhas
+        },
+        {
+          id: 'estacoes',
+          rotulo: 'Estações',
+          el: 'secao-estacoes',
+          papeis: ['trilheiro', 'admin'],
+          carregar: renderEstacoes
+        },
+        {
+          id: 'intercessao',
+          rotulo: 'Intercessão',
+          el: 'secao-intercessao',
+          papeis: ['admin', 'intercessor'],
+          carregar: async () =>
+            renderIntercessao(
+              await api('/v1/admin/intercessao?periodo=' + periodo)
+            )
+        },
+        {
+          id: 'praticas',
+          rotulo: 'Práticas',
+          el: 'secao-praticas',
+          papeis: ['admin'],
+          carregar: renderPraticas
+        },
+        {
+          id: 'documentos',
+          rotulo: 'Textos legais',
+          el: 'secao-documentos',
+          papeis: ['admin'],
+          carregar: carregarDocumentos
+        }
+      ]
+      let secaoAtiva = null
+      const permitidas = () => SECOES.filter(s => s.papeis.some(p => pode(p)))
+
+      function montarMenu() {
+        const itens = permitidas()
+        $('#menu').innerHTML = itens
+          .map(
+            s =>
+              `<a data-id="${s.id}">${svgIcone(ICONES_MENU[s.id] || '')}<span>${s.rotulo}</span></a>`
+          )
+          .join('')
+        ;[...$('#menu').children].forEach(a =>
+          a.addEventListener('click', () => irPara(a.dataset.id))
+        )
+        if (itens[0]) irPara(itens[0].id)
+      }
+
+      async function irPara(id) {
+        secaoAtiva = SECOES.find(s => s.id === id)
+        if (!secaoAtiva) return
+        SECOES.forEach(s =>
+          $('#' + s.el).classList.toggle('oculto', s.id !== id)
+        )
+        ;[...$('#menu').children].forEach(a =>
+          a.setAttribute('aria-current', String(a.dataset.id === id))
+        )
+        try {
+          await secaoAtiva.carregar()
+        } catch (e) {
+          console.error(e)
+          toast('Não consegui carregar esta seção.', 'erro')
+        }
+      }
+
+      const hojeISO = () => new Date().toISOString().slice(0, 10)
+      function statusTrilha(t) {
+        if (!t.publicadaEm) return { txt: 'rascunho', cls: 'rasc' }
+        if (t.disponivelEm && t.disponivelEm > hojeISO())
+          return { txt: 'em breve', cls: 'breve' }
+        return { txt: 'disponível', cls: 'pub' }
+      }
+      async function renderTrilhas() {
+        const trilhas = await api('/v1/admin/trilhas')
+        const corpo = $('#tr-tabela').querySelector('tbody')
+        corpo.innerHTML =
+          trilhas
+            .map(t => {
+              const s = statusTrilha(t)
+              const estreia = t.disponivelEm
+                ? ` · estreia ${t.disponivelEm}`
+                : ''
+              const pubAcao = t.publicadaEm
+                ? `<span class="acao-link" data-acao="despublicar" data-id="${t.id}">Despublicar</span>`
+                : `<span class="acao-link" data-acao="publicar" data-id="${t.id}">Publicar</span>`
+              // Regras: editar só em rascunho sem inscritos; excluir só sem inscritos.
+              const editar =
+                !t.publicadaEm && !t.temInscritos
+                  ? `<span class="acao-link" data-acao="editar" data-id="${t.id}">Editar</span>`
+                  : ''
+              const excluir = !t.temInscritos
+                ? `<span class="acao-link perigo" data-acao="excluir" data-id="${t.id}" data-nome="${t.titulo}">Excluir</span>`
+                : ''
+              const nota = t.temInscritos
+                ? '<span style="color:var(--ink-3);font-size:11px">com participantes</span>'
+                : t.publicadaEm
+                  ? '<span style="color:var(--ink-3);font-size:11px">despublique para editar</span>'
+                  : ''
+              return `<tr>
         <td style="color:var(--ink)">${t.titulo}</td><td>${t.autor}</td><td>${t.dias}</td>
         <td><span class="badge ${s.cls}">${s.txt}</span><span style="color:var(--ink-3);font-size:11px">${estreia}</span></td>
         <td>${editar}${pubAcao}<span class="acao-link" data-acao="agendar" data-id="${t.id}">Agendar</span>${excluir} ${nota}</td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="5" style="color:var(--ink-3)">Nenhuma trilha ainda.</td></tr>';
-  }
-
-  // Reconstrói o markdown de uma trilha, para recarregar no editor.
-  function trilhaParaMarkdown(t) {
-    let md = `---\ntitulo: ${t.titulo}\nautor: ${t.autor}\n`;
-    if (t.tema) md += `tema: ${t.tema}\n`;
-    md += '---\n';
-    for (const d of (t.conteudo || [])) {
-      md += `## ${d.titulo}\n`;
-      for (const b of (d.blocos || [])) {
-        if (b.tipo === 'texto') md += `${b.texto}\n\n`;
-        else if (b.tipo === 'referencia') md += `referencia: ${b.ref}${b.texto ? ' | ' + b.texto : ''}\n`;
-        else if (b.tipo === 'link') md += `link: ${b.rotulo} | ${b.url}\n`;
+      </tr>`
+            })
+            .join('') ||
+          '<tr><td colspan="5" style="color:var(--ink-3)">Nenhuma trilha ainda.</td></tr>'
       }
-      if (d.pergunta) md += `pergunta: ${d.pergunta}\n`;
-    }
-    return md.trim();
-  }
 
-  async function renderEstacoes() {
-    const estacoes = await api('/v1/admin/estacoes');
-    const corpo = $('#es-tabela').querySelector('tbody');
-    corpo.innerHTML = estacoes.map((e) => {
-      const s = statusTrilha(e);
-      const estreia = e.disponivelEm ? ` · estreia ${e.disponivelEm}` : '';
-      const pubAcao = e.publicadaEm
-        ? `<span class="acao-link" data-acao="despublicar" data-id="${e.id}">Despublicar</span>`
-        : `<span class="acao-link" data-acao="publicar" data-id="${e.id}">Publicar</span>`;
-      return `<tr>
+      // Reconstrói o markdown de uma trilha, para recarregar no editor.
+      function trilhaParaMarkdown(t) {
+        let md = `---\ntitulo: ${t.titulo}\nautor: ${t.autor}\n`
+        if (t.tema) md += `tema: ${t.tema}\n`
+        md += '---\n'
+        for (const d of t.conteudo || []) {
+          md += `## ${d.titulo}\n`
+          for (const b of d.blocos || []) {
+            if (b.tipo === 'texto') md += `${b.texto}\n\n`
+            else if (b.tipo === 'referencia')
+              md += `referencia: ${b.ref}${b.texto ? ' | ' + b.texto : ''}\n`
+            else if (b.tipo === 'link') md += `link: ${b.rotulo} | ${b.url}\n`
+          }
+          if (d.pergunta) md += `pergunta: ${d.pergunta}\n`
+        }
+        return md.trim()
+      }
+
+      async function renderEstacoes() {
+        const estacoes = await api('/v1/admin/estacoes')
+        const corpo = $('#es-tabela').querySelector('tbody')
+        corpo.innerHTML =
+          estacoes
+            .map(e => {
+              const s = statusTrilha(e)
+              const estreia = e.disponivelEm
+                ? ` · estreia ${e.disponivelEm}`
+                : ''
+              const pubAcao = e.publicadaEm
+                ? `<span class="acao-link" data-acao="despublicar" data-id="${e.id}">Despublicar</span>`
+                : `<span class="acao-link" data-acao="publicar" data-id="${e.id}">Publicar</span>`
+              return `<tr>
         <td style="color:var(--ink)">${e.nome}</td><td>${e.tema || '—'}</td><td>${e.dias}</td>
         <td><span class="badge ${s.cls}">${s.txt}</span><span style="color:var(--ink-3);font-size:11px">${estreia}</span></td>
         <td>${pubAcao}<span class="acao-link" data-acao="agendar" data-id="${e.id}">Agendar</span><span class="acao-link perigo" data-acao="excluir" data-id="${e.id}" data-nome="${e.nome}">Excluir</span></td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="5" style="color:var(--ink-3)">Nenhuma estação ainda.</td></tr>';
-  }
+      </tr>`
+            })
+            .join('') ||
+          '<tr><td colspan="5" style="color:var(--ink-3)">Nenhuma estação ainda.</td></tr>'
+      }
 
-  async function carregarDocumentos() {
-    const d = await api('/v1/admin/documentos');
-    const preencher = (sel, chave) => {
-      const wrap = document.querySelector(sel);
-      const doc = d[chave];
-      wrap.querySelector('.doc-titulo').value = (doc && doc.titulo) || '';
-      wrap.querySelector('.doc-corpo').value = (doc && doc.corpo) || '';
-      wrap.querySelector('.doc-msg').textContent = doc && doc.publicadoEm ? 'Publicado.' : 'Ainda não publicado.';
-    };
-    preencher('#doc-termos', 'termos');
-    preencher('#doc-privacidade', 'privacidade');
-  }
+      async function carregarDocumentos() {
+        const d = await api('/v1/admin/documentos')
+        const preencher = (sel, chave) => {
+          const wrap = document.querySelector(sel)
+          const doc = d[chave]
+          wrap.querySelector('.doc-titulo').value = (doc && doc.titulo) || ''
+          wrap.querySelector('.doc-corpo').value = (doc && doc.corpo) || ''
+          wrap.querySelector('.doc-msg').textContent =
+            doc && doc.publicadoEm ? 'Publicado.' : 'Ainda não publicado.'
+        }
+        preencher('#doc-termos', 'termos')
+        preencher('#doc-privacidade', 'privacidade')
+      }
 
-  document.addEventListener('click', async (ev) => {
-    const b = ev.target.closest('.doc-salvar'); if (!b) return;
-    const chave = b.dataset.chave;
-    const wrap = document.querySelector('#doc-' + chave);
-    const titulo = wrap.querySelector('.doc-titulo').value.trim();
-    const corpo = wrap.querySelector('.doc-corpo').value.trim();
-    const msg = wrap.querySelector('.doc-msg');
-    if (titulo.length < 2 || corpo.length < 1) { msg.textContent = 'Preencha título e texto.'; return; }
-    b.disabled = true;
-    try {
-      await api('/v1/admin/documentos/' + chave, { method: 'PUT', body: JSON.stringify({ titulo, corpo }) });
-      msg.textContent = 'Publicado.';
-      toast('Texto salvo e publicado.');
-    } catch (e) {
-      msg.textContent = (e.dados && e.dados.mensagem) || 'Não consegui salvar.';
-      toast('Não consegui salvar.', 'erro');
-    } finally { b.disabled = false; }
-  });
+      document.addEventListener('click', async ev => {
+        const b = ev.target.closest('.doc-salvar')
+        if (!b) return
+        const chave = b.dataset.chave
+        const wrap = document.querySelector('#doc-' + chave)
+        const titulo = wrap.querySelector('.doc-titulo').value.trim()
+        const corpo = wrap.querySelector('.doc-corpo').value.trim()
+        const msg = wrap.querySelector('.doc-msg')
+        if (titulo.length < 2 || corpo.length < 1) {
+          msg.textContent = 'Preencha título e texto.'
+          return
+        }
+        b.disabled = true
+        try {
+          await api('/v1/admin/documentos/' + chave, {
+            method: 'PUT',
+            body: JSON.stringify({ titulo, corpo })
+          })
+          msg.textContent = 'Publicado.'
+          toast('Texto salvo e publicado.')
+        } catch (e) {
+          msg.textContent =
+            (e.dados && e.dados.mensagem) || 'Não consegui salvar.'
+          toast('Não consegui salvar.', 'erro')
+        } finally {
+          b.disabled = false
+        }
+      })
 
-  // "Pagamentos" nas listas de assinaturas: abre o histórico de cobrança da conta.
-  document.addEventListener('click', (ev) => {
-    const link = ev.target.closest('#secao-assinaturas .acao-link[data-acao="pagamentos"]');
-    if (!link) return;
-    const tr = link.closest('tr');
-    if (tr) verCobrancas(tr.dataset.id, tr.dataset.nome || '');
-  });
+      // "Pagamentos" nas listas de assinaturas: abre o histórico de cobrança da conta.
+      document.addEventListener('click', ev => {
+        const link = ev.target.closest(
+          '#secao-assinaturas .acao-link[data-acao="pagamentos"]'
+        )
+        if (!link) return
+        const tr = link.closest('tr')
+        if (tr) verCobrancas(tr.dataset.id, tr.dataset.nome || '')
+      })
 
-  // --- Práticas (catálogo de disciplinas) ------------------------------------
-  let praticasCache = [];
-  let editandoPratica = null;
+      // Acordeão: clicar no título de um card de assinaturas recolhe/abre a lista.
+      document.addEventListener('click', ev => {
+        const h2 = ev.target.closest('#secao-assinaturas .cartao.grafico > h2')
+        if (!h2) return
+        h2.parentElement.classList.toggle('recolhido')
+      })
 
-  async function renderPraticas() {
-    praticasCache = await api('/v1/admin/disciplinas');
-    const corpo = $('#pr-tabela').querySelector('tbody');
-    corpo.innerHTML = praticasCache.map((d) => {
-      const status = d.ativo ? '<span class="badge pub">ativa</span>' : '<span class="badge rasc">inativa</span>';
-      const alternar = d.ativo
-        ? `<span class="acao-link" data-acao="inativar" data-id="${d.id}" data-nome="${d.nome}">Inativar</span>`
-        : `<span class="acao-link" data-acao="reativar" data-id="${d.id}" data-nome="${d.nome}">Reativar</span>`;
-      const uso = d.emUso ? `${d.emUso}` : '<span style="color:var(--ink-3)">—</span>';
-      return `<tr data-id="${d.id}">
+      // --- Práticas (catálogo de disciplinas) ------------------------------------
+      let praticasCache = []
+      let editandoPratica = null
+
+      async function renderPraticas() {
+        praticasCache = await api('/v1/admin/disciplinas')
+        const corpo = $('#pr-tabela').querySelector('tbody')
+        corpo.innerHTML =
+          praticasCache
+            .map(d => {
+              const status = d.ativo
+                ? '<span class="badge pub">ativa</span>'
+                : '<span class="badge rasc">inativa</span>'
+              const alternar = d.ativo
+                ? `<span class="acao-link" data-acao="inativar" data-id="${d.id}" data-nome="${d.nome}">Inativar</span>`
+                : `<span class="acao-link" data-acao="reativar" data-id="${d.id}" data-nome="${d.nome}">Reativar</span>`
+              const uso = d.emUso
+                ? `${d.emUso}`
+                : '<span style="color:var(--ink-3)">—</span>'
+              return `<tr data-id="${d.id}">
         <td style="color:var(--ink)">${d.nome}</td><td>${d.codigo}</td><td>${d.icone}</td><td>${d.ordem}</td><td>${uso}</td>
         <td>${status}</td>
         <td><span class="acao-link" data-acao="editar" data-id="${d.id}">Editar</span>${alternar}</td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="7" style="color:var(--ink-3)">Nenhuma prática ainda.</td></tr>';
-  }
-
-  function setEdicaoPratica(d) {
-    editandoPratica = d ? d.id : null;
-    // O código é a chave estável: não muda em edição.
-    $('#pr-codigo').disabled = !!d;
-    $('#pr-salvar').textContent = d ? 'Salvar alterações' : 'Criar prática';
-    $('#pr-titulo-editor').textContent = d ? `Editando: ${d.nome}` : 'Nova prática';
-    $('#pr-cancelar-edicao').style.display = d ? '' : 'none';
-  }
-  function limparEditorPratica() {
-    $('#pr-nome').value = ''; $('#pr-codigo').value = ''; $('#pr-icone').value = ''; $('#pr-ordem').value = '';
-    setEdicaoPratica(null); $('#pr-msg').textContent = '';
-  }
-  $('#pr-cancelar-edicao').addEventListener('click', limparEditorPratica);
-
-  $('#pr-salvar').addEventListener('click', async () => {
-    const nome = $('#pr-nome').value.trim();
-    const codigo = $('#pr-codigo').value.trim().toLowerCase();
-    const icone = $('#pr-icone').value.trim().toLowerCase();
-    const ordemVal = $('#pr-ordem').value.trim();
-    const msg = $('#pr-msg');
-    if (nome.length < 2) { msg.textContent = 'Informe o nome.'; return; }
-    const ordem = ordemVal === '' ? undefined : Number(ordemVal);
-    const btn = $('#pr-salvar'); btn.disabled = true;
-    try {
-      if (editandoPratica) {
-        const corpo = { nome, ...(icone ? { icone } : {}), ...(ordem !== undefined ? { ordem } : {}) };
-        await api('/v1/admin/disciplinas/' + editandoPratica, { method: 'PUT', body: JSON.stringify(corpo) });
-        toast('Prática atualizada.');
-      } else {
-        if (!/^[a-z][a-z0-9_-]{1,39}$/.test(codigo)) { msg.textContent = 'Código: minúsculas, sem espaço (ex.: adoracao).'; btn.disabled = false; return; }
-        const corpo = { codigo, nome, icone: icone || codigo, ...(ordem !== undefined ? { ordem } : {}) };
-        await api('/v1/admin/disciplinas', { method: 'POST', body: JSON.stringify(corpo) });
-        toast('Prática criada.');
+      </tr>`
+            })
+            .join('') ||
+          '<tr><td colspan="7" style="color:var(--ink-3)">Nenhuma prática ainda.</td></tr>'
       }
-      limparEditorPratica();
-      renderPraticas();
-    } catch (e) {
-      const m = (e.dados && e.dados.mensagem) || 'Não consegui salvar.';
-      msg.textContent = m; toast(m, 'erro');
-    } finally { btn.disabled = false; }
-  });
 
-  $('#pr-tabela').addEventListener('click', async (ev) => {
-    const el = ev.target.closest('.acao-link'); if (!el) return;
-    const id = el.dataset.id, acao = el.dataset.acao, nome = el.dataset.nome || '';
-    if (acao === 'editar') {
-      const d = praticasCache.find((x) => x.id === id); if (!d) return;
-      $('#pr-nome').value = d.nome; $('#pr-codigo').value = d.codigo; $('#pr-icone').value = d.icone; $('#pr-ordem').value = d.ordem;
-      setEdicaoPratica(d);
-      $('#pr-titulo-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    if (acao === 'inativar') {
-      if (!await confirmar('Inativar prática', `Inativar "${nome}"? Ela some do catálogo de novas práticas no app. Quem já a usa continua com ela e o histórico permanece. Dá para reativar depois.`, { ok: 'Inativar' })) return;
-    }
-    try {
-      await api('/v1/admin/disciplinas/' + id, { method: 'PUT', body: JSON.stringify({ ativo: acao === 'reativar' }) });
-      toast(acao === 'reativar' ? 'Prática reativada.' : 'Prática inativada.');
-      renderPraticas();
-    } catch (e) { toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro'); }
-  });
-
-  async function atualizar() {
-    if (secaoAtiva) { try { await secaoAtiva.carregar(); } catch (e) { console.error(e); } }
-  }
-
-  $('#form-login').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const btn = $('#btn-entrar'); const erro = $('#erro-login');
-    erro.textContent = ''; btn.disabled = true;
-    if ($('#api').value.trim()) { API = $('#api').value.trim(); localStorage.setItem('painel_api', API); }
-    // Gravar antes de entrar: vale mesmo que a credencial falhe e se tente de novo.
-    if ($('#gravar-senha').checked) {
-      localStorage.setItem('painel_lembrar', 'sim');
-      localStorage.setItem('painel_email', $('#email').value.trim());
-      localStorage.setItem('painel_senha', $('#senha').value);
-    } else {
-      localStorage.removeItem('painel_lembrar');
-      localStorage.removeItem('painel_email');
-      localStorage.removeItem('painel_senha');
-    }
-    try {
-      const eu = await entrar($('#email').value.trim(), $('#senha').value);
-      abrirPainel(eu);
-      toast(`Bem-vinda de volta, ${eu.nome || eu.email}.`);
-    } catch (e) {
-      erro.textContent = e.message === 'sem_permissao'
-        ? 'Esta conta não tem acesso ao painel.'
-        : e.status === 401 ? 'E-mail ou senha incorretos.'
-        : 'Não consegui entrar. Confira o endereço da API.';
-    } finally { btn.disabled = false; }
-  });
-
-  $('#preco-salvar').addEventListener('click', async () => {
-    const reaisVal = parseFloat(String($('#preco-valor').value).replace(',', '.'));
-    if (!reaisVal || reaisVal < 1) { toast('Informe um preço válido.', 'erro'); return; }
-    try {
-      await api('/v1/admin/plano/preco', { method: 'PUT', body: JSON.stringify({ valorCentavos: Math.round(reaisVal * 100), rotulo: $('#preco-rotulo').value.trim() || undefined }) });
-      toast('Preço vigente atualizado. Vale para novos assinantes.');
-      $('#preco-valor').value = ''; $('#preco-rotulo').value = '';
-      carregarPlano();
-    } catch (e) { toast((e.dados && e.dados.mensagem) || 'Não consegui salvar.', 'erro'); }
-  });
-  $('#preco-migrar').addEventListener('click', async () => {
-    if (!await confirmar('Migrar preço', 'Marcar todos os clientes em preço antigo para o valor vigente? Cada um recebe o aviso e confirma o novo valor no app. Sem a confirmação, segue no valor antigo.', { ok: 'Marcar migração' })) return;
-    try {
-      const r = await api('/v1/admin/assinaturas/migrar-preco', { method: 'POST', body: JSON.stringify({ todosAntigos: true }) });
-      toast(`${r.marcadas} assinatura(s) marcadas para o novo valor.`);
-      carregarPlano();
-    } catch (e) { toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro'); }
-  });
-
-  $('#filtros').addEventListener('click', (ev) => {
-    const b = ev.target.closest('button'); if (!b) return;
-    periodo = b.dataset.p;
-    [...$('#filtros').children].forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    atualizar();
-  });
-
-  let buscaTimer;
-  $('#busca-contas').addEventListener('input', (ev) => {
-    clearTimeout(buscaTimer);
-    buscaTimer = setTimeout(() => {
-      contasBusca = ev.target.value.trim();
-      contasPagina = 1;
-      carregarUsuarios().catch(console.error);
-    }, 300);
-  });
-  $('#pag-ant').addEventListener('click', () => { if (contasPagina > 1) { contasPagina--; carregarUsuarios().catch(console.error); } });
-  $('#pag-prox').addEventListener('click', () => { contasPagina++; carregarUsuarios().catch(console.error); });
-
-  // Marcar/desmarcar contas: o "selecionar todas" no cabeçalho e cada linha.
-  $('#tabela-contas').addEventListener('change', (ev) => {
-    if (ev.target.id === 'check-todos') {
-      document.querySelectorAll('.check-conta').forEach((c) => { c.checked = ev.target.checked; });
-    }
-    atualizarBarraMassa();
-  });
-
-  // Ações por linha: desativar/reativar e excluir uma conta.
-  $('#tabela-contas').addEventListener('click', async (ev) => {
-    const el = ev.target.closest('.acao-link'); if (!el) return;
-    const tr = el.closest('tr'); const id = tr.dataset.id; const acao = el.dataset.acao; const nome = el.dataset.nome || '';
-    if (acao === 'cancelar-assinatura') {
-      if (!await confirmar('Cancelar assinatura', `Cancelar a assinatura de "${nome}"? As cobranças param agora e o acesso segue até o fim do período já pago. Depois disso a conta é inativada e, ao voltar, a pessoa assina de novo.`, { ok: 'Cancelar assinatura' })) return;
-      try {
-        const r = await api('/v1/admin/usuarios/' + id + '/assinatura/cancelar', { method: 'POST', body: '{}' });
-        toast(r.periodoFim ? `Assinatura cancelada. Acesso até ${r.periodoFim}.` : 'Assinatura cancelada.');
-        await carregarUsuarios();
-      } catch (e) {
-        toast(e.status === 404 ? 'Esta conta não tem assinatura ativa.' : ((e.dados && e.dados.mensagem) || 'Ação falhou.'), 'erro');
+      function setEdicaoPratica(d) {
+        editandoPratica = d ? d.id : null
+        // O código é a chave estável: não muda em edição.
+        $('#pr-codigo').disabled = !!d
+        $('#pr-salvar').textContent = d ? 'Salvar alterações' : 'Criar prática'
+        $('#pr-titulo-editor').textContent = d
+          ? `Editando: ${d.nome}`
+          : 'Nova prática'
+        $('#pr-cancelar-edicao').style.display = d ? '' : 'none'
       }
-      return;
-    }
-    if (acao === 'excluir') {
-      if (!await confirmar('Excluir conta', `Excluir "${nome}"? A conta sai do app agora e é apagada de vez em 30 dias. Depois disso não dá para desfazer.`, { perigo: true, ok: 'Excluir' })) return;
-    } else if (acao === 'desativar') {
-      if (!await confirmar('Desativar conta', `Desativar "${nome}"? A pessoa deixa de entrar, mas os dados ficam. Dá para reativar depois.`, { ok: 'Desativar' })) return;
-    }
-    try {
-      await api('/v1/admin/usuarios/' + id + '/acao', { method: 'POST', body: JSON.stringify({ acao }) });
-      toast(acao === 'excluir' ? 'Conta excluída.' : acao === 'desativar' ? 'Conta desativada.' : 'Conta reativada.');
-      await carregarUsuarios();
-    } catch (e) { toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro'); }
-  });
-
-  $('#barra-massa').addEventListener('click', (ev) => {
-    const b = ev.target.closest('button'); if (!b) return;
-    acaoMassa(b.dataset.massa);
-  });
-
-  // Estado de edição do editor de trilha: muda o título do card e o rótulo do
-  // botão para deixar claro que salvar substitui a trilha carregada.
-  let editandoTrilha = null;
-  function setEdicaoTrilha(titulo) {
-    editandoTrilha = titulo || null;
-    $('#tr-importar').textContent = editandoTrilha ? 'Salvar alterações' : 'Importar';
-    $('#tr-titulo-editor').textContent = editandoTrilha ? `Editando: ${editandoTrilha}` : 'Nova trilha';
-    $('#tr-cancelar-edicao').style.display = editandoTrilha ? '' : 'none';
-  }
-  function limparEditorTrilha() {
-    $('#tr-md').value = ''; $('#tr-data').value = ''; $('#tr-pub').checked = true;
-    setEdicaoTrilha(null); $('#tr-msg').textContent = '';
-  }
-  $('#tr-cancelar-edicao').addEventListener('click', limparEditorTrilha);
-
-  $('#tr-importar').addEventListener('click', async () => {
-    const md = $('#tr-md').value.trim();
-    const msg = $('#tr-msg');
-    if (md.length < 20) { msg.textContent = 'Cole o markdown da trilha.'; return; }
-    const btn = $('#tr-importar'); const rotulo = btn.textContent; btn.disabled = true;
-    msg.textContent = 'Salvando (gera os embeddings, pode levar alguns segundos)…';
-    try {
-      const body = { markdown: md, publicar: $('#tr-pub').checked };
-      if ($('#tr-data').value) body.disponivelEm = $('#tr-data').value;
-      const r = await api('/v1/admin/trilhas/importar', { method: 'POST', body: JSON.stringify(body) });
-      toast(`Trilha "${r.trilha.titulo}" salva com ${r.dias} dias.`);
-      limparEditorTrilha();
-      renderTrilhas();
-    } catch (e) {
-      const m = (e.dados && e.dados.mensagem) || 'Não consegui salvar. Confira o formato.';
-      msg.textContent = m; toast(m, 'erro');
-      btn.textContent = rotulo;
-    } finally { btn.disabled = false; }
-  });
-
-  $('#tr-tabela').addEventListener('click', async (ev) => {
-    const el = ev.target.closest('.acao-link'); if (!el) return;
-    const id = el.dataset.id, acao = el.dataset.acao;
-    try {
-      if (acao === 'editar') {
-        const t = await api('/v1/admin/trilhas/' + id);
-        $('#tr-md').value = trilhaParaMarkdown(t);
-        $('#tr-data').value = t.disponivelEm || '';
-        $('#tr-pub').checked = !!t.publicadaEm;
-        setEdicaoTrilha(t.titulo);
-        $('#tr-msg').textContent = 'Faça as mudanças e clique em Salvar alterações. Não mude o título.';
-        $('#tr-titulo-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        return;
+      function limparEditorPratica() {
+        $('#pr-nome').value = ''
+        $('#pr-codigo').value = ''
+        $('#pr-icone').value = ''
+        $('#pr-ordem').value = ''
+        setEdicaoPratica(null)
+        $('#pr-msg').textContent = ''
       }
-      if (acao === 'publicar') { await api('/v1/admin/trilhas/' + id, { method: 'PATCH', body: JSON.stringify({ publicar: true }) }); toast('Trilha publicada.'); }
-      else if (acao === 'despublicar') { await api('/v1/admin/trilhas/' + id, { method: 'PATCH', body: JSON.stringify({ publicar: false }) }); toast('Trilha despublicada.'); }
-      else if (acao === 'agendar') {
-        const d = await perguntarData('Agendar estreia da trilha', '');
-        if (d === null) return;
-        await api('/v1/admin/trilhas/' + id, { method: 'PATCH', body: JSON.stringify({ disponivelEm: d.trim() || null }) });
-        toast(d.trim() ? `Estreia marcada para ${d.trim()}.` : 'Data de estreia removida.');
-      } else if (acao === 'excluir') {
-        if (!await confirmar('Excluir trilha', `Excluir "${el.dataset.nome}"? Isso apaga os dias e as inscrições, e não dá para desfazer.`, { perigo: true, ok: 'Excluir' })) return;
-        await api('/v1/admin/trilhas/' + id, { method: 'DELETE' });
-        toast('Trilha excluída.');
+      $('#pr-cancelar-edicao').addEventListener('click', limparEditorPratica)
+
+      $('#pr-salvar').addEventListener('click', async () => {
+        const nome = $('#pr-nome').value.trim()
+        const codigo = $('#pr-codigo').value.trim().toLowerCase()
+        const icone = $('#pr-icone').value.trim().toLowerCase()
+        const ordemVal = $('#pr-ordem').value.trim()
+        const msg = $('#pr-msg')
+        if (nome.length < 2) {
+          msg.textContent = 'Informe o nome.'
+          return
+        }
+        const ordem = ordemVal === '' ? undefined : Number(ordemVal)
+        const btn = $('#pr-salvar')
+        btn.disabled = true
+        try {
+          if (editandoPratica) {
+            const corpo = {
+              nome,
+              ...(icone ? { icone } : {}),
+              ...(ordem !== undefined ? { ordem } : {})
+            }
+            await api('/v1/admin/disciplinas/' + editandoPratica, {
+              method: 'PUT',
+              body: JSON.stringify(corpo)
+            })
+            toast('Prática atualizada.')
+          } else {
+            if (!/^[a-z][a-z0-9_-]{1,39}$/.test(codigo)) {
+              msg.textContent =
+                'Código: minúsculas, sem espaço (ex.: adoracao).'
+              btn.disabled = false
+              return
+            }
+            const corpo = {
+              codigo,
+              nome,
+              icone: icone || codigo,
+              ...(ordem !== undefined ? { ordem } : {})
+            }
+            await api('/v1/admin/disciplinas', {
+              method: 'POST',
+              body: JSON.stringify(corpo)
+            })
+            toast('Prática criada.')
+          }
+          limparEditorPratica()
+          renderPraticas()
+        } catch (e) {
+          const m = (e.dados && e.dados.mensagem) || 'Não consegui salvar.'
+          msg.textContent = m
+          toast(m, 'erro')
+        } finally {
+          btn.disabled = false
+        }
+      })
+
+      $('#pr-tabela').addEventListener('click', async ev => {
+        const el = ev.target.closest('.acao-link')
+        if (!el) return
+        const id = el.dataset.id,
+          acao = el.dataset.acao,
+          nome = el.dataset.nome || ''
+        if (acao === 'editar') {
+          const d = praticasCache.find(x => x.id === id)
+          if (!d) return
+          $('#pr-nome').value = d.nome
+          $('#pr-codigo').value = d.codigo
+          $('#pr-icone').value = d.icone
+          $('#pr-ordem').value = d.ordem
+          setEdicaoPratica(d)
+          $('#pr-titulo-editor').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          })
+          return
+        }
+        if (acao === 'inativar') {
+          if (
+            !(await confirmar(
+              'Inativar prática',
+              `Inativar "${nome}"? Ela some do catálogo de novas práticas no app. Quem já a usa continua com ela e o histórico permanece. Dá para reativar depois.`,
+              { ok: 'Inativar' }
+            ))
+          )
+            return
+        }
+        try {
+          await api('/v1/admin/disciplinas/' + id, {
+            method: 'PUT',
+            body: JSON.stringify({ ativo: acao === 'reativar' })
+          })
+          toast(
+            acao === 'reativar' ? 'Prática reativada.' : 'Prática inativada.'
+          )
+          renderPraticas()
+        } catch (e) {
+          toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro')
+        }
+      })
+
+      async function atualizar() {
+        if (secaoAtiva) {
+          try {
+            await secaoAtiva.carregar()
+          } catch (e) {
+            console.error(e)
+          }
+        }
       }
-      renderTrilhas();
-    } catch (e) { toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro'); }
-  });
 
-  $('#es-importar').addEventListener('click', async () => {
-    const md = $('#es-md').value.trim();
-    const msg = $('#es-msg');
-    if (md.length < 20) { msg.textContent = 'Cole o markdown da estação.'; return; }
-    const btn = $('#es-importar'); btn.disabled = true;
-    msg.textContent = 'Importando…';
-    try {
-      const body = { markdown: md, publicar: $('#es-pub').checked };
-      if ($('#es-data').value) body.disponivelEm = $('#es-data').value;
-      const r = await api('/v1/admin/estacoes/importar', { method: 'POST', body: JSON.stringify(body) });
-      msg.textContent = `Importada: ${r.estacao.nome} (${r.dias} dias, ${r.itens} itens).`;
-      toast(`Estação "${r.estacao.nome}" importada (${r.dias} dias).`);
-      $('#es-md').value = ''; $('#es-data').value = '';
-      renderEstacoes();
-    } catch (e) {
-      const m = (e.dados && e.dados.mensagem) || 'Não consegui importar. Confira o formato.';
-      msg.textContent = m; toast(m, 'erro');
-    } finally { btn.disabled = false; }
-  });
+      $('#form-login').addEventListener('submit', async ev => {
+        ev.preventDefault()
+        const btn = $('#btn-entrar')
+        const erro = $('#erro-login')
+        erro.textContent = ''
+        btn.disabled = true
+        if ($('#api').value.trim()) {
+          API = $('#api').value.trim()
+          localStorage.setItem('painel_api', API)
+        }
+        // Gravar antes de entrar: vale mesmo que a credencial falhe e se tente de novo.
+        if ($('#gravar-senha').checked) {
+          localStorage.setItem('painel_lembrar', 'sim')
+          localStorage.setItem('painel_email', $('#email').value.trim())
+          localStorage.setItem('painel_senha', $('#senha').value)
+        } else {
+          localStorage.removeItem('painel_lembrar')
+          localStorage.removeItem('painel_email')
+          localStorage.removeItem('painel_senha')
+        }
+        try {
+          const eu = await entrar($('#email').value.trim(), $('#senha').value)
+          abrirPainel(eu)
+          toast(`Bem-vinda de volta, ${eu.nome || eu.email}.`)
+        } catch (e) {
+          erro.textContent =
+            e.message === 'sem_permissao'
+              ? 'Esta conta não tem acesso ao painel.'
+              : e.status === 401
+                ? 'E-mail ou senha incorretos.'
+                : 'Não consegui entrar. Confira o endereço da API.'
+        } finally {
+          btn.disabled = false
+        }
+      })
 
-  $('#es-tabela').addEventListener('click', async (ev) => {
-    const el = ev.target.closest('.acao-link'); if (!el) return;
-    const id = el.dataset.id, acao = el.dataset.acao;
-    try {
-      if (acao === 'publicar') { await api('/v1/admin/estacoes/' + id, { method: 'PATCH', body: JSON.stringify({ publicar: true }) }); toast('Estação publicada.'); }
-      else if (acao === 'despublicar') { await api('/v1/admin/estacoes/' + id, { method: 'PATCH', body: JSON.stringify({ publicar: false }) }); toast('Estação despublicada.'); }
-      else if (acao === 'agendar') {
-        const d = await perguntarData('Agendar estreia da estação', '');
-        if (d === null) return;
-        await api('/v1/admin/estacoes/' + id, { method: 'PATCH', body: JSON.stringify({ disponivelEm: d.trim() || null }) });
-        toast(d.trim() ? `Estreia marcada para ${d.trim()}.` : 'Data de estreia removida.');
-      } else if (acao === 'excluir') {
-        if (!await confirmar('Excluir estação', `Excluir "${el.dataset.nome}"? Isso apaga os dias e as inscrições, e não dá para desfazer.`, { perigo: true, ok: 'Excluir' })) return;
-        await api('/v1/admin/estacoes/' + id, { method: 'DELETE' });
-        toast('Estação excluída.');
+      $('#preco-salvar').addEventListener('click', async () => {
+        const reaisVal = parseFloat(
+          String($('#preco-valor').value).replace(',', '.')
+        )
+        if (!reaisVal || reaisVal < 1) {
+          toast('Informe um preço válido.', 'erro')
+          return
+        }
+        try {
+          await api('/v1/admin/plano/preco', {
+            method: 'PUT',
+            body: JSON.stringify({
+              valorCentavos: Math.round(reaisVal * 100),
+              rotulo: $('#preco-rotulo').value.trim() || undefined
+            })
+          })
+          toast('Preço vigente atualizado. Vale para novos assinantes.')
+          $('#preco-valor').value = ''
+          $('#preco-rotulo').value = ''
+          carregarPlano()
+        } catch (e) {
+          toast((e.dados && e.dados.mensagem) || 'Não consegui salvar.', 'erro')
+        }
+      })
+      $('#preco-migrar').addEventListener('click', async () => {
+        if (
+          !(await confirmar(
+            'Migrar preço',
+            'Marcar todos os clientes em preço antigo para o valor vigente? Cada um recebe o aviso e confirma o novo valor no app. Sem a confirmação, segue no valor antigo.',
+            { ok: 'Marcar migração' }
+          ))
+        )
+          return
+        try {
+          const r = await api('/v1/admin/assinaturas/migrar-preco', {
+            method: 'POST',
+            body: JSON.stringify({ todosAntigos: true })
+          })
+          toast(`${r.marcadas} assinatura(s) marcadas para o novo valor.`)
+          carregarPlano()
+        } catch (e) {
+          toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro')
+        }
+      })
+
+      $('#filtros').addEventListener('click', ev => {
+        const b = ev.target.closest('button')
+        if (!b) return
+        periodo = b.dataset.p
+        ;[...$('#filtros').children].forEach(x =>
+          x.setAttribute('aria-pressed', String(x === b))
+        )
+        atualizar()
+      })
+
+      let buscaTimer
+      $('#busca-contas').addEventListener('input', ev => {
+        clearTimeout(buscaTimer)
+        buscaTimer = setTimeout(() => {
+          contasBusca = ev.target.value.trim()
+          contasPagina = 1
+          carregarUsuarios().catch(console.error)
+        }, 300)
+      })
+      $('#pag-ant').addEventListener('click', () => {
+        if (contasPagina > 1) {
+          contasPagina--
+          carregarUsuarios().catch(console.error)
+        }
+      })
+      $('#pag-prox').addEventListener('click', () => {
+        contasPagina++
+        carregarUsuarios().catch(console.error)
+      })
+
+      // Marcar/desmarcar contas: o "selecionar todas" no cabeçalho e cada linha.
+      $('#tabela-contas').addEventListener('change', ev => {
+        if (ev.target.id === 'check-todos') {
+          document.querySelectorAll('.check-conta').forEach(c => {
+            c.checked = ev.target.checked
+          })
+        }
+        atualizarBarraMassa()
+      })
+
+      // Ações por linha: desativar/reativar e excluir uma conta.
+      $('#tabela-contas').addEventListener('click', async ev => {
+        const el = ev.target.closest('.acao-link')
+        if (!el) return
+        const tr = el.closest('tr')
+        const id = tr.dataset.id
+        const acao = el.dataset.acao
+        const nome = el.dataset.nome || ''
+        if (acao === 'cancelar-assinatura') {
+          if (
+            !(await confirmar(
+              'Cancelar assinatura',
+              `Cancelar a assinatura de "${nome}"? As cobranças param agora e o acesso segue até o fim do período já pago. Depois disso a conta é inativada e, ao voltar, a pessoa assina de novo.`,
+              { ok: 'Cancelar assinatura' }
+            ))
+          )
+            return
+          try {
+            const r = await api(
+              '/v1/admin/usuarios/' + id + '/assinatura/cancelar',
+              { method: 'POST', body: '{}' }
+            )
+            toast(
+              r.periodoFim
+                ? `Assinatura cancelada. Acesso até ${dataBR(r.periodoFim)}.`
+                : 'Assinatura cancelada.'
+            )
+            await carregarUsuarios()
+          } catch (e) {
+            toast(
+              e.status === 404
+                ? 'Esta conta não tem assinatura ativa.'
+                : (e.dados && e.dados.mensagem) || 'Ação falhou.',
+              'erro'
+            )
+          }
+          return
+        }
+        if (acao === 'excluir') {
+          if (
+            !(await confirmar(
+              'Excluir conta',
+              `Excluir "${nome}"? A conta sai do app agora e é apagada de vez em 30 dias. Depois disso não dá para desfazer.`,
+              { perigo: true, ok: 'Excluir' }
+            ))
+          )
+            return
+        } else if (acao === 'desativar') {
+          if (
+            !(await confirmar(
+              'Desativar conta',
+              `Desativar "${nome}"? A pessoa deixa de entrar, mas os dados ficam. Dá para reativar depois.`,
+              { ok: 'Desativar' }
+            ))
+          )
+            return
+        }
+        try {
+          await api('/v1/admin/usuarios/' + id + '/acao', {
+            method: 'POST',
+            body: JSON.stringify({ acao })
+          })
+          toast(
+            acao === 'excluir'
+              ? 'Conta excluída.'
+              : acao === 'desativar'
+                ? 'Conta desativada.'
+                : 'Conta reativada.'
+          )
+          await carregarUsuarios()
+        } catch (e) {
+          toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro')
+        }
+      })
+
+      $('#barra-massa').addEventListener('click', ev => {
+        const b = ev.target.closest('button')
+        if (!b) return
+        acaoMassa(b.dataset.massa)
+      })
+
+      // Estado de edição do editor de trilha: muda o título do card e o rótulo do
+      // botão para deixar claro que salvar substitui a trilha carregada.
+      let editandoTrilha = null
+      function setEdicaoTrilha(titulo) {
+        editandoTrilha = titulo || null
+        $('#tr-importar').textContent = editandoTrilha
+          ? 'Salvar alterações'
+          : 'Importar'
+        $('#tr-titulo-editor').textContent = editandoTrilha
+          ? `Editando: ${editandoTrilha}`
+          : 'Nova trilha'
+        $('#tr-cancelar-edicao').style.display = editandoTrilha ? '' : 'none'
       }
-      renderEstacoes();
-    } catch (e) { toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro'); }
-  });
+      function limparEditorTrilha() {
+        $('#tr-md').value = ''
+        $('#tr-data').value = ''
+        $('#tr-pub').checked = true
+        setEdicaoTrilha(null)
+        $('#tr-msg').textContent = ''
+      }
+      $('#tr-cancelar-edicao').addEventListener('click', limparEditorTrilha)
 
-  $('#btn-sair').addEventListener('click', async () => {
-    await sairServidor();
-    csrf = null; papeis = [];
-    $('#painel').classList.add('oculto');
-    $('#capa').classList.remove('oculto');
-  });
+      $('#tr-importar').addEventListener('click', async () => {
+        const md = $('#tr-md').value.trim()
+        const msg = $('#tr-msg')
+        if (md.length < 20) {
+          msg.textContent = 'Cole o markdown da trilha.'
+          return
+        }
+        const btn = $('#tr-importar')
+        const rotulo = btn.textContent
+        btn.disabled = true
+        msg.textContent =
+          'Salvando (gera os embeddings, pode levar alguns segundos)…'
+        try {
+          const body = { markdown: md, publicar: $('#tr-pub').checked }
+          if ($('#tr-data').value) body.disponivelEm = $('#tr-data').value
+          const r = await api('/v1/admin/trilhas/importar', {
+            method: 'POST',
+            body: JSON.stringify(body)
+          })
+          toast(`Trilha "${r.trilha.titulo}" salva com ${r.dias} dias.`)
+          limparEditorTrilha()
+          renderTrilhas()
+        } catch (e) {
+          const m =
+            (e.dados && e.dados.mensagem) ||
+            'Não consegui salvar. Confira o formato.'
+          msg.textContent = m
+          toast(m, 'erro')
+          btn.textContent = rotulo
+        } finally {
+          btn.disabled = false
+        }
+      })
 
-  $('#api').value = API;
+      $('#tr-tabela').addEventListener('click', async ev => {
+        const el = ev.target.closest('.acao-link')
+        if (!el) return
+        const id = el.dataset.id,
+          acao = el.dataset.acao
+        try {
+          if (acao === 'editar') {
+            const t = await api('/v1/admin/trilhas/' + id)
+            $('#tr-md').value = trilhaParaMarkdown(t)
+            $('#tr-data').value = t.disponivelEm || ''
+            $('#tr-pub').checked = !!t.publicadaEm
+            setEdicaoTrilha(t.titulo)
+            $('#tr-msg').textContent =
+              'Faça as mudanças e clique em Salvar alterações. Não mude o título.'
+            $('#tr-titulo-editor').scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            })
+            return
+          }
+          if (acao === 'publicar') {
+            await api('/v1/admin/trilhas/' + id, {
+              method: 'PATCH',
+              body: JSON.stringify({ publicar: true })
+            })
+            toast('Trilha publicada.')
+          } else if (acao === 'despublicar') {
+            await api('/v1/admin/trilhas/' + id, {
+              method: 'PATCH',
+              body: JSON.stringify({ publicar: false })
+            })
+            toast('Trilha despublicada.')
+          } else if (acao === 'agendar') {
+            const d = await perguntarData('Agendar estreia da trilha', '')
+            if (d === null) return
+            await api('/v1/admin/trilhas/' + id, {
+              method: 'PATCH',
+              body: JSON.stringify({ disponivelEm: d.trim() || null })
+            })
+            toast(
+              d.trim()
+                ? `Estreia marcada para ${d.trim()}.`
+                : 'Data de estreia removida.'
+            )
+          } else if (acao === 'excluir') {
+            if (
+              !(await confirmar(
+                'Excluir trilha',
+                `Excluir "${el.dataset.nome}"? Isso apaga os dias e as inscrições, e não dá para desfazer.`,
+                { perigo: true, ok: 'Excluir' }
+              ))
+            )
+              return
+            await api('/v1/admin/trilhas/' + id, { method: 'DELETE' })
+            toast('Trilha excluída.')
+          }
+          renderTrilhas()
+        } catch (e) {
+          toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro')
+        }
+      })
 
-  // Olho: revela ou oculta a senha; o risco sobre o olho aparece quando oculta.
-  $('#ver-senha').addEventListener('click', () => {
-    const campo = $('#senha'); const botao = $('#ver-senha');
-    const mostrar = campo.type === 'password';
-    campo.type = mostrar ? 'text' : 'password';
-    botao.setAttribute('aria-pressed', String(mostrar));
-    botao.setAttribute('aria-label', mostrar ? 'Ocultar senha' : 'Mostrar senha');
-    $('#risco-olho').style.display = mostrar ? 'none' : '';
-  });
+      $('#es-importar').addEventListener('click', async () => {
+        const md = $('#es-md').value.trim()
+        const msg = $('#es-msg')
+        if (md.length < 20) {
+          msg.textContent = 'Cole o markdown da estação.'
+          return
+        }
+        const btn = $('#es-importar')
+        btn.disabled = true
+        msg.textContent = 'Importando…'
+        try {
+          const body = { markdown: md, publicar: $('#es-pub').checked }
+          if ($('#es-data').value) body.disponivelEm = $('#es-data').value
+          const r = await api('/v1/admin/estacoes/importar', {
+            method: 'POST',
+            body: JSON.stringify(body)
+          })
+          msg.textContent = `Importada: ${r.estacao.nome} (${r.dias} dias, ${r.itens} itens).`
+          toast(`Estação "${r.estacao.nome}" importada (${r.dias} dias).`)
+          $('#es-md').value = ''
+          $('#es-data').value = ''
+          renderEstacoes()
+        } catch (e) {
+          const m =
+            (e.dados && e.dados.mensagem) ||
+            'Não consegui importar. Confira o formato.'
+          msg.textContent = m
+          toast(m, 'erro')
+        } finally {
+          btn.disabled = false
+        }
+      })
 
-  // Preenche o que ficou gravado da última vez que se pediu para lembrar.
-  if (localStorage.getItem('painel_lembrar') === 'sim') {
-    $('#gravar-senha').checked = true;
-    $('#email').value = localStorage.getItem('painel_email') || '';
-    $('#senha').value = localStorage.getItem('painel_senha') || '';
-  }
+      $('#es-tabela').addEventListener('click', async ev => {
+        const el = ev.target.closest('.acao-link')
+        if (!el) return
+        const id = el.dataset.id,
+          acao = el.dataset.acao
+        try {
+          if (acao === 'publicar') {
+            await api('/v1/admin/estacoes/' + id, {
+              method: 'PATCH',
+              body: JSON.stringify({ publicar: true })
+            })
+            toast('Estação publicada.')
+          } else if (acao === 'despublicar') {
+            await api('/v1/admin/estacoes/' + id, {
+              method: 'PATCH',
+              body: JSON.stringify({ publicar: false })
+            })
+            toast('Estação despublicada.')
+          } else if (acao === 'agendar') {
+            const d = await perguntarData('Agendar estreia da estação', '')
+            if (d === null) return
+            await api('/v1/admin/estacoes/' + id, {
+              method: 'PATCH',
+              body: JSON.stringify({ disponivelEm: d.trim() || null })
+            })
+            toast(
+              d.trim()
+                ? `Estreia marcada para ${d.trim()}.`
+                : 'Data de estreia removida.'
+            )
+          } else if (acao === 'excluir') {
+            if (
+              !(await confirmar(
+                'Excluir estação',
+                `Excluir "${el.dataset.nome}"? Isso apaga os dias e as inscrições, e não dá para desfazer.`,
+                { perigo: true, ok: 'Excluir' }
+              ))
+            )
+              return
+            await api('/v1/admin/estacoes/' + id, { method: 'DELETE' })
+            toast('Estação excluída.')
+          }
+          renderEstacoes()
+        } catch (e) {
+          toast((e.dados && e.dados.mensagem) || 'Ação falhou.', 'erro')
+        }
+      })
 
-  // Restaura a sessão ao abrir: se o cookie de refresh ainda vale (até 30 dias),
-  // entra direto, sem pedir a senha de novo. É isto que faz a sessão durar.
-  (async () => {
-    if (!(await renovarSessao())) return;      // sem sessão: fica no login
-    try {
-      const eu = await api('/v1/eu');
-      papeis = eu.papeis || [];
-      if (papeis.some((p) => PAPEIS_PAINEL.includes(p))) abrirPainel(eu);
-      else csrf = null;
-    } catch { csrf = null; }
-  })();
-</script>
-</body>
+      $('#btn-sair').addEventListener('click', async () => {
+        await sairServidor()
+        csrf = null
+        papeis = []
+        $('#painel').classList.add('oculto')
+        $('#capa').classList.remove('oculto')
+      })
+
+      $('#api').value = API
+
+      // Olho: revela ou oculta a senha; o risco sobre o olho aparece quando oculta.
+      $('#ver-senha').addEventListener('click', () => {
+        const campo = $('#senha')
+        const botao = $('#ver-senha')
+        const mostrar = campo.type === 'password'
+        campo.type = mostrar ? 'text' : 'password'
+        botao.setAttribute('aria-pressed', String(mostrar))
+        botao.setAttribute(
+          'aria-label',
+          mostrar ? 'Ocultar senha' : 'Mostrar senha'
+        )
+        $('#risco-olho').style.display = mostrar ? 'none' : ''
+      })
+
+      // Preenche o que ficou gravado da última vez que se pediu para lembrar.
+      if (localStorage.getItem('painel_lembrar') === 'sim') {
+        $('#gravar-senha').checked = true
+        $('#email').value = localStorage.getItem('painel_email') || ''
+        $('#senha').value = localStorage.getItem('painel_senha') || ''
+      }
+
+      // Restaura a sessão ao abrir: se o cookie de refresh ainda vale (até 30 dias),
+      // entra direto, sem pedir a senha de novo. É isto que faz a sessão durar.
+      ;(async () => {
+        if (!(await renovarSessao())) return // sem sessão: fica no login
+        try {
+          const eu = await api('/v1/eu')
+          papeis = eu.papeis || []
+          if (papeis.some(p => PAPEIS_PAINEL.includes(p))) abrirPainel(eu)
+          else csrf = null
+        } catch {
+          csrf = null
+        }
+      })()
+    </script>
+  </body>
 </html>

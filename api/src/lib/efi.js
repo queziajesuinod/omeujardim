@@ -9,6 +9,7 @@
 // manda um `payment_token`; é só isso que passa para a Efí.
 
 const path = require('node:path');
+const fs = require('node:fs');
 
 const PLACEHOLDERS = new Set([undefined, '', 'troque', 'seu_client_id', 'seu_client_secret']);
 
@@ -44,16 +45,36 @@ function obterCliente() {
   }
   if (cliente) return cliente;
   const EfiPay = require('sdk-node-apis-efi');
-  cliente = new EfiPay({
+
+  // Caminho relativo resolvido a partir de api/ (dois níveis acima daqui), para
+  // não depender de onde o processo foi iniciado.
+  const resolver = (p) => (path.isAbsolute(p) ? p : path.resolve(__dirname, '../..', p));
+  const certificado = resolver(process.env.EFI_CERTIFICADO);
+
+  const opcoes = {
     sandbox: process.env.EFI_SANDBOX !== 'false',
     client_id: process.env.EFI_CLIENT_ID,
     client_secret: process.env.EFI_CLIENT_SECRET,
-    // Caminho relativo resolvido a partir de api/ (dois níveis acima daqui),
-    // para não depender de onde o processo foi iniciado.
-    certificate: path.isAbsolute(process.env.EFI_CERTIFICADO)
-      ? process.env.EFI_CERTIFICADO
-      : path.resolve(__dirname, '../..', process.env.EFI_CERTIFICADO),
-  });
+    certificate: certificado,
+  };
+
+  // A Efí aceita .p12 (só `certificate`) ou .pem. Quando é .pem o SDK EXIGE
+  // `pemKey`; como o nosso .pem carrega o certificado e a chave no mesmo arquivo,
+  // o mesmo caminho serve para os dois (é o que o erro da Efí pede). Detecta pelo
+  // CONTEÚDO, não pela extensão, porque o arquivo pode ter sido salvo como .p12
+  // mas conter PEM. Override explícito por EFI_PEM_KEY, se um dia a chave for
+  // um arquivo separado.
+  if (!PLACEHOLDERS.has(process.env.EFI_PEM_KEY)) {
+    opcoes.pemKey = resolver(process.env.EFI_PEM_KEY);
+  } else {
+    let ehPem = /\.pem$/i.test(certificado);
+    if (!ehPem) {
+      try { ehPem = fs.readFileSync(certificado, 'utf8').includes('-----BEGIN'); } catch { /* binário/.p12 */ }
+    }
+    if (ehPem) opcoes.pemKey = certificado;
+  }
+
+  cliente = new EfiPay(opcoes);
   return cliente;
 }
 
