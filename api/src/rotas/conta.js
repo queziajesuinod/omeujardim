@@ -56,6 +56,14 @@ module.exports = async function rotasConta(app) {
     const usuario = await Usuario.findByPk(req.user.sub);
     if (!usuario) return reply.code(404).send({ erro: 'conta_nao_encontrada' });
 
+    // Pagamento feito é registro fiscal: a conta que já pagou não se apaga.
+    if (await app.temPagamentoFeito(req.user.sub)) {
+      return reply.code(409).send({
+        erro: 'tem_pagamento',
+        mensagem: 'Não é possível excluir a conta: há pagamento registrado, mantido por obrigação fiscal.',
+      });
+    }
+
     await usuario.destroy();               // soft delete: removido_em = agora
     await app.encerrarSessoes(req.user.sub);
     app.limparSessaoWeb(reply, req);

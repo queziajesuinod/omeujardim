@@ -140,6 +140,9 @@ module.exports = async function rotasAdmin(app) {
     if (!usuario) return { id, estado: 'nao_encontrado' };
 
     if (acao === 'excluir') {
+      // Pagamento feito é registro fiscal: não exclui. Só exclui quem nunca
+      // pagou (sem cobrança, ou só pendente/recusada/expirada).
+      if (await app.temPagamentoFeito(id)) return { id, estado: 'tem_pagamento' };
       await usuario.destroy();               // soft delete: removido_em = agora
       await app.encerrarSessoes(id);
       return { id, estado: 'excluido' };
@@ -163,6 +166,12 @@ module.exports = async function rotasAdmin(app) {
     }
     const r = await aplicarAcao(id, acao, req.user.sub);
     if (r.estado === 'nao_encontrado') return reply.code(404).send({ erro: 'conta_nao_encontrada' });
+    if (r.estado === 'tem_pagamento') {
+      return reply.code(422).send({
+        erro: 'tem_pagamento',
+        mensagem: 'Não dá para excluir: esta conta tem pagamento registrado. Pagamentos são mantidos por obrigação fiscal. Você pode desativar a conta.',
+      });
+    }
     return r;
   });
 
@@ -183,6 +192,7 @@ module.exports = async function rotasAdmin(app) {
       afetadas: conta('excluido') + conta('desativado') + conta('reativado'),
       ignoradas: conta('ignorado_proprio'),
       naoEncontradas: conta('nao_encontrado'),
+      comPagamento: conta('tem_pagamento'),
       resultados,
     };
   });
@@ -248,7 +258,7 @@ module.exports = async function rotasAdmin(app) {
              u.id AS "usuarioId", u.nome, u.email
         FROM cobranca c JOIN usuario u ON u.id = c.usuario_id
        WHERE c.status = 'pendente' AND c.metodo = 'pix' AND c.efi_txid IS NOT NULL
-         AND c.removido_em IS NULL
+         AND c.removido_em IS NULL AND u.removido_em IS NULL
        ORDER BY c.criado_em DESC
        LIMIT ${LIM}`;
 
@@ -267,7 +277,7 @@ module.exports = async function rotasAdmin(app) {
                 u.valor_centavos AS "valorCentavos",
                 to_char(u.periodo_fim, 'YYYY-MM-DD') AS "periodoFim",
                 to_char(u.proxima_cobranca, 'YYYY-MM-DD') AS "proximaCobranca"
-           FROM ultima u JOIN usuario us ON us.id = u.usuario_id
+           FROM ultima u JOIN usuario us ON us.id = u.usuario_id AND us.removido_em IS NULL
           WHERE (u.status = 'ativa' AND u.periodo_fim BETWEEN CURRENT_DATE AND CURRENT_DATE + 7)
              OR u.status = 'inadimplente'
           ORDER BY u.status = 'inadimplente' DESC, u.periodo_fim NULLS FIRST
@@ -275,7 +285,7 @@ module.exports = async function rotasAdmin(app) {
       q(`SELECT u.usuario_id AS id, us.nome, us.email, u.status,
                 to_char(u.periodo_fim, 'YYYY-MM-DD') AS "periodoFim",
                 to_char(u.cancelada_em, 'YYYY-MM-DD') AS "canceladaEm"
-           FROM ultima u JOIN usuario us ON us.id = u.usuario_id
+           FROM ultima u JOIN usuario us ON us.id = u.usuario_id AND us.removido_em IS NULL
           WHERE u.status IN ('cancelada', 'encerrada')
           ORDER BY u.atualizado_em DESC
           LIMIT ${LIM}`),
@@ -283,7 +293,7 @@ module.exports = async function rotasAdmin(app) {
                 u.valor_centavos AS "valorCentavos",
                 (SELECT to_char(max(r.data_ref), 'YYYY-MM-DD') FROM registro r
                   WHERE r.usuario_id = u.usuario_id AND r.removido_em IS NULL) AS "ultimaRega"
-           FROM ultima u JOIN usuario us ON us.id = u.usuario_id
+           FROM ultima u JOIN usuario us ON us.id = u.usuario_id AND us.removido_em IS NULL
           WHERE (u.status = 'ativa' OR (u.status = 'trial' AND u.trial_ate >= CURRENT_DATE))
             AND u.usuario_id IN (SELECT usuario_id FROM engaj)
           ORDER BY us.nome
@@ -291,14 +301,14 @@ module.exports = async function rotasAdmin(app) {
       // Vencimento próximo: ativa que vence nos próximos 7 dias.
       q(`SELECT u.usuario_id AS id, us.nome, us.email, u.status,
                 to_char(u.periodo_fim, 'YYYY-MM-DD') AS "periodoFim"
-           FROM ultima u JOIN usuario us ON us.id = u.usuario_id
+           FROM ultima u JOIN usuario us ON us.id = u.usuario_id AND us.removido_em IS NULL
           WHERE u.status = 'ativa' AND u.periodo_fim BETWEEN CURRENT_DATE AND CURRENT_DATE + 7
           ORDER BY u.periodo_fim
           LIMIT ${LIM}`),
       // Passou do vencimento: venceu e segue sem novo pagamento (para cobrar).
       q(`SELECT u.usuario_id AS id, us.nome, us.email, u.status,
                 to_char(u.periodo_fim, 'YYYY-MM-DD') AS "periodoFim"
-           FROM ultima u JOIN usuario us ON us.id = u.usuario_id
+           FROM ultima u JOIN usuario us ON us.id = u.usuario_id AND us.removido_em IS NULL
           WHERE u.status IN ('ativa', 'inadimplente') AND u.periodo_fim < CURRENT_DATE
           ORDER BY u.periodo_fim
           LIMIT ${LIM}`),

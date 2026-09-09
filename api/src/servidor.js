@@ -80,6 +80,15 @@ function criarApp() {
     return resumoAcesso(a, diaNoFuso(usuario.fuso));
   });
 
+  // Uma cobrança já PAGA é registro fiscal: a conta com pagamento não se exclui
+  // (nem pelo admin, nem pela pessoa). Pendente/recusada/expirada não conta.
+  app.decorate('temPagamentoFeito', async function (usuarioId) {
+    const n = await db.Cobranca.count({
+      where: { usuarioId, pagoEm: { [db.Sequelize.Op.ne]: null } },
+    });
+    return n > 0;
+  });
+
   // Guarda de rota de produto: exige assinatura usável. Use depois de
   // exigirLoginQualquer. 402 (Payment Required) para o app levar a assinar.
   app.decorate('exigirAssinatura', async function (req, reply) {

@@ -2336,6 +2336,7 @@
           })
           let msg = `${r.afetadas} ${r.afetadas === 1 ? 'conta' : 'contas'} ${VERBO[acao]}.`
           if (r.ignoradas) msg += ' Sua própria conta foi ignorada.'
+          if (r.comPagamento) msg += ` ${r.comPagamento} não excluída(s): têm pagamento registrado.`
           toast(msg)
           await carregarUsuarios()
         } catch (e) {
