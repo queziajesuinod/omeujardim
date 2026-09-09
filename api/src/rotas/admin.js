@@ -241,7 +241,18 @@ module.exports = async function rotasAdmin(app) {
       )`;
     const q = (sel) => sequelize.query(base + sel, { type: SELECT });
 
-    const [contadores, aRenovar, cancelaram, ativosEngajados] = await Promise.all([
+    // PIX pendentes (com txid): é sobre COBRANÇA, não assinatura, então sai do
+    // CTE `ultima`. Traz o id da cobrança (para o botão Conferir) e a identidade.
+    const pendentesSql = `
+      SELECT c.id, c.valor_centavos AS "valorCentavos", c.criado_em AS "criadoEm",
+             u.id AS "usuarioId", u.nome, u.email
+        FROM cobranca c JOIN usuario u ON u.id = c.usuario_id
+       WHERE c.status = 'pendente' AND c.metodo = 'pix' AND c.efi_txid IS NOT NULL
+         AND c.removido_em IS NULL
+       ORDER BY c.criado_em DESC
+       LIMIT ${LIM}`;
+
+    const [contadores, aRenovar, cancelaram, ativosEngajados, vencimentoProximo, vencidas, pendentes] = await Promise.all([
       q(`SELECT
            COUNT(*) FILTER (WHERE status = 'ativa' OR (status = 'trial' AND trial_ate >= CURRENT_DATE))::int AS usaveis,
            COUNT(*) FILTER (WHERE status = 'ativa')::int AS ativas,
@@ -277,9 +288,24 @@ module.exports = async function rotasAdmin(app) {
             AND u.usuario_id IN (SELECT usuario_id FROM engaj)
           ORDER BY us.nome
           LIMIT ${LIM}`),
+      // Vencimento próximo: ativa que vence nos próximos 7 dias.
+      q(`SELECT u.usuario_id AS id, us.nome, us.email, u.status,
+                to_char(u.periodo_fim, 'YYYY-MM-DD') AS "periodoFim"
+           FROM ultima u JOIN usuario us ON us.id = u.usuario_id
+          WHERE u.status = 'ativa' AND u.periodo_fim BETWEEN CURRENT_DATE AND CURRENT_DATE + 7
+          ORDER BY u.periodo_fim
+          LIMIT ${LIM}`),
+      // Passou do vencimento: venceu e segue sem novo pagamento (para cobrar).
+      q(`SELECT u.usuario_id AS id, us.nome, us.email, u.status,
+                to_char(u.periodo_fim, 'YYYY-MM-DD') AS "periodoFim"
+           FROM ultima u JOIN usuario us ON us.id = u.usuario_id
+          WHERE u.status IN ('ativa', 'inadimplente') AND u.periodo_fim < CURRENT_DATE
+          ORDER BY u.periodo_fim
+          LIMIT ${LIM}`),
+      sequelize.query(pendentesSql, { type: SELECT }),
     ]);
 
-    return { contadores, aRenovar, cancelaram, ativosEngajados };
+    return { contadores, aRenovar, cancelaram, ativosEngajados, vencimentoProximo, vencidas, pendentes };
   });
 
   /** Histórico de cobrança de uma conta, para o admin acompanhar pagamentos. */
@@ -343,6 +369,53 @@ module.exports = async function rotasAdmin(app) {
 
     const r = await aplicarPixPago(app.db, cobranca.efiTxid, verificado);
     return { ...r, statusEfi: verificado?.status || null };
+  });
+
+  /**
+   * Gera um PIX de cobrança para uma conta — o admin cobrando quem venceu.
+   * Devolve o copia-e-cola e o QR para o admin enviar (WhatsApp etc.). Reusa o
+   * MESMO caminho do PIX do app (efi.cobrarPix + cobrança 'pendente' com o txid):
+   * o pagamento só vira pago pelo webhook ou pelo botão Conferir, quando a Efí
+   * confirmar. Nunca credita aqui. Cobra o valor da assinatura da pessoa (preço
+   * congelado dela); se não tiver assinatura usável, cobra o preço vigente.
+   */
+  app.post('/admin/usuarios/:id/cobrar-pix', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    if (!efi.configurada()) {
+      return reply.code(502).send({ erro: 'efi_nao_configurada', mensagem: 'A Efí não está configurada neste ambiente.' });
+    }
+
+    const usuario = await Usuario.findByPk(id, { attributes: ['id', 'nome', 'email'] });
+    if (!usuario) return reply.code(404).send({ erro: 'conta_nao_encontrada' });
+
+    const p = efi.plano();
+    const assinatura = await app.db.Assinatura.findOne({
+      where: { usuarioId: id }, order: [['criado_em', 'DESC']],
+    });
+    const valor = assinatura && assinatura.status !== 'encerrada'
+      ? assinatura.valorCentavos
+      : (await precoVigente(app.db)).valorCentavos;
+
+    let cob;
+    try {
+      cob = await efi.cobrarPix({ valorCentavos: valor, cliente: { nome: usuario.nome } });
+    } catch (e) {
+      req.log.error({ efi: efi.motivoErro(e) }, 'falha ao gerar PIX de cobrança no painel');
+      return reply.code(502).send({ erro: 'falha_no_pix', mensagem: efi.motivoErro(e) });
+    }
+
+    // Amarra a cobrança a uma assinatura: reusa a última usável ou cria uma nova
+    // 'iniciada' (mesma regra do PIX do app). Nada murcha: não mexe no acesso atual.
+    let a = assinatura;
+    if (!a || ['encerrada', 'cancelada'].includes(a.status)) {
+      a = await app.db.Assinatura.create({ id: novoId(), usuarioId: id, metodo: 'pix', ciclo: p.ciclo, valorCentavos: valor, status: 'iniciada' });
+    }
+    await app.db.Cobranca.create({
+      id: novoId(), assinaturaId: a.id, usuarioId: id, metodo: 'pix',
+      valorCentavos: valor, status: 'pendente', efiTxid: cob.txid,
+    });
+    return { txid: cob.txid, copiaecola: cob.qrcode, imagemQrcode: cob.imagemQrcode, valorCentavos: valor };
   });
 
   // --- Preço do plano: versionado, com grandfathering ------------------------

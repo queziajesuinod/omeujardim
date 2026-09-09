@@ -338,9 +338,21 @@
       <div class="grade" id="ass-contadores"></div>
 
       <div class="cartao grafico" style="margin-top:18px">
-        <h2>A renovar ou em atenção</h2>
-        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">Ativos com cobrança nos próximos 7 dias e pagamentos pendentes.</p>
-        <div id="ass-renovar"></div>
+        <h2>Pagamentos pendentes</h2>
+        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">PIX aguardando confirmação. Se a pessoa já pagou e não caiu sozinho, use "Conferir na Efí".</p>
+        <div id="ass-pendentes"></div>
+      </div>
+
+      <div class="cartao grafico" style="margin-top:18px">
+        <h2>Vencimento próximo</h2>
+        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">Assinaturas ativas que vencem nos próximos 7 dias.</p>
+        <div id="ass-proximo"></div>
+      </div>
+
+      <div class="cartao grafico" style="margin-top:18px">
+        <h2>Passou do vencimento</h2>
+        <p style="color:var(--ink-3);font-size:13px;margin:-10px 0 16px">Venceram e seguem sem novo pagamento. Gere um PIX para cobrar.</p>
+        <div id="ass-vencidas"></div>
       </div>
 
       <div class="cartao grafico" style="margin-top:18px">
@@ -778,6 +790,37 @@
       + '</tbody></table>';
   }
 
+  // PIX pendentes: é sobre COBRANÇA (traz o id da cobrança para o Conferir), não
+  // assinatura — por isso não usa linhasAss.
+  function linhasPendentes(itens) {
+    if (!itens || !itens.length) return '<p style="color:var(--ink-3);font-size:13px">Nenhum PIX pendente agora.</p>';
+    return '<table><thead><tr><th>Pessoa</th><th>Valor</th><th>Criado</th><th></th></tr></thead><tbody>'
+      + itens.map((c) => {
+          const nome = c.nome || '—';
+          const data = String(c.criadoEm || '').slice(0, 10);
+          return '<tr>'
+            + `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${c.email || ''}</div></td>`
+            + `<td>${emReais(c.valorCentavos)}</td>`
+            + `<td>${data}</td>`
+            + `<td><span class="acao-link" data-conferir="${c.id}">Conferir na Efí</span></td></tr>`;
+        }).join('')
+      + '</tbody></table>';
+  }
+
+  function linhasVencidas(itens) {
+    if (!itens || !itens.length) return '<p style="color:var(--ink-3);font-size:13px">Ninguém vencido agora.</p>';
+    return '<table><thead><tr><th>Pessoa</th><th>Situação</th><th>Venceu em</th><th></th></tr></thead><tbody>'
+      + itens.map((u) => {
+          const nome = u.nome || '—';
+          return '<tr>'
+            + `<td style="color:var(--ink)">${nome}<div style="color:var(--ink-3);font-size:12px">${u.email || ''}</div></td>`
+            + `<td>${chipAssinatura(u.status)}</td>`
+            + `<td style="color:var(--alert)">${u.periodoFim || '—'}</td>`
+            + `<td><span class="acao-link" data-cobrar="${u.id}" data-nome="${esc(nome)}">Cobrar por PIX</span></td></tr>`;
+        }).join('')
+      + '</tbody></table>';
+  }
+
   async function renderAssinaturas() {
     const d = await api('/v1/admin/assinaturas/resumo');
     const cont = d.contadores || {};
@@ -787,8 +830,15 @@
     ).join('');
     $('#ass-contadores').querySelectorAll('.valor').forEach((el) => animarNumero(el, el.dataset.alvo));
 
-    $('#ass-renovar').innerHTML = linhasAss(d.aRenovar, 'Próxima cobrança',
-      (u) => u.status === 'inadimplente' ? '<span style="color:var(--alert)">pagamento pendente</span>' : (u.proximaCobranca || u.periodoFim || '—'));
+    $('#ass-pendentes').innerHTML = linhasPendentes(d.pendentes);
+    $('#ass-pendentes').querySelectorAll('[data-conferir]').forEach((b) => {
+      b.addEventListener('click', () => conferirCobranca(b.dataset.conferir, b, renderAssinaturas));
+    });
+    $('#ass-proximo').innerHTML = linhasAss(d.vencimentoProximo, 'Vence em', (u) => u.periodoFim || '—');
+    $('#ass-vencidas').innerHTML = linhasVencidas(d.vencidas);
+    $('#ass-vencidas').querySelectorAll('[data-cobrar]').forEach((b) => {
+      b.addEventListener('click', () => cobrarPix(b.dataset.cobrar, b.dataset.nome || '', b));
+    });
     $('#ass-cancelaram').innerHTML = linhasAss(d.cancelaram, 'Acesso até',
       (u) => u.periodoFim || (u.canceladaEm ? 'cancelou em ' + u.canceladaEm : '—'));
     $('#ass-engajados').innerHTML = linhasAss(d.ativosEngajados, 'Última rega',
@@ -828,7 +878,7 @@
         : '<p class="dtexto">Nenhuma cobrança ainda.</p>';
       comFechar(cab + linhas);
       $('#dialogo').querySelectorAll('[data-conferir]').forEach((b) => {
-        b.addEventListener('click', () => conferirCobranca(b.dataset.conferir, id, nome, b));
+        b.addEventListener('click', () => conferirCobranca(b.dataset.conferir, b, () => verCobrancas(id, nome)));
       });
     } catch (e) {
       comFechar('<p class="dtexto">Não consegui carregar os pagamentos.</p>');
@@ -844,7 +894,7 @@
     valor_insuficiente: 'O valor pago é menor que o da cobrança.',
     txid_desconhecido: 'A Efí não reconheceu esse PIX.',
   };
-  async function conferirCobranca(cobrancaId, usuarioId, nome, botao) {
+  async function conferirCobranca(cobrancaId, botao, aoConfirmar) {
     const antes = botao.textContent;
     botao.textContent = 'Conferindo…';
     botao.style.pointerEvents = 'none';
@@ -852,7 +902,7 @@
       const r = await api('/v1/admin/cobrancas/' + cobrancaId + '/conferir', { method: 'POST', body: '{}' });
       if (r.acao === 'pago' || r.acao === 'repetido') {
         toast('Pagamento confirmado.');
-        verCobrancas(usuarioId, nome);   // reabre o diálogo já com "Pago"
+        if (aoConfirmar) aoConfirmar();   // no diálogo: reabre; na lista: recarrega
       } else {
         toast(MOTIVO_CONFERIR[r.motivo] || ('Ainda pendente' + (r.statusEfi ? ' (' + r.statusEfi + ')' : '')), 'erro');
         botao.textContent = antes;
@@ -863,6 +913,37 @@
       botao.textContent = antes;
       botao.style.pointerEvents = '';
     }
+  }
+
+  // Gera um PIX de cobrança para um vencido e mostra o copia-e-cola/QR para
+  // enviar. O crédito só acontece quando a Efí confirmar (webhook ou Conferir).
+  async function cobrarPix(usuarioId, nome, botao) {
+    const antes = botao.textContent;
+    botao.textContent = 'Gerando…';
+    botao.style.pointerEvents = 'none';
+    try {
+      const r = await api('/v1/admin/usuarios/' + usuarioId + '/cobrar-pix', { method: 'POST', body: '{}' });
+      mostrarPix(nome, r);
+    } catch (e) {
+      toast((e.dados && e.dados.mensagem) || 'Não consegui gerar o PIX.', 'erro');
+    } finally {
+      botao.textContent = antes;
+      botao.style.pointerEvents = '';
+    }
+  }
+
+  function mostrarPix(nome, r) {
+    const titulo = `<h2>PIX para ${nome}</h2>`;
+    const fechar = '<div class="dacoes"><button data-r="fechar">Fechar</button></div>';
+    const img = r.imagemQrcode
+      ? `<img src="${r.imagemQrcode}" alt="QR do PIX" style="width:200px;height:200px;display:block;margin:0 auto 14px;border-radius:8px">`
+      : '';
+    const corpo = `<p class="dtexto">Valor ${emReais(r.valorCentavos)}. Envie o código abaixo para a pessoa pagar; ele vira "pago" quando a Efí confirmar.</p>`
+      + img
+      + `<textarea readonly style="width:100%;min-height:84px;font-size:12px;font-family:monospace" onclick="this.select()">${r.copiaecola || ''}</textarea>`;
+    $('#dialogo').innerHTML = titulo + corpo + fechar;
+    $('#dialogo').querySelector('[data-r="fechar"]').addEventListener('click', fecharDialogo);
+    $('#overlay').classList.remove('oculto');
   }
 
   const CHIP_ASSINATURA = {

@@ -16,6 +16,7 @@ import { useSessao } from '../lib/sessao';
 import { useLarguraConteudo } from '../lib/layout';
 import { lerPreferencia, gravarPreferencia } from '../lib/preferencia';
 import { ErroApi } from '../lib/api';
+import { podeInstalar, instalar } from '../lib/lembrete';
 import { espaco, forma, tipo, fontes } from '../tema/tema';
 
 /** A marca: o jardim fechado (o arco) com o broto dentro. */
@@ -49,6 +50,7 @@ export default function Entrar() {
   const [lembrar, setLembrar] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
+  const [instalavel, setInstalavel] = useState(false);
 
   // Preenche o e-mail que ficou guardado, se a pessoa pediu para lembrar.
   // A SENHA nunca é guardada: senha em preferência (localStorage na web) é o
@@ -64,6 +66,30 @@ export default function Entrar() {
       }
     })();
   }, []);
+
+  // Adicionar à tela inicial (PWA). O beforeinstallprompt é capturado no
+  // _layout; aqui só revelamos o botão quando ele existir. O evento pode já ter
+  // chegado antes desta tela montar (checamos agora) ou chegar depois (ouvimos).
+  // No app nativo e no iOS/Safari, podeInstalar() é sempre falso e nada aparece.
+  useEffect(() => {
+    setInstalavel(podeInstalar());
+    if (typeof window === 'undefined') return;
+    const revelar = () => setInstalavel(true);
+    const esconder = () => setInstalavel(false);
+    window.addEventListener('beforeinstallprompt', revelar);
+    window.addEventListener('appinstalled', esconder);
+    // Reforço, caso o evento tenha chegado entre o mount e o registro acima.
+    const t = setTimeout(() => setInstalavel(podeInstalar()), 1500);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', revelar);
+      window.removeEventListener('appinstalled', esconder);
+      clearTimeout(t);
+    };
+  }, []);
+
+  async function adicionarNaTela() {
+    if (await instalar()) setInstalavel(false);
+  }
 
   async function enviar() {
     setErro(null);
@@ -143,6 +169,12 @@ export default function Entrar() {
           <Botao bloco onPress={enviar} carregando={carregando} desabilitado={!podeEnviar}>
             Entrar
           </Botao>
+
+          {instalavel ? (
+            <Botao variante="vazado" bloco onPress={adicionarNaTela}>
+              Adicionar à tela inicial
+            </Botao>
+          ) : null}
         </View>
 
         <View style={{ flexGrow: 1 }} />
