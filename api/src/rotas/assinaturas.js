@@ -21,6 +21,10 @@ module.exports = async function rotasAssinaturas(app) {
   const atual = (usuarioId) => Assinatura.findOne({ where: { usuarioId }, order: [['criado_em', 'DESC']] });
   const soDigitos = (s) => String(s || '').replace(/\D/g, '');
 
+  // Opção (b) da troca de método: só deixa PIX -> cartão quando o PIX está a
+  // esta distância (em dias) do vencimento, ou já venceu. Evita pagar duas vezes.
+  const JANELA_TROCA_DIAS = Number(process.env.TROCA_PIX_CARTAO_JANELA_DIAS || 3);
+
   /** Estado da assinatura + o plano vigente + o histórico de cobranças. */
   app.get('/assinatura', async (req) => {
     const usuario = await Usuario.findByPk(req.user.sub, { attributes: ['id', 'fuso', 'papeis'] });
@@ -90,6 +94,21 @@ module.exports = async function rotasAssinaturas(app) {
     // uma migração de preço marcada pelo admin.
     const vigente = await precoVigente(app.db);
 
+    // Opção (b) da troca de método: quem já tem PIX pago com dias sobrando não
+    // troca para cartão agora (senão pagaria duas vezes). Só perto do vencimento.
+    const anterior = await atual(req.user.sub);
+    if (anterior && anterior.metodo === 'pix' && anterior.status === 'ativa' && anterior.periodoFim) {
+      const lim = new Date(diaNoFuso(usuario.fuso) + 'T00:00:00Z');
+      lim.setUTCDate(lim.getUTCDate() + JANELA_TROCA_DIAS);
+      if (String(anterior.periodoFim) > lim.toISOString().slice(0, 10)) {
+        return reply.code(409).send({
+          erro: 'pix_ainda_vigente',
+          mensagem: `Você já tem acesso por PIX até ${anterior.periodoFim}. Troque para cartão perto do vencimento.`,
+          periodoFim: anterior.periodoFim,
+        });
+      }
+    }
+
     let r;
     try {
       r = await efi.assinarCartao({
@@ -111,7 +130,6 @@ module.exports = async function rotasAssinaturas(app) {
     const hoje = diaNoFuso(usuario.fuso);
     // Se a assinatura anterior tinha uma assinatura na Efí, cancela para não
     // cobrar dois valores (troca de preço = nova assinatura no valor novo).
-    const anterior = await atual(req.user.sub);
     if (anterior?.efiAssinaturaId && anterior.efiAssinaturaId !== r.efiAssinaturaId && efi.configurada()) {
       try { await efi.cancelar(anterior.efiAssinaturaId); }
       catch (e) { req.log.error({ erro: typeof e === 'string' ? e : e.message }, 'falha ao cancelar assinatura antiga na Efí'); }
@@ -177,6 +195,25 @@ module.exports = async function rotasAssinaturas(app) {
       valorCentavos: valor, status: 'pendente', efiTxid: cob.txid,
     });
     return reply.code(201).send({ txid: cob.txid, qrcode: cob.qrcode, imagemQrcode: cob.imagemQrcode });
+  });
+
+  /**
+   * Troca a forma de pagamento de cartão para PIX. Cancela a recorrência na Efí
+   * (para o auto-débito, senão cobraria duas vezes), MANTÉM o acesso até o fim do
+   * período já pago e passa o método para PIX — no próximo ciclo a pessoa gera um
+   * PIX. Nada murcha: trocar de método não derruba o acesso atual.
+   */
+  app.post('/assinatura/trocar-para-pix', async (req, reply) => {
+    const a = await atual(req.user.sub);
+    if (!a || !['ativa', 'inadimplente'].includes(a.status)) {
+      return reply.code(404).send({ erro: 'sem_assinatura_ativa' });
+    }
+    if (a.efiAssinaturaId && efi.configurada()) {
+      try { await efi.cancelar(a.efiAssinaturaId); }
+      catch (e) { req.log.error({ erro: typeof e === 'string' ? e : e.message }, 'falha ao cancelar recorrência ao trocar para PIX'); }
+    }
+    await a.update({ metodo: 'pix', efiAssinaturaId: null });
+    return { ok: true, status: a.status, metodo: 'pix', periodoFim: a.periodoFim };
   });
 
   /** A pessoa cancela a própria assinatura. Acesso até o fim do período pago. */

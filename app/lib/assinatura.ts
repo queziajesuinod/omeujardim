@@ -23,6 +23,7 @@ export type Cobranca = {
 export type Assinatura = {
   status: StatusAssinatura;
   usavel: boolean;
+  metodo: 'cartao' | 'pix' | null;
   motivo: 'sem_assinatura' | 'pendente' | 'inadimplente' | 'encerrada' | null;
   periodoFim: string | null;
   trialAte: string | null;
@@ -36,6 +37,13 @@ export type Assinatura = {
 
 export function reais(centavos?: number | null): string {
   return ((centavos ?? 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+/** Data em dd/mm/aaaa. Aceita 'YYYY-MM-DD' ou ISO com hora; vazio vira ''. */
+export function dataBR(iso?: string | null): string {
+  if (!iso) return '';
+  const [a, m, d] = String(iso).slice(0, 10).split('-');
+  return d && m && a ? `${d}/${m}/${a}` : '';
 }
 
 export function useAssinatura() {
@@ -81,4 +89,11 @@ export function pagarPix(cpf?: string) {
 
 export function cancelarAssinatura() {
   return chamar('/v1/assinatura/cancelar', 'POST', {});
+}
+
+/** Troca cartão -> PIX: cancela a recorrência e mantém o acesso até vencer. */
+export function trocarParaPix() {
+  return chamar('/v1/assinatura/trocar-para-pix', 'POST', {}) as Promise<{
+    ok: boolean; status: string; metodo: 'pix'; periodoFim: string | null;
+  }>;
 }

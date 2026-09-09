@@ -5,7 +5,7 @@
 // mostra o valor, o ciclo e a data da 1ª cobrança antes de confirmar (CDC).
 // Ver PLANO-ASSINATURAS.md.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Rect } from 'react-native-svg';
@@ -88,6 +88,16 @@ export default function Assinar() {
 
   const dados = assinatura.data;
   const trocaPreco = !!dados?.precoNovoCentavos;
+
+  // Depois de mostrar o QR do PIX, revalida a assinatura de tempos em tempos. O
+  // polling do servidor confirma o pagamento em ~1 min; quando a assinatura vira
+  // usável, o guard do _layout leva para /hoje sozinho. Para em 15 min.
+  useEffect(() => {
+    if (!pix) return;
+    const tique = setInterval(() => invalidar(), 5000);
+    const limite = setTimeout(() => clearInterval(tique), 15 * 60 * 1000);
+    return () => { clearInterval(tique); clearTimeout(limite); };
+  }, [pix]);
   // O preço a cobrar: numa troca marcada, o valor novo; senão, o vigente do plano.
   const valorMostrar = trocaPreco ? dados!.precoNovoCentavos! : (dados?.plano.valorCentavos ?? null);
   const podeTrial = dados?.status === 'nenhuma' && !trocaPreco;

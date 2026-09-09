@@ -17,6 +17,11 @@ self.addEventListener('activate', (evento) => {
   evento.waitUntil(self.clients.claim());
 });
 
+// O Chrome só considera o app instalável (e dispara o beforeinstallprompt) se o
+// service worker tiver um handler de fetch. Este é de PROPÓSITO um no-op: não
+// chama respondWith, então a rede segue normal — sem cache de HTML (ver acima).
+self.addEventListener('fetch', () => {});
+
 self.addEventListener('push', (evento) => {
   let dados = {};
   try {

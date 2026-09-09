@@ -63,6 +63,7 @@ function resumoAcesso(a, hoje) {
   return {
     status: a ? a.status : 'nenhuma',
     usavel,
+    metodo: a?.metodo ?? null,
     motivo: usavel ? null : motivoBloqueio(a, hoje),
     periodoFim: a?.periodoFim ?? null,
     trialAte: a?.trialAte ?? null,

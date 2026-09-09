@@ -179,12 +179,35 @@ async function principal() {
     app.log.info('lembretes inline ligados (a cada minuto)');
   }
 
+  // Conferência de PIX pendentes: rede de segurança para quando o webhook não
+  // chega. Ao subir e a cada minuto (PIX_POLL_MIN). Em deploy com mais de uma
+  // instância, prefira um cron externo (`npm run conferir-pix`). Desligue com
+  // PIX_POLL_INLINE=false. Só consulta a Efí quando há PIX pendente recente.
+  let relogioPix;
+  if (process.env.PIX_POLL_INLINE !== 'false') {
+    const { conferirPixPendentes } = require('./lib/conferir-pix');
+    const rodarPix = async () => {
+      try {
+        const n = await conferirPixPendentes(db, app.log);
+        if (n) app.log.info({ confirmados: n }, 'pix confirmados por polling');
+      } catch (e) {
+        app.log.error({ erro: e.message }, 'falha no polling de pix');
+      }
+    };
+    rodarPix();
+    const min = Math.max(1, Number(process.env.PIX_POLL_MIN || 1));
+    relogioPix = setInterval(rodarPix, min * 60 * 1000);
+    relogioPix.unref?.();
+    app.log.info(`polling de PIX ligado (a cada ${min} min)`);
+  }
+
   for (const sinal of ['SIGINT', 'SIGTERM']) {
     process.on(sinal, async () => {
       app.log.info('encerrando');
       clearInterval(relogioExpurgo);
       clearInterval(relogioFechamento);
       if (relogioLembretes) clearInterval(relogioLembretes);
+      if (relogioPix) clearInterval(relogioPix);
       await app.close();
       await db.sequelize.close();
       process.exit(0);

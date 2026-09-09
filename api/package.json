@@ -17,6 +17,7 @@
     "semear:desfazer": "sequelize-cli db:seed:undo:all",
     "expurgar": "node src/tarefas/expurgar.js",
     "fechar-assinaturas": "node src/tarefas/fechar-assinaturas.js",
+    "conferir-pix": "node src/tarefas/conferir-pix.js",
     "trilhas": "node src/tarefas/importar-trilhas.js",
     "vapid": "node src/tarefas/gerar-vapid.js",
     "lembretes": "node src/tarefas/enviar-lembretes.js",

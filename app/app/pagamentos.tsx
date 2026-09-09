@@ -9,13 +9,9 @@ import { Cabecalho } from '../componentes/Cabecalho';
 import { BarraNavegacao } from '../componentes/BarraNavegacao';
 import { useCores } from '../lib/tema-contexto';
 import { useLarguraConteudo } from '../lib/layout';
-import { useAssinatura, reais, type Cobranca } from '../lib/assinatura';
+import { useAssinatura, reais, dataBR, type Cobranca } from '../lib/assinatura';
 import { voltar } from '../lib/voltar';
 import { espaco, forma, tipo } from '../tema/tema';
-
-function dataLonga(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
-}
 
 const METODO: Record<Cobranca['metodo'], string> = { cartao: 'Cartão', pix: 'PIX' };
 const STATUS: Record<Cobranca['status'], string> = {
@@ -74,7 +70,7 @@ export default function Pagamentos() {
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={[tipo.u2, { color: c.ink }]}>{reais(cob.valorCentavos)}</Text>
                     <Text style={[tipo.u3, { color: c.ink3, marginTop: 2 }]}>
-                      {METODO[cob.metodo]} · {dataLonga(cob.pagoEm ?? cob.criado_em)}
+                      {METODO[cob.metodo]} · {dataBR(cob.pagoEm ?? cob.criado_em)}
                     </Text>
                   </View>
                   <Text style={[tipo.u3, { color: corStatus(cob.status) }]}>{STATUS[cob.status]}</Text>

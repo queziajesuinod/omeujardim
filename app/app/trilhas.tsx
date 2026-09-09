@@ -22,7 +22,8 @@ function dataCurta(iso: string) {
 }
 
 function dataCriacao(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
+  const [a, m, d] = String(iso).slice(0, 10).split('-');
+  return d && m && a ? `${d}/${m}/${a}` : '';
 }
 
 export default function Trilhas() {

@@ -51,6 +51,7 @@ export default function Entrar() {
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [instalavel, setInstalavel] = useState(false);
+  const [dicaIOS, setDicaIOS] = useState(false);
 
   // Preenche o e-mail que ficou guardado, se a pessoa pediu para lembrar.
   // A SENHA nunca é guardada: senha em preferência (localStorage na web) é o
@@ -74,6 +75,14 @@ export default function Entrar() {
   useEffect(() => {
     setInstalavel(podeInstalar());
     if (typeof window === 'undefined') return;
+    // iOS/Safari não tem beforeinstallprompt: se não está instalado, mostramos a
+    // instrução manual (Compartilhar > Adicionar à Tela de Início).
+    const ua = navigator.userAgent || '';
+    const ehIOS = /iphone|ipad|ipod/i.test(ua);
+    const instalado =
+      window.matchMedia?.('(display-mode: standalone)')?.matches ||
+      (navigator as any).standalone === true;
+    if (ehIOS && !instalado) setDicaIOS(true);
     const revelar = () => setInstalavel(true);
     const esconder = () => setInstalavel(false);
     window.addEventListener('beforeinstallprompt', revelar);
@@ -174,6 +183,10 @@ export default function Entrar() {
             <Botao variante="vazado" bloco onPress={adicionarNaTela}>
               Adicionar à tela inicial
             </Botao>
+          ) : dicaIOS ? (
+            <Text style={[tipo.u3, { color: c.ink2, textAlign: 'center' }]}>
+              Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".
+            </Text>
           ) : null}
         </View>
 

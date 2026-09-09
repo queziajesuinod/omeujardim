@@ -19,7 +19,7 @@ import { useLarguraConteudo } from '../lib/layout';
 import { voltar } from '../lib/voltar';
 import { useSessao } from '../lib/sessao';
 import { useEu, exportarDados, useRevogarConsentimento, useExcluirConta, useAtualizarInicioDia } from '../lib/conta';
-import { useAssinatura, useInvalidarAssinatura, cancelarAssinatura, reais } from '../lib/assinatura';
+import { useAssinatura, useInvalidarAssinatura, cancelarAssinatura, trocarParaPix, reais, dataBR } from '../lib/assinatura';
 import { salvarInicioDia, horaDe } from '../lib/inicio-dia';
 import {
   suportaPush, estadoLembrete, ligarLembrete, desligarLembrete,
@@ -165,6 +165,14 @@ function SecaoLembretes() {
   );
 }
 
+// Opção (b): PIX -> cartão só perto do vencimento (o backend também valida).
+function trocaCartaoLiberada(periodoFim: string | null): boolean {
+  if (!periodoFim) return true;
+  const lim = new Date();
+  lim.setDate(lim.getDate() + 3);
+  return periodoFim <= lim.toISOString().slice(0, 10);
+}
+
 function SecaoAssinatura() {
   const c = useCores();
   const assinatura = useAssinatura();
@@ -176,9 +184,9 @@ function SecaoAssinatura() {
 
   const podeCancelar = ['trial', 'ativa', 'inadimplente'].includes(d.status);
   const rotulo =
-    d.status === 'trial' ? `Em teste grátis até ${d.trialAte}`
-    : d.status === 'ativa' ? `Ativa · próxima cobrança em ${d.proximaCobranca}`
-    : d.status === 'cancelada' ? `Cancelada · acesso até ${d.periodoFim}`
+    d.status === 'trial' ? `Em teste grátis até ${dataBR(d.trialAte)}`
+    : d.status === 'ativa' ? `Ativa · próxima cobrança em ${dataBR(d.proximaCobranca)}`
+    : d.status === 'cancelada' ? `Cancelada · acesso até ${dataBR(d.periodoFim)}`
     : d.status === 'inadimplente' ? 'Pagamento pendente'
     : d.status === 'iniciada' ? 'Aguardando pagamento'
     : 'Sem assinatura';
@@ -186,6 +194,12 @@ function SecaoAssinatura() {
   async function cancelar() {
     setOcupado(true);
     try { await cancelarAssinatura(); invalidar(); assinatura.refetch(); setConfirmando(false); }
+    finally { setOcupado(false); }
+  }
+
+  async function passarParaPix() {
+    setOcupado(true);
+    try { await trocarParaPix(); invalidar(); assinatura.refetch(); }
     finally { setOcupado(false); }
   }
 
@@ -207,6 +221,26 @@ function SecaoAssinatura() {
         <Text style={[tipo.u3, { color: c.ink2, textAlign: 'center', paddingVertical: espaco.e2 }]}>Ver histórico de pagamentos</Text>
       </Pressable>
 
+      {/* Trocar forma de pagamento. Cartão recorrente -> PIX cancela o auto-débito
+          e mantém o acesso; PIX -> cartão só perto do vencimento (evita pagar 2x). */}
+      {d.metodo === 'cartao' && ['ativa', 'inadimplente'].includes(d.status) ? (
+        <Pressable onPress={passarParaPix} disabled={ocupado}>
+          <Text style={[tipo.u3, { color: c.ink2, textAlign: 'center', paddingVertical: espaco.e2 }]}>
+            {ocupado ? 'Trocando…' : 'Passar para PIX (pagar mês a mês)'}
+          </Text>
+        </Pressable>
+      ) : d.metodo === 'pix' && d.status === 'ativa' ? (
+        trocaCartaoLiberada(d.periodoFim) ? (
+          <Pressable onPress={() => router.push('/assinar')}>
+            <Text style={[tipo.u3, { color: c.brand, textAlign: 'center', paddingVertical: espaco.e2 }]}>Passar para cartão (cobrança automática)</Text>
+          </Pressable>
+        ) : (
+          <Text style={[tipo.u4, { color: c.ink3, textAlign: 'center', paddingVertical: espaco.e2 }]}>
+            Para trocar para cartão, volte perto do vencimento ({dataBR(d.periodoFim)}).
+          </Text>
+        )
+      ) : null}
+
       {d.precoNovoCentavos ? (
         <Pressable onPress={() => router.push('/assinar')}>
           <Text style={[tipo.u2, { color: c.brand, textAlign: 'center', paddingVertical: espaco.e2 }]}>Confirmar novo valor</Text>
@@ -221,7 +255,7 @@ function SecaoAssinatura() {
         ) : (
           <View style={[estilos.cartao, { borderColor: c.line }]}>
             <Text style={[tipo.u3, { color: c.ink2 }]}>
-              As cobranças param agora e o acesso segue até {d.periodoFim ?? 'o fim do período'}. Depois disso o jardim entra em repouso.
+              As cobranças param agora e o acesso segue até {dataBR(d.periodoFim) || 'o fim do período'}. Depois disso o jardim entra em repouso.
             </Text>
             <View style={{ flexDirection: 'row', gap: espaco.e5, marginTop: espaco.e3 }}>
               <Pressable onPress={cancelar} disabled={ocupado}>
