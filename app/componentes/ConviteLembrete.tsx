@@ -12,29 +12,38 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Botao } from './Botao';
 import { Broto } from './Broto';
 import { useCores } from '../lib/tema-contexto';
-import { estadoLembrete, ligarLembrete, podeInstalar, instalar, suportaPush } from '../lib/lembrete';
+import {
+  estadoLembrete, ligarLembrete, podeInstalar, instalar, suportaPush,
+  ehDispositivoApple, estaInstalado,
+} from '../lib/lembrete';
 import { espaco, forma, tipo } from '../tema/tema';
+
+// 'ligar': dá para pedir a permissão aqui (Android/desktop, ou iPhone já
+// instalado). 'instalar-ios': iPhone na aba do navegador, onde o Web Push só
+// existe depois de adicionar à Tela de Início — então guiamos a instalação em
+// vez de um botão que não faria nada. 'nada': já ligado, bloqueado ou sem
+// suporte; some sem aparecer.
+type Modo = 'carregando' | 'ligar' | 'instalar-ios' | 'nada';
 
 export function ConviteLembrete({ aoFechar }: { aoFechar: () => void }) {
   const c = useCores();
-  const [pronto, setPronto] = useState(false);
+  const [modo, setModo] = useState<Modo>('carregando');
   const [ocupado, setOcupado] = useState(false);
   const [recado, setRecado] = useState<string | null>(null);
 
-  // Só faz sentido convidar quem pode e ainda não ligou. Se já está ligado,
-  // negado ou indisponível, fecha sem aparecer.
   useEffect(() => {
     let vivo = true;
     (async () => {
       const estado = await estadoLembrete();
       if (!vivo) return;
-      if (estado === 'desligado' && suportaPush) setPronto(true);
-      else aoFechar();
+      if (suportaPush && estado === 'desligado') setModo('ligar');
+      else if (!suportaPush && ehDispositivoApple() && !estaInstalado()) setModo('instalar-ios');
+      else { setModo('nada'); aoFechar(); }
     })();
     return () => { vivo = false; };
   }, []);
 
-  if (!pronto) return null;
+  if (modo === 'carregando' || modo === 'nada') return null;
 
   async function ligar() {
     setOcupado(true);
@@ -42,7 +51,7 @@ export function ConviteLembrete({ aoFechar }: { aoFechar: () => void }) {
     try {
       const estado = await ligarLembrete();
       if (estado === 'ligado') {
-        setRecado('Pronto. Vamos te chamar no horário, sem cobrança.');
+        setRecado('Pronto. Vamos te lembrar no horário, sem cobrança.');
         setTimeout(aoFechar, 1600);
       } else if (estado === 'negado') {
         setRecado('O navegador bloqueou os avisos. Dá para reativar nas permissões do site.');
@@ -58,25 +67,42 @@ export function ConviteLembrete({ aoFechar }: { aoFechar: () => void }) {
     <View style={[estilos.cartao, { backgroundColor: c.surface, borderColor: c.line }]}>
       <Broto cor={c.brand} tamanho={40} />
       <Text style={[tipo.d4, { color: c.ink, marginTop: espaco.e3 }]}>Um lembrete gentil?</Text>
-      <Text style={[tipo.l2, { color: c.ink2, marginTop: espaco.e2 }]}>
-        Você já regou três vezes. Se quiser, a gente te chama uma vez por dia, no
-        horário que você escolher nas práticas. A prévia nunca mostra o que você
-        escreve; só um toque para voltar ao jardim.
-      </Text>
 
-      {recado ? (
-        <Text style={[tipo.u3, { color: c.brand, marginTop: espaco.e3 }]}>{recado}</Text>
-      ) : null}
-
-      <View style={{ marginTop: espaco.e4, gap: espaco.e3 }}>
-        <Botao bloco onPress={ligar} carregando={ocupado}>Ligar lembrete</Botao>
-        {podeInstalar() ? (
-          <Botao variante="vazado" onPress={() => instalar()}>Instalar o app na tela inicial</Botao>
-        ) : null}
-        <Pressable onPress={aoFechar}>
-          <Text style={[tipo.u3, { color: c.ink3, textAlign: 'center' }]}>Agora não</Text>
-        </Pressable>
-      </View>
+      {modo === 'ligar' ? (
+        <>
+          <Text style={[tipo.l2, { color: c.ink2, marginTop: espaco.e2 }]}>
+            Se quiser, a gente lembra das suas práticas uma vez por dia, no horário
+            que você escolher. É só um lembrete, nunca uma cobrança; a prévia nunca
+            mostra o que você escreve.
+          </Text>
+          {recado ? (
+            <Text style={[tipo.u3, { color: c.brand, marginTop: espaco.e3 }]}>{recado}</Text>
+          ) : null}
+          <View style={{ marginTop: espaco.e4, gap: espaco.e3 }}>
+            <Botao bloco onPress={ligar} carregando={ocupado}>Ligar lembrete</Botao>
+            {podeInstalar() ? (
+              <Botao variante="vazado" onPress={() => instalar()}>Instalar o app na tela inicial</Botao>
+            ) : null}
+            <Pressable onPress={aoFechar}>
+              <Text style={[tipo.u3, { color: c.ink3, textAlign: 'center' }]}>Agora não</Text>
+            </Pressable>
+          </View>
+        </>
+      ) : (
+        <>
+          <Text style={[tipo.l2, { color: c.ink2, marginTop: espaco.e2 }]}>
+            No iPhone, o lembrete só chega com o app na Tela de Início. Abra este
+            site no Safari, toque em Compartilhar e depois em Adicionar à Tela de
+            Início. Abra o app por ali e ligue o lembrete. É só um lembrete das suas
+            práticas, no horário que você escolher, nunca uma cobrança.
+          </Text>
+          <View style={{ marginTop: espaco.e4 }}>
+            <Pressable onPress={aoFechar}>
+              <Text style={[tipo.u3, { color: c.ink3, textAlign: 'center' }]}>Entendi</Text>
+            </Pressable>
+          </View>
+        </>
+      )}
     </View>
   );
 }

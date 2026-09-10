@@ -10,6 +10,16 @@ export type EstadoLembrete = 'ligado' | 'desligado' | 'negado' | 'indisponivel';
 
 export const suportaPush = false;
 
+// Só fazem sentido na web (ver lembrete.web.ts). No nativo, o app já é
+// "instalado" e não há distinção de navegador; ficam aqui para a interface bater.
+export function ehDispositivoApple(): boolean {
+  return false;
+}
+
+export function estaInstalado(): boolean {
+  return true;
+}
+
 export async function estadoLembrete(): Promise<EstadoLembrete> {
   return 'indisponivel';
 }

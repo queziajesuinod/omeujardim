@@ -21,7 +21,6 @@
 
 require('dotenv').config({ path: require('node:path').resolve(__dirname, '../../../.env') });
 
-const { Op } = require('sequelize');
 const db = require('../db/models');
 const { horarioDoLembrete, textoDoLembrete } = require('../lib/lembrete');
 const push = require('../lib/push');
@@ -29,9 +28,17 @@ const whatsapp = require('../lib/whatsapp');
 
 const DIAS = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
-// Horário base do lembrete de quem participa de uma trilha mas não marcou
-// horário em nenhuma prática. Deslocado por pessoa como os demais.
-const HORA_TRILHA = process.env.LEMBRETE_TRILHA_HORA || '07:00';
+// Minutos entre o "Meu dia começa às" (inicioDoDia) da pessoa e o lembrete. Foi
+// a decisão: um aviso só, logo depois do início do dia, sem depender de horário
+// por prática (que não tem interface). Ver PLANO/CLAUDE se um dia virar ajuste.
+const ATRASO_LEMBRETE_MIN = 20;
+
+/** Soma minutos a um "HH:MM", com a volta da meia-noite. */
+function somarMinutos(hhmm, n) {
+  const [h, m] = hhmm.split(':').map(Number);
+  const t = (((h * 60 + m + n) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
 
 /** Partes do relógio local de uma pessoa, no fuso dela. */
 function partesLocais(fuso, quando) {
@@ -119,7 +126,7 @@ async function rodar(agora = new Date()) {
   // Duas fontes de lembrete: práticas com horário marcado, e trilhas em
   // andamento. Uma pessoa pode ter as duas, uma, ou nenhuma.
   const praticas = await db.Pratica.findAll({
-    where: { ativa: true, lembreteEm: { [Op.ne]: null } },
+    where: { ativa: true },
     include: [{ model: db.Usuario, required: true, attributes: atributosUsuario }],
   });
   const inscricoes = await db.TrilhaInscricao.findAll({
@@ -147,14 +154,15 @@ async function rodar(agora = new Date()) {
     const dataDev = hm < inicio ? menosUmDia(data) : data;
     const dsDev = diaDaSemanaDe(dataDev);
 
-    // Os horários-base de hoje: os das práticas previstas; se não houver
-    // nenhum e a pessoa está numa trilha, o horário padrão da trilha.
-    const praticasHoje = doUsuario.filter((p) => p.diasSemana.includes(dsDev));
-    const bases = [...new Set(praticasHoje.map((p) => String(p.lembreteEm).slice(0, 5)))];
-    if (bases.length === 0 && minhasTrilhas.length > 0) bases.push(HORA_TRILHA);
+    // Um lembrete por pessoa, cerca de 20 minutos depois do "Meu dia começa às"
+    // dela. O deslocamento por pessoa (lib/lembrete) espalha os envios numa
+    // janela para não criar o pico auto-infligido; cada pessoa recebe sempre no
+    // mesmo horário. A fronteira do dia devocional (dataDev) continua sendo o
+    // próprio inicioDoDia, não o horário do lembrete.
+    const base = somarMinutos(inicio, ATRASO_LEMBRETE_MIN);
+    if (horarioDoLembrete(usuario.id, base) !== hm) continue;
 
-    const noPonto = bases.some((b) => horarioDoLembrete(usuario.id, b) === hm);
-    if (!noPonto) continue;
+    const praticasHoje = doUsuario.filter((p) => p.diasSemana.includes(dsDev));
 
     // O tema do dia da trilha tem prioridade: é o conteúdo mais vivo do dia.
     const trilha = await trilhaDoDiaPendente(minhasTrilhas, dataDev);

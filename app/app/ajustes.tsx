@@ -23,7 +23,8 @@ import { useAssinatura, useInvalidarAssinatura, cancelarAssinatura, trocarParaPi
 import { salvarInicioDia, horaDe } from '../lib/inicio-dia';
 import {
   suportaPush, estadoLembrete, ligarLembrete, desligarLembrete,
-  ligarWhatsapp, desligarWhatsapp, type EstadoLembrete,
+  ligarWhatsapp, desligarWhatsapp, ehDispositivoApple, estaInstalado,
+  type EstadoLembrete,
 } from '../lib/lembrete';
 import { espaco, forma, tipo } from '../tema/tema';
 
@@ -114,9 +115,13 @@ function SecaoLembretes() {
     }
   }
 
+  // iPhone na aba do navegador: o Web Push só existe com o app na Tela de Início.
+  const precisaInstalarIOS = !suportaPush && ehDispositivoApple() && !estaInstalado();
+
   const rotuloPush =
     estado === 'ligado' ? 'Desligar avisos neste aparelho'
     : estado === 'negado' ? 'Avisos bloqueados pelo navegador'
+    : precisaInstalarIOS ? 'Adicione à Tela de Início para ativar'
     : estado === 'indisponivel' ? 'Disponível na versão web (PWA)'
     : 'Ligar avisos neste aparelho';
 
@@ -130,10 +135,20 @@ function SecaoLembretes() {
       >
         {rotuloPush}
       </Botao>
-      <Text style={[tipo.u4, { color: c.ink3 }]}>
-        Um aviso por dia, no horário que você definiu nas práticas. A prévia
-        nunca mostra o que você escreve.
-      </Text>
+      {precisaInstalarIOS ? (
+        <Text style={[tipo.u4, { color: c.ink3 }]}>
+          No iPhone, o lembrete só chega com o app na Tela de Início. No Safari,
+          toque em Compartilhar e depois em Adicionar à Tela de Início; abra o app
+          por ali e ligue por aqui. É só um lembrete das suas práticas, nunca uma
+          cobrança.
+        </Text>
+      ) : (
+        <Text style={[tipo.u4, { color: c.ink3 }]}>
+          Um aviso por dia, cerca de 20 minutos depois do horário em que o seu
+          dia começa (em "Meu dia começa às"), e só se você ainda não regou. A
+          prévia nunca mostra o que você escreve.
+        </Text>
+      )}
 
       <View style={[estilos.cartao, { backgroundColor: c.surface, borderColor: c.line, marginTop: espaco.e2 }]}>
         <Text style={[tipo.u2, { color: c.ink }]}>Prefere por WhatsApp?</Text>
@@ -426,6 +441,7 @@ export default function Ajustes() {
       <Folha visivel={escolhendo === 'dia'} aoFechar={() => setEscolhendo(null)} titulo="Meu dia começa às">
         <Text style={[tipo.u4, { color: c.ink3, marginBottom: espaco.e3 }]}>
           É a hora da virada do dia devocional. Quem ora tarde da noite escolhe uma hora mais cedo para não pular de dia.
+          O lembrete diário, se ligado, chega cerca de 20 minutos depois desta hora.
         </Text>
         <View style={{ gap: espaco.e2 }}>
           {HORAS_INICIO.map((h) => (

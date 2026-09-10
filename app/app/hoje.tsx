@@ -99,12 +99,18 @@ export default function Hoje() {
     // Empurra a fila e atualiza as contagens quando o registro sobe.
     sincronizar(enviarBruto).then(atualizarContagens).catch(() => {});
 
-    // Na terceira rega, e só uma vez, oferece o lembrete — senão, oferece
-    // escrever no diário. Regar sem escrever continua valendo; escrever é a
-    // camada que dá valor com o tempo, então é convite, nunca obrigação.
+    // Depois da terceira rega (quando já houve valor), e só uma vez, oferece o
+    // lembrete — senão, oferece escrever no diário. Regar sem escrever continua
+    // valendo; escrever é a camada que dá valor com o tempo, então é convite,
+    // nunca obrigação. Usa >= 3 para alcançar também quem já passou de três antes
+    // de o convite existir; grava a marca ao mostrar, para não insistir depois.
     const total = await registrarRega();
-    const jaConvidou = total === 3 ? await lerPreferencia(CHAVE_CONVITE) : 'sim';
-    if (total === 3 && !jaConvidou) { setMostrarConvite(true); return; }
+    const jaConvidou = await lerPreferencia(CHAVE_CONVITE);
+    if (total >= 3 && !jaConvidou) {
+      await gravarPreferencia(CHAVE_CONVITE, 'mostrado');
+      setMostrarConvite(true);
+      return;
+    }
 
     // Com estação, ao regar o diário já abre DIRETO, direcionado com a referência
     // da instrução do dia (sem o passo "quer escrever?"). Sem estação, o convite.

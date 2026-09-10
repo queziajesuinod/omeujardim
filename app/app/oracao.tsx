@@ -84,6 +84,13 @@ export default function Oracao() {
   const respondidas = lista.filter((p) => p.status === 'respondido');
   const arquivadas = lista.filter((p) => p.status === 'arquivado');
 
+  // Cartao e Grupo são CHAMADOS como função — Cartao({ p }) — e não usados como
+  // <Cartao/>. Motivo: eles são definidos aqui dentro, então a cada render do
+  // Oracao ganhariam identidade nova; usados como componente, o React
+  // desmontaria e remontaria a subárvore a cada tecla, e o TextInput do
+  // testemunho perderia o foco (o teclado nem abria de forma estável). Chamados
+  // como função, viram elementos inline e o campo continua montado. NÃO troque
+  // de volta para <Cartao/> / <Grupo/>.
   function Cartao({ p }: { p: Pedido }) {
     const respondido = p.status === 'respondido';
     const arquivado = p.status === 'arquivado';
@@ -96,6 +103,7 @@ export default function Oracao() {
 
     return (
       <View
+        key={p.id}
         style={[
           estilos.cartao,
           {
@@ -182,7 +190,7 @@ export default function Oracao() {
           {nome.toUpperCase()} · {itens.length}
         </Text>
         <View style={{ gap: espaco.e3 }}>
-          {itens.map((p) => <Cartao key={p.id} p={p} />)}
+          {itens.map((p) => Cartao({ p }))}
         </View>
       </View>
     );
@@ -207,9 +215,9 @@ export default function Oracao() {
           </View>
         ) : (
           <>
-            <Grupo nome="Em oração" itens={pedindo} />
-            <Grupo nome="Respondidas" itens={respondidas} />
-            <Grupo nome="Arquivadas" itens={arquivadas} />
+            {Grupo({ nome: 'Em oração', itens: pedindo })}
+            {Grupo({ nome: 'Respondidas', itens: respondidas })}
+            {Grupo({ nome: 'Arquivadas', itens: arquivadas })}
           </>
         )}
 

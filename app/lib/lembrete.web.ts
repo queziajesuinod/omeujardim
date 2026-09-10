@@ -19,6 +19,27 @@ export const suportaPush =
   'PushManager' in window &&
   'Notification' in window;
 
+// iPhone/iPad, em Safari OU Chrome — no iOS todos os navegadores usam o mesmo
+// motor (WebKit). Serve para explicar que, nesses aparelhos, o lembrete só
+// funciona com o app na Tela de Início: na aba do navegador o Web Push nem
+// existe, então `suportaPush` é falso e não adianta oferecer o botão.
+export function ehDispositivoApple(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/.test(ua)) return true;
+  // iPadOS 13+ se apresenta como Mac; distingue-se pelo toque na tela.
+  return /Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document;
+}
+
+// O app está aberto como PWA instalado (Tela de Início), não numa aba comum. É
+// nessa forma que o iOS libera o Web Push.
+export function estaInstalado(): boolean {
+  if (typeof window === 'undefined') return false;
+  const standalone = !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  const iosStandalone = (window.navigator as any).standalone === true;
+  return standalone || iosStandalone;
+}
+
 // A chave VAPID chega em base64url; o PushManager quer um Uint8Array.
 function chaveParaBytes(base64Url: string): Uint8Array {
   const preenchimento = '='.repeat((4 - (base64Url.length % 4)) % 4);
