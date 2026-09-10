@@ -10,7 +10,33 @@ import { lerAcesso, lerRefresh, guardarSessao } from './seguro';
 // @ts-ignore o arquivo .web exporta lerCsrf/guardarCsrf; no nativo eles não existem.
 import * as seguroWeb from './seguro';
 
-const BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3333';
+// Base da API. Em dev, o app roda em aparelhos que NÃO são a máquina onde a API
+// vive — o celular, o tablet. Para eles, "localhost" é o próprio aparelho, e
+// nada responde: navegar funciona (é client-side), mas ler e gravar falham.
+// Por isso, na web, quando a URL configurada aponta para localhost mas a página
+// foi aberta de outro host (o IP da máquina de dev, acessado pelo celular),
+// trocamos só o host pelo host da página. Assim grava em qualquer aparelho sem
+// fixar IP no .env. Em produção a URL é o domínio real e nada disso se aplica.
+// A porta e o protocolo configurados são preservados.
+function resolverBase(): string {
+  const configurada = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3333';
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return configurada;
+  try {
+    const alvo = new URL(configurada);
+    const apiLocal = alvo.hostname === 'localhost' || alvo.hostname === '127.0.0.1';
+    const paginaLocal =
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (apiLocal && !paginaLocal) {
+      alvo.hostname = window.location.hostname;
+      return alvo.toString().replace(/\/$/, '');
+    }
+  } catch {
+    // URL malformada: fica com o que veio.
+  }
+  return configurada;
+}
+
+const BASE = resolverBase();
 
 export class ErroApi extends Error {
   constructor(public status: number, public codigo: string, mensagem: string) {
