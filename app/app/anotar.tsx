@@ -5,7 +5,7 @@
 // Regar sem escrever continua valendo; escrever é a camada que dá valor com o
 // tempo, então nunca é obrigatório.
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -17,6 +17,7 @@ import { useCores } from '../lib/tema-contexto';
 import { useAviso } from '../lib/aviso';
 import { usePraticas } from '../lib/praticas';
 import { anotar } from '../lib/fila-offline';
+import type { Anotacao } from '../lib/diario';
 import { enviarBruto } from '../lib/api';
 import { sincronizar } from '../lib/fila-offline';
 import { diaDevocional } from '../lib/id';
@@ -44,22 +45,43 @@ export default function Anotar() {
   const [referencia, setReferencia] = useState(typeof refParam === 'string' ? refParam : '');
   const [tagsBrutas, setTagsBrutas] = useState('');
   const [salvando, setSalvando] = useState(false);
+  // Trava síncrona contra toque duplo. O estado `salvando` só desabilita o botão
+  // no próximo render; toque nervoso entra de novo antes disso e, sem esta trava,
+  // cada entrada gera uma anotação com id novo — é o diário duplicado.
+  const enviando = useRef(false);
 
   const lista = praticas.data ?? [];
   const escolhida = praticaId ?? lista[0]?.id;
 
   async function salvar() {
+    if (enviando.current) return;
     if (!escolhida || !texto.trim()) return;
+    enviando.current = true;
     setSalvando(true);
     try {
       const tags = tagsBrutas.split(',').map((t) => t.trim()).filter(Boolean).slice(0, 8);
-      await anotar(escolhida, dataRef, {
+      const { registroId, anotacaoId } = await anotar(escolhida, dataRef, {
         texto: texto.trim(),
         referencia: referencia.trim() || undefined,
         tags,
         trilhaId,
         trilhaDiaOrdem,
       });
+      // Mostra a anotação no diário JÁ, sem esperar a rede. Sem isto o diário
+      // abre lendo do servidor (na web não há cópia local) e a reflexão só
+      // aparece depois do sync — o que parece falha e leva a regar de novo.
+      // O vínculo com a trilha (título) chega no refetch do sync.
+      const nova: Anotacao = {
+        id: anotacaoId,
+        registroId,
+        referencia: referencia.trim() || null,
+        dataRef,
+        texto: texto.trim(),
+        trilhaId: trilhaId ?? null,
+        trilhaDiaOrdem: trilhaDiaOrdem ?? null,
+        trilha: null,
+      };
+      qc.setQueryData<Anotacao[]>(['diario', ''], (prev) => [nova, ...(prev ?? [])]);
       sincronizar(enviarBruto)
         .then(() => {
           qc.invalidateQueries({ queryKey: ['diario'] });
@@ -72,7 +94,9 @@ export default function Anotar() {
       router.replace('/diario');
     } catch {
       // Gravação local falhou (raro). Não fecha a folha e diz o que houve, em
-      // vez de sumir em silêncio com o que a pessoa escreveu.
+      // vez de sumir em silêncio com o que a pessoa escreveu. Libera para tentar
+      // de novo.
+      enviando.current = false;
       avisar('Não consegui guardar agora. Tente de novo.', { duracaoMs: 5000 });
     } finally {
       setSalvando(false);
