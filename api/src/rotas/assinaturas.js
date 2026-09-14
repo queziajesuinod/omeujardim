@@ -146,8 +146,16 @@ module.exports = async function rotasAssinaturas(app) {
       // O novo aceite quita qualquer troca de preço que estivesse marcada.
       precoNovoCentavos: null, trocaPrecoEm: null,
     };
+    // Quem paga com um período ainda em curso (o teste, ou dias já pagos) não
+    // perde esses dias: o ciclo pago começa no fim do que já vale, não hoje. É o
+    // mesmo que o PIX faz na conciliação. Só uma assinatura nova (sem período
+    // vigente) começa a contar de hoje.
+    const temPeriodoVigente = anterior && !['encerrada', 'cancelada'].includes(anterior.status) && anterior.periodoFim && String(anterior.periodoFim) > hoje;
+    const ativa = temPeriodoVigente
+      ? dominio.aoConfirmarPagamento(anterior, hoje, p.ciclo)
+      : dominio.iniciarAtiva(hoje, p.ciclo);
     const campos = pago
-      ? { ...dominio.iniciarAtiva(hoje, p.ciclo), ...base }
+      ? { ...ativa, ...base }
       : { ...base, status: 'iniciada' };
 
     // Converte um trial em curso, ou cria uma assinatura nova.

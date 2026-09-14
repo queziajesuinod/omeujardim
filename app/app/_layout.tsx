@@ -89,7 +89,11 @@ function Guarda() {
       // Encerrada leva a reativar; o resto (sem assinatura, trial não iniciado,
       // pagamento pendente) leva a assinar.
       if (!emAssinatura) router.replace(motivo === 'encerrada' ? '/reativar' : '/assinar');
-    } else if (emAssinatura) {
+    } else if (raiz === 'reativar') {
+      // Quem é usável não tem o que fazer no reengajamento. Já /assinar é
+      // permitido de propósito: quem está em teste pode entrar para pagar antes
+      // do vencimento, e quem é ativo para confirmar novo preço ou trocar a forma
+      // de pagamento. A própria tela devolve ao app quando o pagamento entra.
       router.replace('/hoje');
     }
   }, [autenticado, segments, assinatura.data, assinatura.isLoading]);

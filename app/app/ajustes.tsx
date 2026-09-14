@@ -232,6 +232,20 @@ function SecaoAssinatura() {
         ) : null}
       </View>
 
+      {/* Em teste: quem quiser garantir o acesso antes do 8º dia pode assinar já.
+          Leva à mesma porta paga (/assinar), que converte o teste em ativa
+          quando o pagamento entra. Sem isso, o teste vencido apenas encerra. */}
+      {d.status === 'trial' ? (
+        <>
+          <Pressable onPress={() => router.push('/assinar')}>
+            <Text style={[tipo.u2, { color: c.brand, textAlign: 'center', paddingVertical: espaco.e2 }]}>Assinar agora</Text>
+          </Pressable>
+          <Text style={[tipo.u4, { color: c.ink3, textAlign: 'center' }]}>
+            Você não precisa esperar o teste terminar para assinar.
+          </Text>
+        </>
+      ) : null}
+
       <Pressable onPress={() => router.push('/pagamentos')}>
         <Text style={[tipo.u3, { color: c.ink2, textAlign: 'center', paddingVertical: espaco.e2 }]}>Ver histórico de pagamentos</Text>
       </Pressable>

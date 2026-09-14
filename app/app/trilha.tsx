@@ -68,10 +68,11 @@ export default function Trilha() {
   }
 
   const diaDeHoje = dias.find((d) => d.ordem === diaAtual);
-  // Semente aberta para leitura: enquanto ela está aberta, a tela mostra só esse
-  // dia, e o dia de hoje e o resto somem. Ao regar, aberta volta a null e a tela
-  // retoma o estado normal. Um dia já regado deixa de ser semente e fecha sozinho.
-  const diaAberto = aberta != null ? dias.find((d) => d.ordem === aberta && estadoDe(d.ordem) === 'perdido') : undefined;
+  // Dia aberto para leitura: enquanto está aberto, a tela mostra só ele; o resto
+  // some. Ao voltar, aberta vira null e a tela retoma o estado normal. Vale para
+  // qualquer dia já vivido (regado, de hoje ou perdido) — o dia futuro não abre,
+  // porque ainda não chegou.
+  const diaAberto = aberta != null ? dias.find((d) => d.ordem === aberta && estadoDe(d.ordem) !== 'futuro') : undefined;
   const perdidos = participando ? dias.filter((d) => estadoDe(d.ordem) === 'perdido') : [];
   const concluida = participando && !!info!.concluidaEm;
   const emBreve = !!t?.disponivelEm && t.disponivelEm > diaDevocional();
@@ -152,9 +153,17 @@ export default function Trilha() {
             </Text>
           </View>
         ) : diaAberto ? (
-          // Foco: só a semente sendo lida. Some tudo o mais até ela ser regada.
+          // Foco: só o dia aberto. Some tudo o mais até a pessoa voltar. Aberto
+          // por qualquer dia já vivido, então a etiqueta e a ação seguem o estado.
           <View style={[estilos.dia, { backgroundColor: c.surface, borderColor: c.line, marginTop: espaco.e4 }]}>
-            <Text style={[tipo.u4, { color: c.ink3 }]}>DIA {diaAberto.ordem}</Text>
+            {(() => {
+              const e = estadoDe(diaAberto.ordem);
+              return (
+                <Text style={[tipo.u4, { color: e === 'hoje' ? c.brand : c.ink3 }]}>
+                  {e === 'hoje' ? `HOJE · DIA ${diaAberto.ordem}` : e === 'regado' ? `DIA ${diaAberto.ordem} · REGADO` : `DIA ${diaAberto.ordem}`}
+                </Text>
+              );
+            })()}
             <Text style={[estilos.tituloDia, { color: c.ink }]}>{diaAberto.titulo}</Text>
 
             <View style={{ marginTop: espaco.e3 }}>
@@ -169,9 +178,24 @@ export default function Trilha() {
             ) : null}
 
             <View style={{ marginTop: espaco.e4 }}>
-              <Botao bloco haptico onPress={() => regarEResponder(diaAberto)} carregando={regar.isPending}>
-                Regar e guardar no diário
-              </Botao>
+              {regados.has(diaAberto.ordem) ? (
+                // Já regado: nada regride. Só relembrar e, se quiser, escrever mais.
+                <>
+                  <View style={[estilos.regado, { backgroundColor: c.brandSoft }]}>
+                    <IconeCheck cor={c.brand} />
+                    <Text style={[tipo.u3, { color: c.brand }]}>Regado</Text>
+                  </View>
+                  {diaAberto.pergunta ? (
+                    <Pressable onPress={() => responder(diaAberto)} style={{ marginTop: espaco.e3 }}>
+                      <Text style={[tipo.u3, { color: c.brand, textAlign: 'center' }]}>Escrever no diário</Text>
+                    </Pressable>
+                  ) : null}
+                </>
+              ) : (
+                <Botao bloco haptico onPress={() => regarEResponder(diaAberto)} carregando={regar.isPending}>
+                  Regar e guardar no diário
+                </Botao>
+              )}
               <Pressable onPress={() => setAberta(null)} style={{ marginTop: espaco.e3 }}>
                 <Text style={[tipo.u3, { color: c.ink3, textAlign: 'center' }]}>Voltar</Text>
               </Pressable>
@@ -243,32 +267,56 @@ export default function Trilha() {
               </View>
             ) : null}
 
-            {/* O caminho inteiro, para orientação. */}
+            {/* O canteiro: o caminho inteiro num relance. Antes era uma lista de
+                uma linha por dia — virava uma parede em trilhas longas. Agora
+                cada dia é uma muda; toque para reler um dia já vivido, abrir o de
+                hoje ou resgatar um que ficou para trás. O que ainda não chegou
+                fica apagado (traço tracejado, nunca opacity — princípio da marca)
+                e não abre. */}
             <View style={{ marginTop: espaco.e6 }}>
-              <Text style={[tipo.u4, { color: c.ink3, marginBottom: espaco.e3 }]}>O CAMINHO</Text>
-              <View style={{ gap: espaco.e2 }}>
+              <Text style={[tipo.u4, { color: c.ink3, marginBottom: espaco.e2 }]}>O CANTEIRO</Text>
+              <Text style={[tipo.u3, { color: c.ink3, marginBottom: espaco.e3 }]}>
+                Toque um dia para reler. Os que ainda não chegaram aparecem apagados.
+              </Text>
+              <View style={estilos.canteiro}>
                 {dias.map((d) => {
                   const e = estadoDe(d.ordem);
-                  const cor = e === 'regado' ? c.brand : e === 'hoje' ? c.accent : c.ink3;
-                  return (
-                    <View key={d.id} style={estilos.passo}>
-                      <View style={[estilos.marcador, {
-                        backgroundColor: e === 'regado' ? c.brand : e === 'hoje' ? c.accentSoft : c.surface2,
-                        borderColor: e === 'hoje' ? c.accent : 'transparent',
-                      }]}>
-                        {e === 'regado'
-                          ? <IconeCheck cor={c.onBrand} />
-                          : <Text style={{ fontSize: 11, fontFamily: fontes.uiForte, color: e === 'hoje' ? c.accent : c.ink3 }}>{d.ordem}</Text>}
-                      </View>
-                      <Text style={[tipo.u3, { color: e === 'futuro' ? c.ink3 : c.ink2, flex: 1 }]} numberOfLines={1}>
-                        {d.titulo}
-                      </Text>
-                      <Text style={[tipo.u4, { color: cor, letterSpacing: 0 }]}>
-                        {e === 'regado' ? 'regado' : e === 'hoje' ? 'hoje' : e === 'perdido' ? 'resgatar' : 'em breve'}
-                      </Text>
+                  const futuro = e === 'futuro';
+                  const numero = (
+                    <Text style={{
+                      fontSize: 14, fontFamily: fontes.uiForte,
+                      color: e === 'regado' ? c.onBrand : e === 'hoje' ? c.accent : futuro ? c.ink3 : c.ink2,
+                    }}>{d.ordem}</Text>
+                  );
+                  const estiloMuda = [estilos.muda, {
+                    backgroundColor: e === 'regado' ? c.brand : e === 'hoje' ? c.accentSoft : futuro ? c.surface2 : 'transparent',
+                    borderColor: e === 'hoje' ? c.accent : e === 'perdido' ? c.line : 'transparent',
+                    borderStyle: (e === 'perdido' ? 'dashed' : 'solid') as 'dashed' | 'solid',
+                    borderWidth: e === 'hoje' || e === 'perdido' ? 1.5 : 0,
+                  }];
+                  return futuro ? (
+                    <View key={d.id} style={estiloMuda} accessible accessibilityLabel={`Dia ${d.ordem}, ${d.titulo}, em breve`}>
+                      {numero}
                     </View>
+                  ) : (
+                    <Pressable
+                      key={d.id}
+                      onPress={() => setAberta(d.ordem)}
+                      style={estiloMuda}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Dia ${d.ordem}, ${d.titulo}, ${e === 'regado' ? 'regado' : e === 'hoje' ? 'de hoje' : 'a resgatar'}. Toque para abrir.`}
+                    >
+                      {numero}
+                    </Pressable>
                   );
                 })}
+              </View>
+              {/* Legenda: estado nunca é só cor — cada um tem forma e rótulo. */}
+              <View style={estilos.legenda}>
+                <ItemLegenda c={c} rotulo="regado" preenchido />
+                <ItemLegenda c={c} rotulo="hoje" anel />
+                <ItemLegenda c={c} rotulo="resgatar" tracejado />
+                <ItemLegenda c={c} rotulo="em breve" neutro />
               </View>
             </View>
           </>
@@ -287,6 +335,32 @@ function IconeCheck({ cor }: { cor: string }) {
   );
 }
 
+// Uma entrada da legenda do canteiro: a mesma forma da muda, em miniatura, para
+// que o estado seja lido pela forma além da cor.
+function ItemLegenda({
+  c, rotulo, preenchido, anel, tracejado, neutro,
+}: {
+  c: ReturnType<typeof useCores>;
+  rotulo: string;
+  preenchido?: boolean;
+  anel?: boolean;
+  tracejado?: boolean;
+  neutro?: boolean;
+}) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <View style={{
+        width: 14, height: 14, borderRadius: 7,
+        backgroundColor: preenchido ? c.brand : anel ? c.accentSoft : neutro ? c.surface2 : 'transparent',
+        borderWidth: anel || tracejado ? 1.5 : 0,
+        borderStyle: tracejado ? 'dashed' : 'solid',
+        borderColor: anel ? c.accent : tracejado ? c.line : 'transparent',
+      }} />
+      <Text style={[tipo.u4, { color: c.ink3, letterSpacing: 0 }]}>{rotulo}</Text>
+    </View>
+  );
+}
+
 const estilos = StyleSheet.create({
   centro: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   corpo: { paddingHorizontal: espaco.e5, paddingTop: espaco.e2, paddingBottom: espaco.e8, maxWidth: 440, width: '100%', alignSelf: 'center' },
@@ -302,9 +376,13 @@ const estilos = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: espaco.e3,
     padding: espaco.e4, borderRadius: forma.card, borderWidth: 1, borderStyle: 'dashed',
   },
-  passo: { flexDirection: 'row', alignItems: 'center', gap: espaco.e3 },
-  marcador: {
-    width: 26, height: 26, borderRadius: forma.pilula, borderWidth: 1.5,
+  // O canteiro: mudas que quebram linha. Cada muda é um alvo de toque de 44,
+  // dentro do mínimo da plataforma, então 30 dias cabem em poucas linhas em vez
+  // de 30 linhas inteiras.
+  canteiro: { flexDirection: 'row', flexWrap: 'wrap', gap: espaco.e2 },
+  muda: {
+    width: 44, height: 44, borderRadius: forma.pilula,
     alignItems: 'center', justifyContent: 'center',
   },
+  legenda: { flexDirection: 'row', flexWrap: 'wrap', gap: espaco.e3, marginTop: espaco.e3 },
 });

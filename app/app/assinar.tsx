@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { Campo } from '../componentes/Campo';
 import { Botao } from '../componentes/Botao';
@@ -68,6 +69,7 @@ function MetodoBotao({ ativo, cor, icone, titulo, nota, aoTocar }: {
 
 export default function Assinar() {
   const c = useCores();
+  const router = useRouter();
   const maxLargura = useLarguraConteudo();
   const { sair } = useSessao();
   const assinatura = useAssinatura();
@@ -85,25 +87,41 @@ export default function Assinar() {
   const [ocupado, setOcupado] = useState<null | 'cartao' | 'trial' | 'pix'>(null);
   const [pix, setPix] = useState<{ imagemQrcode: string; qrcode: string } | null>(null);
   const [metodo, setMetodo] = useState<'cartao' | 'pix' | null>(null);
+  // Uma ação de pagamento foi disparada aqui, e o período pago no instante dela.
+  // Servem para a tela devolver ao app só quando o pagamento realmente entra —
+  // não no toque, porque quem está em teste já chega usável.
+  const [agiu, setAgiu] = useState(false);
+  const [periodoAntes, setPeriodoAntes] = useState<string | null>(null);
 
   const dados = assinatura.data;
   const trocaPreco = !!dados?.precoNovoCentavos;
 
   // Depois de mostrar o QR do PIX, revalida a assinatura de tempos em tempos. O
-  // polling do servidor confirma o pagamento em ~1 min; quando a assinatura vira
-  // usável, o guard do _layout leva para /hoje sozinho. Para em 15 min.
+  // polling do servidor confirma o pagamento em ~1 min. Para em 15 min.
   useEffect(() => {
     if (!pix) return;
     const tique = setInterval(() => invalidar(), 5000);
     const limite = setTimeout(() => clearInterval(tique), 15 * 60 * 1000);
     return () => { clearInterval(tique); clearTimeout(limite); };
   }, [pix]);
+
+  // O pagamento entrou quando a assinatura fica ativa com o período pago maior do
+  // que era antes da ação (cartão à vista, cartão confirmado por webhook, ou PIX
+  // confirmado no polling). Só então devolve ao app. Antes de agir, fica —
+  // quem está em teste entra aqui já usável de propósito, para poder pagar antes.
+  useEffect(() => {
+    if (!agiu || !dados) return;
+    const avancou = dados.status === 'ativa' && (!periodoAntes || (!!dados.periodoFim && dados.periodoFim > periodoAntes));
+    if (avancou) router.replace('/hoje');
+  }, [agiu, dados, periodoAntes]);
   // O preço a cobrar: numa troca marcada, o valor novo; senão, o vigente do plano.
   const valorMostrar = trocaPreco ? dados!.precoNovoCentavos! : (dados?.plano.valorCentavos ?? null);
   const podeTrial = dados?.status === 'nenhuma' && !trocaPreco;
 
   async function assinar() {
     setErro(null);
+    setPeriodoAntes(dados?.periodoFim ?? null);
+    setAgiu(true);
     setOcupado('cartao');
     try {
       const [mm, aa] = validade.split('/').map((s) => s.trim());
@@ -116,10 +134,15 @@ export default function Assinar() {
         payment_token, nome: nomeCartao.trim(), cpf: soDigitos(cpf), telefone: soDigitos(telefone),
         nascimento: dataParaISO(nascimento),
       });
-      invalidar(); // a guarda de rota leva para /hoje quando a assinatura vira usável
-      // Cartão em análise: não fica preso sem aviso. O acesso abre pelo webhook.
+      // Aguarda o refetch antes de sair: assim o guard já vê a assinatura usável
+      // e não devolve para /assinar no meio do caminho.
+      await invalidar();
       if (r && r.pago === false) {
+        // Cartão em análise: não fica preso sem aviso. O acesso abre pelo webhook,
+        // e o efeito acima devolve ao app quando a assinatura virar ativa.
         setErro('Pagamento em análise. Assim que for aprovado, seu acesso é liberado. Você pode fechar esta tela.');
+      } else {
+        router.replace('/hoje');
       }
     } catch (e) {
       setErro(mensagemDoErro(e));
@@ -133,7 +156,8 @@ export default function Assinar() {
     setOcupado('trial');
     try {
       await iniciarTrial();
-      invalidar();
+      await invalidar();
+      router.replace('/hoje');
     } catch (e) {
       setErro(mensagemDoErro(e));
     } finally {
@@ -143,6 +167,8 @@ export default function Assinar() {
 
   async function gerarPix() {
     setErro(null);
+    setPeriodoAntes(dados?.periodoFim ?? null);
+    setAgiu(true);
     setOcupado('pix');
     try {
       const r = await pagarPix(cpf ? cpf.replace(/\D/g, '') : undefined);
@@ -180,7 +206,7 @@ export default function Assinar() {
           <Text style={[tipo.u4, { color: c.brand, letterSpacing: 1 }]}>{(dados?.plano.nome || 'Plano').toUpperCase()}</Text>
           <Text style={[estilos.preco, { color: c.ink }]}>{reais(valorMostrar)}<Text style={[tipo.u2, { color: c.ink2 }]}> /mês</Text></Text>
           {podeTrial ? (
-            <Text style={[tipo.u3, { color: c.ink2 }]}>7 dias grátis. A 1ª cobrança só no 8º dia, e você pode cancelar antes.</Text>
+            <Text style={[tipo.u3, { color: c.ink2 }]}>7 dias grátis, sem pedir cartão. Nada é cobrado sozinho: para seguir depois do teste, é só assinar; senão, o jardim entra em repouso até você voltar.</Text>
           ) : trocaPreco ? (
             <Text style={[tipo.u3, { color: c.ink2 }]}>
               Você paga {reais(dados?.valorCentavos)} hoje. Para continuar, confirme o novo valor de {reais(dados?.precoNovoCentavos)} por mês.
