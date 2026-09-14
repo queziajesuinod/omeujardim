@@ -8,6 +8,8 @@ module.exports = (sequelize, DataTypes) => {
     titulo: { type: DataTypes.STRING(160), allowNull: false },
     autor: { type: DataTypes.STRING(120), allowNull: false },
     tema: DataTypes.STRING(60),
+    // Apresentação autoral do que a trilha percorre. Antes vinha do dia 1.
+    descricao: DataTypes.TEXT,
     dias: { type: DataTypes.SMALLINT, allowNull: false },
     publicadaEm: DataTypes.DATE,
     // Data de estreia. Antes dela, "em breve" no catálogo. Ver a migração.

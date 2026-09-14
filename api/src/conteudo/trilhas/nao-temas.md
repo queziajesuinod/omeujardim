@@ -2,7 +2,7 @@
 titulo: Não temas
 autor: Quézia
 tema: medo
-gratuita: true
+descricao: Sete paradas para encarar o medo sem fingir coragem, lembrando a cada dia de quem caminha ao seu lado.
 ---
 
 ## O convite que se repete

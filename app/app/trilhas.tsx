@@ -136,6 +136,9 @@ export default function Trilhas() {
                           ? (p.concluidaEm ? `${t.autor} · trilha inteira regada` : `${t.autor} · dia ${p.diaAtual} de ${p.total}`)
                           : `${t.autor} · ${t.dias} ${t.dias === 1 ? 'dia' : 'dias'}`}
                     </Text>
+                    {!p && t.descricao ? (
+                      <Text style={[tipo.l3, { color: c.ink2, marginTop: espaco.e2 }]} numberOfLines={2}>{t.descricao}</Text>
+                    ) : null}
                     {!emBreve && !p && t.criado_em ? (
                       <Text style={[tipo.u4, { color: c.ink3, marginTop: 4, letterSpacing: 0 }]}>criada em {dataCriacao(t.criado_em)}</Text>
                     ) : null}

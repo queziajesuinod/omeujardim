@@ -9,7 +9,7 @@
 //   titulo: ...
 //   autor: ...
 //   tema: ...
-//   gratuita: true
+//   descricao: ...        (linha opcional; a apresentação da trilha)
 //   ---
 //   ## Título do dia
 //   referencia: Livro 0.0     (linha opcional)
@@ -121,6 +121,7 @@ async function importarMarkdown(db, md, opts = {}) {
       await existente.update({
         autor: meta.autor || 'Autoria do jardim',
         tema: meta.tema || null,
+        descricao: meta.descricao || null,
         dias: dias.length,
         publicadaEm: publicar ? (existente.publicadaEm || new Date()) : null,
         disponivelEm: disponivelEm || null,
@@ -131,6 +132,7 @@ async function importarMarkdown(db, md, opts = {}) {
         titulo: meta.titulo,
         autor: meta.autor || 'Autoria do jardim',
         tema: meta.tema || null,
+        descricao: meta.descricao || null,
         dias: dias.length,
         publicadaEm: publicar ? new Date() : null,
         disponivelEm: disponivelEm || null,

@@ -1256,7 +1256,10 @@
             <div class="cartao grafico">
               <h2 id="tr-titulo-editor">Nova trilha</h2>
               <p style="font-size: 12px; color: var(--ink-3); margin: 0 0 12px">
-                Front-matter (titulo, autor, tema) e um <code>##</code> por dia.
+                Front-matter (titulo, autor, tema, descricao) e um
+                <code>##</code> por dia. A <code>descricao</code> é a
+                apresentação da trilha — o que ela percorre — e aparece antes de
+                a pessoa entrar, no lugar da amostra do dia 1.
                 O dia é um mini devocional: escreva na ordem que quiser,
                 intercalando à vontade — parágrafos de texto viram texto
                 corrido; <code>referencia: Citação | versículo</code> vira a
@@ -1269,7 +1272,7 @@
               <textarea
                 id="tr-md"
                 rows="12"
-                placeholder="---&#10;titulo: Nao temas&#10;autor: Quezia&#10;tema: medo&#10;---&#10;## O convite que se repete&#10;O medo aperta o peito de manha cedo.&#10;&#10;referencia: Salmo 27.1 | O Senhor e a minha luz; a quem temerei?&#10;&#10;A pergunta do salmo nao nega o medo.&#10;link: Louvor para hoje | https://youtube.com/...&#10;pergunta: Onde voce precisa ouvir isso hoje?"
+                placeholder="---&#10;titulo: Nao temas&#10;autor: Quezia&#10;tema: medo&#10;descricao: Sete dias para encarar o medo com a Palavra ao lado.&#10;---&#10;## O convite que se repete&#10;O medo aperta o peito de manha cedo.&#10;&#10;referencia: Salmo 27.1 | O Senhor e a minha luz; a quem temerei?&#10;&#10;A pergunta do salmo nao nega o medo.&#10;link: Louvor para hoje | https://youtube.com/...&#10;pergunta: Onde voce precisa ouvir isso hoje?"
               ></textarea>
               <div
                 style="
@@ -2494,6 +2497,7 @@
       function trilhaParaMarkdown(t) {
         let md = `---\ntitulo: ${t.titulo}\nautor: ${t.autor}\n`
         if (t.tema) md += `tema: ${t.tema}\n`
+        if (t.descricao) md += `descricao: ${t.descricao}\n`
         md += '---\n'
         for (const d of t.conteudo || []) {
           md += `## ${d.titulo}\n`

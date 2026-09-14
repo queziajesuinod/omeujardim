@@ -2,7 +2,7 @@
 titulo: Sete dias de gratidão
 autor: Quézia
 tema: gratidao
-gratuita: true
+descricao: Uma semana para treinar o olhar da gratidão, do pão de cada dia ao que não deu certo, até enxergar o mesmo mundo com mais luz.
 ---
 
 ## O pão de cada dia

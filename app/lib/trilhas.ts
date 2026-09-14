@@ -27,6 +27,7 @@ export type Trilha = {
   titulo: string;
   autor: string;
   tema: string | null;
+  descricao: string | null;
   dias: number;
   disponivelEm: string | null;
   criado_em?: string;

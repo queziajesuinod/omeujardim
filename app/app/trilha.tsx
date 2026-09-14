@@ -107,9 +107,15 @@ export default function Trilha() {
         <Text style={[tipo.u3, { color: c.ink3 }]}>{t?.autor}</Text>
 
         {!participando ? (
-          // Antes de entrar: o convite.
+          // Antes de entrar: a apresentação da trilha e o convite.
           <View style={{ marginTop: espaco.e4 }}>
-            {dias[0] ? (
+            {t?.descricao ? (
+              // A apresentação autoral: o que a trilha percorre. Escrita pela
+              // autora, não tirada do dia 1.
+              <Text style={[estilos.apresentacao, { color: c.ink2 }]}>{t.descricao}</Text>
+            ) : dias[0] ? (
+              // Sem descrição própria (trilhas antigas): o antigo "começa assim"
+              // ainda dá uma amostra a partir do dia 1.
               <View style={[estilos.dia, { backgroundColor: c.surface, borderColor: c.line }]}>
                 <Text style={[tipo.u4, { color: c.ink3 }]}>COMEÇA ASSIM</Text>
                 <Text style={[estilos.tituloDia, { color: c.ink }]}>{dias[0].titulo}</Text>
@@ -285,6 +291,7 @@ const estilos = StyleSheet.create({
   centro: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   corpo: { paddingHorizontal: espaco.e5, paddingTop: espaco.e2, paddingBottom: espaco.e8, maxWidth: 440, width: '100%', alignSelf: 'center' },
   dia: { padding: espaco.e5, borderRadius: forma.card, borderWidth: 1 },
+  apresentacao: { fontFamily: fontes.leituraLeve, fontSize: 17, lineHeight: 27 },
   tituloDia: { fontFamily: fontes.display, fontSize: 22, lineHeight: 27, marginTop: espaco.e1 },
   corpoDia: { fontFamily: fontes.leituraLeve, fontSize: 17, lineHeight: 27 },
   versiculo: { marginTop: espaco.e3, padding: espaco.e4, borderRadius: forma.card },
