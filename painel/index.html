@@ -711,6 +711,10 @@
         padding: 26px;
         animation: pop 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
       }
+      /* Variante larga para ler o conteúdo dia a dia (trilhas/estações). */
+      .dialogo.amplo {
+        width: 760px;
+      }
       .dialogo h2 {
         font-size: 21px;
         margin: 0 0 8px;
@@ -1581,6 +1585,7 @@
       function fecharDialogo() {
         $('#overlay').classList.add('oculto')
         $('#dialogo').innerHTML = ''
+        $('#dialogo').classList.remove('amplo') // a próxima modal volta ao tamanho padrão
       }
       function confirmar(
         titulo,
@@ -2547,6 +2552,7 @@
       function abrirVisualizacao(tituloTexto) {
         const fechar =
           '<div class="dacoes"><button data-r="fechar">Fechar</button></div>'
+        $('#dialogo').classList.add('amplo') // mais espaço para ler dia a dia
         $('#dialogo').innerHTML =
           `<h2>${escHtml(tituloTexto)}</h2><p class="dtexto">Carregando…</p>`
         $('#overlay').classList.remove('oculto')
@@ -2580,7 +2586,7 @@
                   ${blocos}${pergunta}</div>`
               })
               .join('') || '<p class="dtexto">Sem dias.</p>'
-          render(cab + `<div style="max-height:60vh;overflow:auto">${dias}</div>`)
+          render(cab + `<div style="max-height:70vh;overflow:auto">${dias}</div>`)
         } catch (e) {
           render('<p class="dtexto">Não consegui carregar a trilha.</p>')
         }
@@ -2619,7 +2625,7 @@
                   <p style="color:var(--ink-3);font-size:11px;letter-spacing:1px">DIA ${ord}</p>${itens}</div>`
               })
               .join('') || '<p class="dtexto">Sem dias.</p>'
-          render(cab + `<div style="max-height:60vh;overflow:auto">${dias}</div>`)
+          render(cab + `<div style="max-height:70vh;overflow:auto">${dias}</div>`)
         } catch (err) {
           render('<p class="dtexto">Não consegui carregar a estação.</p>')
         }
