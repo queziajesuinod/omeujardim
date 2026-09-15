@@ -9,7 +9,7 @@ const DATA = /^\d{4}-\d{2}-\d{2}$/;
 // Trilheiro (autor de conteúdo) ou admin.
 
 module.exports = async function rotasGestaoEstacoes(app) {
-  const { Estacao, sequelize } = app.db;
+  const { Estacao, EstacaoDia, sequelize } = app.db;
 
   app.addHook('preHandler', app.exigirLoginQualquer);
   app.addHook('preHandler', app.exigirPapel('trilheiro'));
@@ -20,6 +20,22 @@ module.exports = async function rotasGestaoEstacoes(app) {
       attributes: ['id', 'nome', 'tema', 'dias', 'publicadaEm', 'disponivelEm'],
       order: [['criado_em', 'DESC']],
     });
+  });
+
+  /**
+   * Uma estação com os dias, para o painel visualizar o conteúdo publicado. Cada
+   * dia tem uma linha por disciplina (o painel agrupa por ordem ao mostrar).
+   */
+  app.get('/admin/estacoes/:id', async (req, reply) => {
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    const estacao = await Estacao.findByPk(id);
+    if (!estacao) return reply.code(404).send({ erro: 'estacao_nao_encontrada' });
+    const conteudo = await EstacaoDia.findAll({
+      where: { estacaoId: id },
+      attributes: ['ordem', 'disciplinaCodigo', 'titulo', 'corpo'],
+      order: [['ordem', 'ASC'], ['disciplinaCodigo', 'ASC']],
+    });
+    return { ...estacao.toJSON(), conteudo };
   });
 
   /** Autoria por markdown: conteúdo por dia por disciplina. Idempotente por nome. */

@@ -28,6 +28,7 @@ import { registrarRega } from '../lib/regas-conta';
 import { lerPreferencia, gravarPreferencia } from '../lib/preferencia';
 import { enviarBruto } from '../lib/api';
 import { diaDevocional } from '../lib/id';
+import { useViradaDoDia } from '../lib/virada-dia';
 import { espaco, forma, tipo } from '../tema/tema';
 
 const CHAVE_CONVITE = 'jd_convite_lembrete';
@@ -86,12 +87,26 @@ export default function Hoje() {
           // banco local ainda não pronto: começa vazio, sem drama.
         }
       })();
+      // Revalida a estação também: sem isto, ao voltar para a Hoje sem remontar,
+      // o conteúdo do dia da estação ficava no dia anterior.
+      qc.invalidateQueries({ queryKey: ['estacao-andamento'] });
       sincronizar(enviarBruto)
         .then(() => qc.invalidateQueries({ queryKey: ['constancia'] }))
         .catch(() => {});
       return () => { vivo = false; };
     }, [qc])
   );
+
+  // Virada do dia com o app aberto (ou voltando do segundo plano): recomputa o
+  // dia, relê as regas do dia novo (que começa vazio) e revalida estação e
+  // constância. É o que faz a tela acompanhar as 4h sem navegar nem remontar.
+  useViradaDoDia(useCallback(() => {
+    const dref = diaDevocional();
+    setDataRef(dref);
+    regadasHoje(dref).then((ids) => setRegadas(new Set(ids))).catch(() => {});
+    qc.invalidateQueries({ queryKey: ['estacao-andamento'] });
+    qc.invalidateQueries({ queryKey: ['constancia'] });
+  }, [qc]));
 
   function atualizarContagens() {
     // Constância (número da Hoje) e jardim (chama e calendário) dependem das

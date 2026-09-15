@@ -22,6 +22,7 @@ import { useCores } from '../lib/tema-contexto';
 import { useLarguraConteudo } from '../lib/layout';
 import { useTrilha, useAndamento, useParticipar, useRegarTrilha, type TrilhaDia } from '../lib/trilhas';
 import { diaDevocional } from '../lib/id';
+import { useViradaDoDia } from '../lib/virada-dia';
 import { voltar } from '../lib/voltar';
 import { espaco, forma, tipo, fontes } from '../tema/tema';
 
@@ -54,6 +55,11 @@ export default function Trilha() {
       if (trilhaId) qc.invalidateQueries({ queryKey: ['andamento', trilhaId] });
     }, [qc, trilhaId])
   );
+
+  // Virada do dia com o app aberto: avança o dia da trilha sem navegar.
+  useViradaDoDia(useCallback(() => {
+    if (trilhaId) qc.invalidateQueries({ queryKey: ['andamento', trilhaId] });
+  }, [qc, trilhaId]));
 
   if (trilha.isLoading || and.isLoading) {
     return (

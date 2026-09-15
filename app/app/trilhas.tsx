@@ -16,6 +16,7 @@ import { useCores } from '../lib/tema-contexto';
 import { useTrilhas, useMinhasTrilhas, buscarTrilhas, type Resultado } from '../lib/trilhas';
 import { useLarguraConteudo } from '../lib/layout';
 import { diaDevocional } from '../lib/id';
+import { useViradaDoDia } from '../lib/virada-dia';
 import { espaco, forma, tipo, fontes } from '../tema/tema';
 
 function dataCurta(iso: string) {
@@ -44,6 +45,11 @@ export default function Trilhas() {
       qc.invalidateQueries({ queryKey: ['minhas-trilhas'] });
     }, [qc])
   );
+
+  // Virada do dia com o app aberto: progresso e "em breve" acompanham sem navegar.
+  useViradaDoDia(useCallback(() => {
+    qc.invalidateQueries({ queryKey: ['minhas-trilhas'] });
+  }, [qc]));
 
   const [q, setQ] = useState('');
   const [buscando, setBuscando] = useState(false);

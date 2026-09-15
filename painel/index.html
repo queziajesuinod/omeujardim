@@ -2486,7 +2486,7 @@
               return `<tr>
         <td style="color:var(--ink)">${t.titulo}</td><td>${t.autor}</td><td>${t.dias}</td>
         <td><span class="badge ${s.cls}">${s.txt}</span><span style="color:var(--ink-3);font-size:11px">${estreia}</span></td>
-        <td>${editar}${pubAcao}<span class="acao-link" data-acao="agendar" data-id="${t.id}">Agendar</span>${excluir} ${nota}</td>
+        <td><span class="acao-link" data-acao="visualizar" data-id="${t.id}">Visualizar</span>${editar}${pubAcao}<span class="acao-link" data-acao="agendar" data-id="${t.id}">Agendar</span>${excluir} ${nota}</td>
       </tr>`
             })
             .join('') ||
@@ -2512,6 +2512,119 @@
         return md.trim()
       }
 
+      // Escapa texto autoral antes de injetar no HTML do diálogo: um "<" ou "&"
+      // no devocional não deve quebrar o layout nem ser interpretado como tag.
+      function escHtml(s) {
+        return String(s == null ? '' : s).replace(
+          /[&<>"']/g,
+          c =>
+            ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;'
+            })[c]
+        )
+      }
+
+      // Um bloco de dia de trilha, legível (espelha o BlocosTrilha do app).
+      function blocoTrilhaHTML(b) {
+        if (b.tipo === 'texto')
+          return `<p class="dtexto" style="white-space:pre-wrap">${escHtml(b.texto || '')}</p>`
+        if (b.tipo === 'referencia')
+          return `<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0">
+            <span style="color:var(--ink-3);font-size:11px;letter-spacing:1px">${escHtml(b.ref || '')}</span>
+            ${b.texto ? `<p class="dtexto" style="margin:4px 0 0">${escHtml(b.texto)}</p>` : ''}
+          </div>`
+        if (b.tipo === 'link')
+          return `<p class="dtexto"><a href="${escHtml(b.url || '')}" target="_blank" rel="noopener">${escHtml(b.rotulo || b.url || 'Abrir')}</a></p>`
+        return ''
+      }
+
+      // Molde comum do diálogo de visualização: título + carregando, e um render
+      // final com botão Fechar. Reusa o overlay/#dialogo do painel.
+      function abrirVisualizacao(tituloTexto) {
+        const fechar =
+          '<div class="dacoes"><button data-r="fechar">Fechar</button></div>'
+        $('#dialogo').innerHTML =
+          `<h2>${escHtml(tituloTexto)}</h2><p class="dtexto">Carregando…</p>`
+        $('#overlay').classList.remove('oculto')
+        return html => {
+          $('#dialogo').innerHTML = html + fechar
+          $('#dialogo')
+            .querySelector('[data-r="fechar"]')
+            .addEventListener('click', fecharDialogo)
+        }
+      }
+
+      // Visualizar uma trilha dia a dia (funciona para publicadas também).
+      async function verTrilha(id) {
+        const render = abrirVisualizacao('Trilha')
+        try {
+          const t = await api('/v1/admin/trilhas/' + id)
+          const cab =
+            `<h2>${escHtml(t.titulo)}</h2>` +
+            `<p class="dtexto">${escHtml(t.autor || '')}${t.tema ? ' · ' + escHtml(t.tema) : ''} · ${t.dias} dias</p>` +
+            (t.descricao ? `<p class="dtexto">${escHtml(t.descricao)}</p>` : '')
+          const dias =
+            (t.conteudo || [])
+              .map(d => {
+                const blocos = (d.blocos || []).map(blocoTrilhaHTML).join('')
+                const pergunta = d.pergunta
+                  ? `<p style="color:var(--ink-3);font-size:11px;letter-spacing:1px;margin-top:10px">PERGUNTA</p><p class="dtexto" style="margin-top:2px">${escHtml(d.pergunta)}</p>`
+                  : ''
+                return `<div style="border-top:1px solid var(--line);padding-top:12px;margin-top:12px">
+                  <p style="color:var(--ink-3);font-size:11px;letter-spacing:1px">DIA ${d.ordem}</p>
+                  <h3 style="margin:2px 0 8px">${escHtml(d.titulo)}</h3>
+                  ${blocos}${pergunta}</div>`
+              })
+              .join('') || '<p class="dtexto">Sem dias.</p>'
+          render(cab + `<div style="max-height:60vh;overflow:auto">${dias}</div>`)
+        } catch (e) {
+          render('<p class="dtexto">Não consegui carregar a trilha.</p>')
+        }
+      }
+
+      // Visualizar uma estação dia a dia. Cada dia tem uma linha por disciplina,
+      // então agrupa por ordem antes de mostrar.
+      async function verEstacao(id) {
+        const render = abrirVisualizacao('Estação')
+        try {
+          const e = await api('/v1/admin/estacoes/' + id)
+          const cab =
+            `<h2>${escHtml(e.nome)}</h2>` +
+            `<p class="dtexto">${e.tema ? escHtml(e.tema) + ' · ' : ''}${e.dias} dias</p>` +
+            (e.descricao ? `<p class="dtexto">${escHtml(e.descricao)}</p>` : '')
+          const porDia = {}
+          for (const it of e.conteudo || []) {
+            ;(porDia[it.ordem] = porDia[it.ordem] || []).push(it)
+          }
+          const ordens = Object.keys(porDia)
+            .map(Number)
+            .sort((a, b) => a - b)
+          const dias =
+            ordens
+              .map(ord => {
+                const itens = porDia[ord]
+                  .map(
+                    it => `<div style="margin-top:8px">
+                      <p style="color:var(--ink-3);font-size:11px;letter-spacing:1px">${escHtml((it.disciplinaCodigo || '').toUpperCase())}</p>
+                      <p style="color:var(--ink);font-weight:600;margin:2px 0">${escHtml(it.titulo)}</p>
+                      <p class="dtexto" style="white-space:pre-wrap;margin-top:2px">${escHtml(it.corpo)}</p>
+                    </div>`
+                  )
+                  .join('')
+                return `<div style="border-top:1px solid var(--line);padding-top:12px;margin-top:12px">
+                  <p style="color:var(--ink-3);font-size:11px;letter-spacing:1px">DIA ${ord}</p>${itens}</div>`
+              })
+              .join('') || '<p class="dtexto">Sem dias.</p>'
+          render(cab + `<div style="max-height:60vh;overflow:auto">${dias}</div>`)
+        } catch (err) {
+          render('<p class="dtexto">Não consegui carregar a estação.</p>')
+        }
+      }
+
       async function renderEstacoes() {
         const estacoes = await api('/v1/admin/estacoes')
         const corpo = $('#es-tabela').querySelector('tbody')
@@ -2528,7 +2641,7 @@
               return `<tr>
         <td style="color:var(--ink)">${e.nome}</td><td>${e.tema || '—'}</td><td>${e.dias}</td>
         <td><span class="badge ${s.cls}">${s.txt}</span><span style="color:var(--ink-3);font-size:11px">${estreia}</span></td>
-        <td>${pubAcao}<span class="acao-link" data-acao="agendar" data-id="${e.id}">Agendar</span><span class="acao-link perigo" data-acao="excluir" data-id="${e.id}" data-nome="${e.nome}">Excluir</span></td>
+        <td><span class="acao-link" data-acao="visualizar" data-id="${e.id}">Visualizar</span>${pubAcao}<span class="acao-link" data-acao="agendar" data-id="${e.id}">Agendar</span><span class="acao-link perigo" data-acao="excluir" data-id="${e.id}" data-nome="${e.nome}">Excluir</span></td>
       </tr>`
             })
             .join('') ||
@@ -3017,6 +3130,10 @@
         const id = el.dataset.id,
           acao = el.dataset.acao
         try {
+          if (acao === 'visualizar') {
+            await verTrilha(id)
+            return
+          }
           if (acao === 'editar') {
             const t = await api('/v1/admin/trilhas/' + id)
             $('#tr-md').value = trilhaParaMarkdown(t)
@@ -3112,6 +3229,10 @@
         const id = el.dataset.id,
           acao = el.dataset.acao
         try {
+          if (acao === 'visualizar') {
+            await verEstacao(id)
+            return
+          }
           if (acao === 'publicar') {
             await api('/v1/admin/estacoes/' + id, {
               method: 'PATCH',
