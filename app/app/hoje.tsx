@@ -110,7 +110,8 @@ export default function Hoje() {
   useViradaDoDia(useCallback(() => {
     const dref = diaDevocional();
     setDataRef(dref);
-    regadasHoje(dref).then((ids) => setRegadas(new Set(ids))).catch(() => {});
+    // regadasHoje é síncrono no nativo e assíncrono na web; Promise.resolve cobre os dois.
+    Promise.resolve(regadasHoje(dref)).then((ids) => setRegadas(new Set(ids))).catch(() => {});
     qc.invalidateQueries({ queryKey: ['estacao-andamento'] });
     qc.invalidateQueries({ queryKey: ['constancia'] });
   }, [qc]));

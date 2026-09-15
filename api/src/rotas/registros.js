@@ -2,6 +2,7 @@
 
 const { z } = require('zod');
 const { idValido } = require('../lib/id');
+const { indiceCego } = require('../lib/cripto');
 
 // O id vem do celular. Ele é aceito, mas validado: precisa ser UUID v7.
 const idDoCliente = z.string().refine(idValido, 'Id precisa ser um UUID versão 7.');
@@ -113,24 +114,55 @@ module.exports = async function rotasRegistros(app) {
    * no aparelho, contra a cópia local. Na web, filtra-se por tag e referência.
    */
   app.get('/diario', async (req) => {
+    const DATA = /^\d{4}-\d{2}-\d{2}$/;
     const q = z.object({
       tag: z.string().trim().min(1).max(30).optional(),
-      antes: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use AAAA-MM-DD.').optional(),
+      // Referência é metadado público (aparece no cartão): dá para filtrar no
+      // servidor sem ferir a regra de não ler o texto do diário.
+      ref: z.string().trim().min(1).max(60).optional(),
+      origem: z.enum(['trilha', 'livre']).optional(),
+      desde: z.string().regex(DATA, 'Use AAAA-MM-DD.').optional(),   // >= (início do período)
+      antes: z.string().regex(DATA, 'Use AAAA-MM-DD.').optional(),   // <  (cursor antigo)
+      deslocamento: z.coerce.number().int().min(0).default(0),
       limite: z.coerce.number().int().min(1).max(100).default(30),
     }).parse(req.query);
 
-    if (q.tag) return Anotacao.porTag(req.user.sub, q.tag);
-
     const { Op } = app.db.Sequelize;
     const where = { usuarioId: req.user.sub };
-    if (q.antes) where.dataRef = { [Op.lt]: q.antes };
+    // Tag pelo índice cego: o servidor compara sem saber qual é.
+    if (q.tag) where.tagsCegas = { [Op.contains]: [indiceCego(q.tag)] };
+    if (q.ref) where.referencia = { [Op.iLike]: `%${q.ref}%` };
+    if (q.origem === 'trilha') where.trilhaId = { [Op.ne]: null };
+    else if (q.origem === 'livre') where.trilhaId = { [Op.is]: null };
+    if (q.desde || q.antes) {
+      where.dataRef = {};
+      if (q.desde) where.dataRef[Op.gte] = q.desde;
+      if (q.antes) where.dataRef[Op.lt] = q.antes;
+    }
 
     return Anotacao.findAll({
       where,
       include: [{ association: 'trilha', attributes: ['id', 'titulo'] }],
       order: [['dataRef', 'DESC'], ['criado_em', 'DESC']],
       limit: q.limite,
+      offset: q.deslocamento,
     });
+  });
+
+  /**
+   * Contagem de anotações por mês, para o "canteiro" (a visão-mapa do diário).
+   * É só metadado (data e total), nunca o texto — segue a regra de o servidor não
+   * ler o diário. Definida ANTES de /diario/:id para "meses" não virar um id.
+   */
+  app.get('/diario/meses', async (req) => {
+    return app.db.sequelize.query(
+      `SELECT to_char(data_ref, 'YYYY-MM') AS mes, COUNT(*)::int AS total
+         FROM anotacao
+        WHERE usuario_id = :uid
+        GROUP BY 1
+        ORDER BY 1 ASC`,
+      { replacements: { uid: req.user.sub }, type: app.db.sequelize.QueryTypes.SELECT }
+    );
   });
 
   /**
