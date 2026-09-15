@@ -1,7 +1,7 @@
 'use strict';
 
 const { z } = require('zod');
-const { chavePublica, estaLigado } = require('../lib/push');
+const { chavePublica, estaLigado, enviar } = require('../lib/push');
 
 // O que o navegador entrega ao assinar: PushSubscription.toJSON().
 const assinatura = z.object({
@@ -66,6 +66,37 @@ module.exports = async function rotasLembretes(app) {
     const { endpoint } = z.object({ endpoint: z.string().url() }).parse(req.body);
     await AssinaturaPush.destroy({ where: { endpoint, usuarioId: req.user.sub } });
     return { ok: true };
+  });
+
+  /**
+   * Enviar um push de teste AGORA para os aparelhos desta pessoa, ignorando o
+   * horário e as condições da remessa diária. Serve para conferir na hora se a
+   * assinatura e o service worker estão de pé. Não toca no diário — texto fixo.
+   * Rate limit apertado para não virar um canal de spam para si mesmo.
+   */
+  app.post('/lembretes/testar', {
+    config: { rateLimit: { max: 6, timeWindow: '1 minute' } },
+  }, async (req, reply) => {
+    const assinaturas = await AssinaturaPush.findAll({ where: { usuarioId: req.user.sub } });
+    if (assinaturas.length === 0) {
+      return reply.code(409).send({ erro: 'sem_assinatura', mensagem: 'Ligue o lembrete neste aparelho antes de testar.' });
+    }
+    const payload = {
+      titulo: 'O meu jardim',
+      corpo: 'Teste de lembrete. Se você está lendo isto, está funcionando.',
+      url: '/hoje',
+      badge: 1,
+    };
+    let entregues = 0;
+    for (const a of assinaturas) {
+      const r = await enviar(a, payload);
+      if (r === 'ok') { entregues++; await a.update({ ultimoEnvioEm: new Date() }); }
+      else if (r === 'expirada') { await a.destroy(); }  // navegador cancelou: some
+    }
+    if (entregues === 0) {
+      return reply.code(502).send({ erro: 'nao_entregue', mensagem: 'Não consegui entregar. A assinatura pode ter expirado; desligue e ligue o lembrete de novo.' });
+    }
+    return { ok: true, entregues };
   });
 
   /**

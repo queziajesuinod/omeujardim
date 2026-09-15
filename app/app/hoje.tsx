@@ -4,7 +4,7 @@
 // destaque de /v1/constancia, e regar grava LOCAL na hora pela fila offline,
 // sem a tela esperar a rede. O que subiu ou não fica por conta da fila.
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, View, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
@@ -29,6 +29,7 @@ import { lerPreferencia, gravarPreferencia } from '../lib/preferencia';
 import { enviarBruto } from '../lib/api';
 import { diaDevocional } from '../lib/id';
 import { useViradaDoDia } from '../lib/virada-dia';
+import { atualizarBadge } from '../lib/lembrete';
 import { espaco, forma, tipo } from '../tema/tema';
 
 const CHAVE_CONVITE = 'jd_convite_lembrete';
@@ -65,6 +66,12 @@ export default function Hoje() {
 
   const [regadas, setRegadas] = useState<Set<string>>(new Set());
   const [mostrarConvite, setMostrarConvite] = useState(false);
+
+  // Número no ícone do PWA: quantas práticas de hoje ainda faltam. Some ao zerar.
+  const pendentesHoje = (praticas.data ?? []).filter(
+    (p) => p.diasSemana.includes(diaSemana) && !regadas.has(p.id)
+  ).length;
+  useEffect(() => { atualizarBadge(pendentesHoje); }, [pendentesHoje]);
   const [perguntarDiario, setPerguntarDiario] = useState<Pratica | null>(null);
   const [desmarcar, setDesmarcar] = useState<Pratica | null>(null);
 

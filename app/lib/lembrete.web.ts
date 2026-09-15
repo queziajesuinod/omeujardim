@@ -103,6 +103,24 @@ export async function desligarLembrete(): Promise<void> {
   await assinatura.unsubscribe().catch(() => {});
 }
 
+// Dispara um push de teste agora para este aparelho, sem esperar o horário. Útil
+// para conferir na hora que o pipeline (assinatura + service worker) está de pé.
+export async function testarLembrete(): Promise<{ entregues: number }> {
+  return chamar('/v1/lembretes/testar', 'POST', {}) as Promise<{ entregues: number }>;
+}
+
+// O número no ícone do PWA instalado (Badging API). Reflete o que ainda falta
+// hoje; some quando zera. Enfeite: navegador sem suporte simplesmente ignora.
+export function atualizarBadge(pendentes: number): void {
+  try {
+    if (typeof navigator === 'undefined' || !('setAppBadge' in navigator)) return;
+    if (pendentes > 0) (navigator as any).setAppBadge(pendentes);
+    else (navigator as any).clearAppBadge?.();
+  } catch {
+    // sem suporte a badge: silencioso.
+  }
+}
+
 // --- Instalar o PWA -------------------------------------------------------
 
 let promptInstalar: any = null;

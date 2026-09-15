@@ -35,14 +35,24 @@ self.addEventListener('push', (evento) => {
   const url = dados.url || '/hoje';
 
   evento.waitUntil(
-    self.registration.showNotification(titulo, {
-      body: corpo,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      tag: 'lembrete-diario',        // uma por dia: uma nova substitui, não empilha
-      renotify: false,
-      data: { url },
-    })
+    (async () => {
+      await self.registration.showNotification(titulo, {
+        body: corpo,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',   // ícone monocromático da bandeja (não é o número)
+        tag: 'lembrete-diario',  // uma por dia: uma nova substitui, não empilha
+        renotify: false,
+        data: { url },
+      });
+      // Número no ícone do app instalado (Badging API). Guardado: nem todo
+      // navegador tem, e é enfeite — se faltar, o lembrete já cumpriu o papel.
+      try {
+        const n = Number(dados.badge);
+        if (self.navigator && 'setAppBadge' in self.navigator && Number.isFinite(n) && n > 0) {
+          await self.navigator.setAppBadge(n);
+        }
+      } catch (e) {}
+    })()
   );
 });
 

@@ -22,7 +22,7 @@ import { useEu, exportarDados, useRevogarConsentimento, useExcluirConta, useAtua
 import { useAssinatura, useInvalidarAssinatura, cancelarAssinatura, trocarParaPix, reais, dataBR } from '../lib/assinatura';
 import { salvarInicioDia, horaDe } from '../lib/inicio-dia';
 import {
-  suportaPush, estadoLembrete, ligarLembrete, desligarLembrete,
+  suportaPush, estadoLembrete, ligarLembrete, desligarLembrete, testarLembrete,
   ligarWhatsapp, desligarWhatsapp, ehDispositivoApple, estaInstalado,
   type EstadoLembrete,
 } from '../lib/lembrete';
@@ -76,6 +76,9 @@ function SecaoLembretes() {
   const [zapRecado, setZapRecado] = useState<string | null>(null);
   const temZap = !!eu.data?.whatsappOptInEm;
 
+  const [testando, setTestando] = useState(false);
+  const [testeRecado, setTesteRecado] = useState<string | null>(null);
+
   useEffect(() => { estadoLembrete().then(setEstado); }, []);
   useEffect(() => { if (eu.data?.whatsappNumero) setNumero(eu.data.whatsappNumero); }, [eu.data?.whatsappNumero]);
 
@@ -86,6 +89,19 @@ function SecaoLembretes() {
       else setEstado(await ligarLembrete());
     } finally {
       setOcupado(false);
+    }
+  }
+
+  async function testar() {
+    setTestando(true);
+    setTesteRecado(null);
+    try {
+      const r = await testarLembrete();
+      setTesteRecado(r.entregues > 0 ? 'Enviado. Deve chegar em instantes.' : 'Não consegui entregar. Desligue e ligue o lembrete de novo.');
+    } catch {
+      setTesteRecado('Não consegui enviar o teste agora.');
+    } finally {
+      setTestando(false);
     }
   }
 
@@ -149,6 +165,19 @@ function SecaoLembretes() {
           prévia nunca mostra o que você escreve.
         </Text>
       )}
+
+      {estado === 'ligado' ? (
+        <>
+          <Pressable onPress={testar} disabled={testando}>
+            <Text style={[tipo.u3, { color: c.brand, textAlign: 'center', paddingVertical: espaco.e2 }]}>
+              {testando ? 'Enviando…' : 'Enviar um teste agora'}
+            </Text>
+          </Pressable>
+          {testeRecado ? (
+            <Text style={[tipo.u4, { color: c.ink3, textAlign: 'center' }]}>{testeRecado}</Text>
+          ) : null}
+        </>
+      ) : null}
 
       <View style={[estilos.cartao, { backgroundColor: c.surface, borderColor: c.line, marginTop: espaco.e2 }]}>
         <Text style={[tipo.u2, { color: c.ink }]}>Prefere por WhatsApp?</Text>

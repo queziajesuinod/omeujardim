@@ -172,6 +172,9 @@ async function rodar(agora = new Date()) {
         titulo: 'O meu jardim',
         corpo: `${trilha.tituloTrilha}: ${trilha.tituloDia}`,
         url: `/trilha?id=${trilha.trilhaId}`,
+        // `badge` vira o número no ícone do PWA. Valor inicial; o app recalcula o
+        // real (práticas pendentes) assim que abre.
+        badge: 1,
       };
     } else {
       // Sem trilha pendente: só cutuca quem tem prática por fazer hoje.
@@ -182,6 +185,7 @@ async function rodar(agora = new Date()) {
         titulo: 'O meu jardim',
         corpo: textoDoLembrete(usuario.id, new Date(`${dataDev}T12:00:00Z`)),
         url: '/hoje',
+        badge: praticasHoje.length,
       };
     }
 

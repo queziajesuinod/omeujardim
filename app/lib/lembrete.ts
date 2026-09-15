@@ -30,6 +30,13 @@ export async function ligarLembrete(): Promise<EstadoLembrete> {
 
 export async function desligarLembrete(): Promise<void> {}
 
+// Só fazem sentido na web (ver lembrete.web.ts). No nativo, sem push nesta fatia.
+export async function testarLembrete(): Promise<{ entregues: number }> {
+  return { entregues: 0 };
+}
+
+export function atualizarBadge(_pendentes: number): void {}
+
 export function podeInstalar(): boolean {
   return false;
 }
