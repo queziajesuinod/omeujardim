@@ -4,10 +4,11 @@
 // dia certo, mesmo sem acertar a palavra. Quando o servidor não tem o modelo,
 // ela ainda funciona por palavra, e a tela diz honestamente qual modo rodou.
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { BarraNavegacao } from '../componentes/BarraNavegacao';
 import { Cabecalho } from '../componentes/Cabecalho';
@@ -28,11 +29,21 @@ function dataCriacao(iso: string) {
 
 export default function Trilhas() {
   const c = useCores();
+  const qc = useQueryClient();
   const trilhas = useTrilhas();
   const minhas = useMinhasTrilhas();
   const progresso = new Map((minhas.data ?? []).map((p) => [p.trilhaId, p]));
   const maxLargura = useLarguraConteudo();
   const hoje = diaDevocional();
+
+  // A cada foco, revalida o progresso das trilhas: recomputa o dia devocional
+  // (corte 4h), então o dia atual de cada trilha e o "em breve" acompanham a
+  // virada do dia sem depender de remontar a tela.
+  useFocusEffect(
+    useCallback(() => {
+      qc.invalidateQueries({ queryKey: ['minhas-trilhas'] });
+    }, [qc])
+  );
 
   const [q, setQ] = useState('');
   const [buscando, setBuscando] = useState(false);

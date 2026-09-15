@@ -8,10 +8,11 @@
 // não some nem fica vermelho: vira uma semente a resgatar, que a pessoa escolhe
 // quando regar. Nada murcha por ausência — princípio da marca, em CLAUDE.md.
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import Svg, { Path } from 'react-native-svg';
 import { Botao } from '../componentes/Botao';
 import { Cabecalho } from '../componentes/Cabecalho';
@@ -39,10 +40,20 @@ export default function Trilha() {
   // Qual semente está aberta para leitura. Resgatar não rega de cara: primeiro
   // abre o dia por inteiro, e a rega só acontece pelo botão dentro da leitura.
   const [aberta, setAberta] = useState<number | null>(null);
+  const qc = useQueryClient();
   const trilha = useTrilha(trilhaId);
   const and = useAndamento(trilhaId);
   const participar = useParticipar(trilhaId ?? '');
   const regar = useRegarTrilha(trilhaId ?? '');
+
+  // A cada foco, revalida o andamento: o queryFn recomputa o dia devocional
+  // (corte às 4h), então cruzar o início do dia com o app aberto avança o dia da
+  // trilha ao voltar — sem depender de remontar a tela.
+  useFocusEffect(
+    useCallback(() => {
+      if (trilhaId) qc.invalidateQueries({ queryKey: ['andamento', trilhaId] });
+    }, [qc, trilhaId])
+  );
 
   if (trilha.isLoading || and.isLoading) {
     return (

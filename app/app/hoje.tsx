@@ -56,7 +56,10 @@ export default function Hoje() {
   const constancia = useConstancia(30);
   const estacao = useAndamentoEstacao();
 
-  const dataRef = useMemo(() => diaDevocional(), []);
+  // O dia devocional (corte às 4h, não meia-noite). É estado, não memo fixo:
+  // recalcula a cada foco, então cruzar o início do dia com o app aberto passa a
+  // mostrar o dia novo ao voltar — práticas, data e dia da semana juntos.
+  const [dataRef, setDataRef] = useState(() => diaDevocional());
   const diaSemana = useMemo(() => new Date(`${dataRef}T12:00:00`).getDay(), [dataRef]);
 
   const [regadas, setRegadas] = useState<Set<string>>(new Set());
@@ -70,10 +73,14 @@ export default function Hoje() {
   useFocusEffect(
     useCallback(() => {
       let vivo = true;
+      // Recalcula o dia devocional agora: se cruzou as 4h com o app aberto, ao
+      // voltar a tela já está no dia certo (e o resto da UI acompanha via estado).
+      const dref = diaDevocional();
+      setDataRef(dref);
       prepararBanco();
       (async () => {
         try {
-          const ids = await regadasHoje(dataRef);
+          const ids = await regadasHoje(dref);
           if (vivo) setRegadas(new Set(ids));
         } catch {
           // banco local ainda não pronto: começa vazio, sem drama.
@@ -83,7 +90,7 @@ export default function Hoje() {
         .then(() => qc.invalidateQueries({ queryKey: ['constancia'] }))
         .catch(() => {});
       return () => { vivo = false; };
-    }, [dataRef, qc])
+    }, [qc])
   );
 
   function atualizarContagens() {
@@ -161,7 +168,7 @@ export default function Hoje() {
         <View style={estilos.topo}>
           <View style={{ flex: 1 }}>
             <Text style={[tipo.u4, { color: c.ink3, letterSpacing: 1.3 }]}>
-              {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              {new Date(`${dataRef}T12:00:00`).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </Text>
             <Text style={[tipo.d3, { color: c.ink, marginTop: espaco.e2 }]}>
               {saudacao()}{nome ? `, ${nome}` : ''}
